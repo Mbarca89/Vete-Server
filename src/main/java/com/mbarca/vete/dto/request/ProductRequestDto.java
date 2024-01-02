@@ -1,34 +1,23 @@
-package com.mbarca.vete.domain;
+package com.mbarca.vete.dto.request;
 
-public class Product {
-    private Long id;
+public class ProductRequestDto {
     private String name;
     private Double cost;
     private Double price;
     private Integer stock;
-    private Long categoryId;
     private String categoryName;
     private String seller;
 
-    public Product() {
+    public ProductRequestDto() {
     }
 
-    public Product(String name, Double cost, Double price, Integer stock, Long categoryId, String categoryName, String seller) {
+    public ProductRequestDto(String name, Double cost, Double price, Integer stock, String categoryName, String seller) {
         this.name = name;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
-        this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.seller = seller;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -63,14 +52,6 @@ public class Product {
         this.stock = stock;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
     public String getCategoryName() {
         return categoryName;
     }
@@ -79,24 +60,23 @@ public class Product {
         this.categoryName = categoryName;
     }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", cost=" + cost +
-                ", price=" + price +
-                ", stock=" + stock +
-                ", categoryId=" + categoryId +
-                ", categoryName='" + categoryName + '\'' +
-                '}';
-    }
-
     public String getSeller() {
         return seller;
     }
 
     public void setSeller(String seller) {
         this.seller = seller;
+    }
+
+    @Override
+    public String toString() {
+        return "ProductRequestDto{" +
+                "name='" + name + '\'' +
+                ", cost=" + cost +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", categoryName='" + categoryName + '\'' +
+                ", seller='" + seller + '\'' +
+                '}';
     }
 }

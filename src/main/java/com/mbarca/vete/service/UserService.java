@@ -7,5 +7,5 @@ import java.security.NoSuchAlgorithmException;
 
 public interface UserService {
     String createUser (UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException;
-
+    String deleteUser (String name);
 }

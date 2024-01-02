@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS Users (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(64) NOT NULL,
     role VARCHAR(50) NOT NULL
 );
@@ -13,11 +13,13 @@ CREATE TABLE IF NOT EXISTS Category (
 CREATE TABLE IF NOT EXISTS Products (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
+    bar_code LONG UNIQUE,
     cost DECIMAL(10,2) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL,
     category_id LONG NOT NULL,
-    category_name VARCHAR(30) NOT NULL,
+    category_name VARCHAR(50) NOT NULL,
+    seller VARCHAR(50) NOT NULL,
     FOREIGN KEY (category_id) REFERENCES Category(id)
 );
 
@@ -39,6 +41,7 @@ CREATE TABLE IF NOT EXISTS Sales (
     name VARCHAR(50) NOT NULL,
     date VARCHAR(20) NOT NULL,
     client_id LONG,
+    seller VARCHAR(50) NOT NULL,
     FOREIGN KEY (client_id) REFERENCES Clients(id)
 );
 

@@ -6,6 +6,7 @@ import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.repository.UserRepository;
 import com.mbarca.vete.service.UserService;
 import com.mbarca.vete.utils.PasswordHash;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -36,6 +37,15 @@ public class UserServiceImpl implements UserService {
             return "Error al crear el usuario!";
         }
         return "Usuario creado correctamente!";
+    }
+
+    @Override
+    public String deleteUser(String name){
+        Integer response = userRepository.deleteUser(name);
+        if (response.equals(0)) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return "Usuario eliminado correctamente";
     }
 
     private User mapDtoToUser(UserRequestDto userRequestDto) throws NoSuchAlgorithmException {

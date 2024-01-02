@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 public class UserRepositoryImpl implements UserRepository {
 
     private final String CREATE_USER = "INSERT INTO Users (name, password, role) VALUES (?, ?, ?)";
+    private final String DELETE_USER = "DELETE FROM Users WHERE name = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -22,5 +23,10 @@ public class UserRepositoryImpl implements UserRepository {
                 user.getName(),
                 user.getPassword(),
                 user.getRole());
+    }
+
+    @Override
+    public Integer deleteUser(String name){
+        return jdbcTemplate.update(DELETE_USER, name);
     }
 }
