@@ -7,17 +7,19 @@ public class ProductRequestDto {
     private Integer stock;
     private String categoryName;
     private String seller;
+    private String provider;
 
     public ProductRequestDto() {
     }
 
-    public ProductRequestDto(String name, Double cost, Double price, Integer stock, String categoryName, String seller) {
+    public ProductRequestDto(String name, Double cost, Double price, Integer stock, String categoryName, String seller, String provider) {
         this.name = name;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
         this.categoryName = categoryName;
         this.seller = seller;
+        this.provider = provider;
     }
 
     public String getName() {
@@ -68,6 +70,13 @@ public class ProductRequestDto {
         this.seller = seller;
     }
 
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
     @Override
     public String toString() {
         return "ProductRequestDto{" +
@@ -79,4 +88,5 @@ public class ProductRequestDto {
                 ", seller='" + seller + '\'' +
                 '}';
     }
+
 }

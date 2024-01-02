@@ -9,10 +9,12 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
+
 @Repository
 public class ProductRepositoryImpl implements ProductRepository {
 
-    private final String CREATE_PRODUCT = "INSERT INTO products (name, cost, price, stock, category_id, category_name, seller) VALUES (?,?,?,?,?,?,?)";
+    private final String CREATE_PRODUCT = "INSERT INTO products (name, cost, price, stock, category_id, category_name, seller, provider) VALUES (?,?,?,?,?,?,?,?)";
     private final String GET_ALL_PRODUCTS = "SELECT * FROM products";
     private final String GET_CATEGORY = "SELECT * FROM Category WHERE name = ?";
     private final JdbcTemplate jdbcTemplate;
@@ -26,7 +28,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         Object[] params = {product.getCategoryName()};
         int[] types = {1};
 
-        Category category = jdbcTemplate.queryForObject(GET_CATEGORY, params, types, new ExpenseCategoryRowMapper());
+        Category category = jdbcTemplate.queryForObject(GET_CATEGORY, params, types, new CategoryRowMapper());
 
         return jdbcTemplate.update(CREATE_PRODUCT,
                 product.getName(),
@@ -35,17 +37,37 @@ public class ProductRepositoryImpl implements ProductRepository {
                 product.getStock(),
                 category.getId(),
                 category.getName(),
-                product.getSeller()
+                product.getSeller(),
+                product.getProvider()
                 );
     }
 
-    static class ExpenseCategoryRowMapper implements RowMapper<Category> {
+    @Override
+    public List<Product> getAllProducts () {
+        return jdbcTemplate.query(GET_ALL_PRODUCTS, new ProductRowMapper());
+    }
+
+    static class CategoryRowMapper implements RowMapper<Category> {
         @Override
         public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
             Category category = new Category();
             category.setId(rs.getLong("id"));
             category.setName(rs.getString("name").toLowerCase());
             return category;
+        }
+    }
+
+    static class ProductRowMapper implements RowMapper<Product> {
+        @Override
+        public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
+            Product product = new Product();
+            product.setName(rs.getString("name"));
+            product.setCost(rs.getDouble("cost"));
+            product.setPrice(rs.getDouble("price"));
+            product.setStock(rs.getInt("stock"));
+            product.setCategoryName(rs.getString("category_name"));
+            product.setProvider(rs.getString("provider"));
+            return product;
         }
     }
 

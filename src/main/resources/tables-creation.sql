@@ -20,6 +20,7 @@ CREATE TABLE IF NOT EXISTS Products (
     category_id LONG NOT NULL,
     category_name VARCHAR(50) NOT NULL,
     seller VARCHAR(50) NOT NULL,
+    provider VARCHAR(50) NOT NULL,
     FOREIGN KEY (category_id) REFERENCES Category(id)
 );
 

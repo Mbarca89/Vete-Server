@@ -9,11 +9,12 @@ public class Product {
     private Long categoryId;
     private String categoryName;
     private String seller;
+    private String provider;
 
     public Product() {
     }
 
-    public Product(String name, Double cost, Double price, Integer stock, Long categoryId, String categoryName, String seller) {
+    public Product(String name, Double cost, Double price, Integer stock, Long categoryId, String categoryName, String seller, String provider) {
         this.name = name;
         this.cost = cost;
         this.price = price;
@@ -21,6 +22,7 @@ public class Product {
         this.categoryId = categoryId;
         this.categoryName = categoryName;
         this.seller = seller;
+        this.provider = provider;
     }
 
     public Long getId() {
@@ -79,6 +81,21 @@ public class Product {
         this.categoryName = categoryName;
     }
 
+    public String getSeller() {
+        return seller;
+    }
+
+    public void setSeller(String seller) {
+        this.seller = seller;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
     @Override
     public String toString() {
         return "Product{" +
@@ -92,11 +109,4 @@ public class Product {
                 '}';
     }
 
-    public String getSeller() {
-        return seller;
-    }
-
-    public void setSeller(String seller) {
-        this.seller = seller;
-    }
 }
