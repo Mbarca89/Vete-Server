@@ -1,6 +1,6 @@
 package com.mbarca.vete.config;
 
-import com.mbarca.vete.repository.AuthRepository;
+import com.mbarca.vete.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -14,8 +14,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class ApplicationConfiguration {
 
-    private final AuthRepository authRepository;
-    public ApplicationConfiguration (AuthRepository authRepository) {this.authRepository = authRepository;}
+    private final UserRepository userRepository;
+    public ApplicationConfiguration (UserRepository userRepository) {this.userRepository = userRepository;}
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
@@ -37,6 +37,6 @@ public class ApplicationConfiguration {
 
     @Bean
     public UserDetailsService userDetailService() {
-        return authRepository::findUserByName;
+        return userRepository::findUserByName;
     }
 }

@@ -2,7 +2,6 @@ package com.mbarca.vete.controller;
 
 import com.mbarca.vete.dto.request.LoginRequestDto;
 import com.mbarca.vete.dto.response.AuthResponseDto;
-import com.mbarca.vete.dto.response.UserResponseDto;
 import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.service.AuthService;
 import org.springframework.http.HttpStatus;

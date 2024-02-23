@@ -3,12 +3,13 @@ package com.mbarca.vete.dto.response;
 public class UserResponseDto {
     String userName;
     String role;
-    String token;
 
     public UserResponseDto(String userName, String role, String token) {
         this.userName = userName;
         this.role = role;
-        this.token = token;
+    }
+
+    public UserResponseDto() {
     }
 
 
@@ -28,11 +29,4 @@ public class UserResponseDto {
         this.role = role;
     }
 
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
 }

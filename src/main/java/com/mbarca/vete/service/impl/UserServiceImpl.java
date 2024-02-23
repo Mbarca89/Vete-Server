@@ -2,6 +2,7 @@ package com.mbarca.vete.service.impl;
 
 import com.mbarca.vete.domain.User;
 import com.mbarca.vete.dto.request.UserRequestDto;
+import com.mbarca.vete.dto.response.UserResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.repository.UserRepository;
 import com.mbarca.vete.service.UserService;
@@ -10,7 +11,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 @Service
 public class UserServiceImpl implements UserService {
 
@@ -50,6 +54,12 @@ public class UserServiceImpl implements UserService {
         return "Usuario eliminado correctamente";
     }
 
+    @Override
+    public List<UserResponseDto> getUsers() {
+        List<User> users = userRepository.getUsers();
+        return users.stream().map(this::mapUserToDto).collect(Collectors.toList());
+    }
+
     private User mapDtoToUser(UserRequestDto userRequestDto) throws NoSuchAlgorithmException {
 
         String hashedPassword = passwordEncoder.encode(userRequestDto.getPassword());
@@ -59,6 +69,13 @@ public class UserServiceImpl implements UserService {
         user.setPassword(hashedPassword);
         user.setRole(userRequestDto.getRole());
         return user;
+    }
+
+    private UserResponseDto mapUserToDto (User user) {
+        UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setRole(user.getRole());
+        userResponseDto.setUserName(user.getUserName());
+        return userResponseDto;
     }
 }
 

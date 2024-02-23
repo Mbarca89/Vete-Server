@@ -23,7 +23,6 @@ public class JwtServiceImpl implements JwtService {
 
     @Override
     public String getToken(UserDetails user) {
-        System.out.println(user);
         return getToken(new HashMap<>(), user);
     }
 
@@ -60,7 +59,6 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private String getToken(Map<String,Object> extraClaims, UserDetails user) {
-        System.out.println(user.getUsername());
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
