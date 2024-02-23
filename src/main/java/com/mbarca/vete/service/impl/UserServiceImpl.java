@@ -5,8 +5,8 @@ import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.repository.UserRepository;
 import com.mbarca.vete.service.UserService;
-import com.mbarca.vete.utils.PasswordHash;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -15,16 +15,18 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     public String createUser(UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException {
-        if (userRequestDto.getName() == null ||
+        if (userRequestDto.getUserName() == null ||
                 userRequestDto.getPassword() == null ||
-                userRequestDto.getRole() == null || Objects.equals(userRequestDto.getName(), "")
+                userRequestDto.getRole() == null || Objects.equals(userRequestDto.getUserName(), "")
                 || Objects.equals(userRequestDto.getPassword(), "") ||
                 Objects.equals(userRequestDto.getRole(), "")) {
             throw new MissingDataException("Faltan datos!");
@@ -50,10 +52,10 @@ public class UserServiceImpl implements UserService {
 
     private User mapDtoToUser(UserRequestDto userRequestDto) throws NoSuchAlgorithmException {
 
-        String hashedPassword = PasswordHash.hashPassword(userRequestDto.getPassword());
+        String hashedPassword = passwordEncoder.encode(userRequestDto.getPassword());
 
         User user = new User();
-        user.setName(userRequestDto.getName());
+        user.setUserName(userRequestDto.getUserName());
         user.setPassword(hashedPassword);
         user.setRole(userRequestDto.getRole());
         return user;

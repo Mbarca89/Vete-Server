@@ -5,4 +5,5 @@ import com.mbarca.vete.domain.User;
 public interface UserRepository {
     Integer createUser(User user);
     Integer deleteUser(String name);
+
 }

@@ -20,7 +20,7 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Integer createUser(User user) {
         return jdbcTemplate.update(CREATE_USER,
-                user.getName(),
+                user.getUserName(),
                 user.getPassword(),
                 user.getRole());
     }
