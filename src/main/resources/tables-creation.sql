@@ -21,7 +21,9 @@ CREATE TABLE IF NOT EXISTS Products (
     category_name VARCHAR(50) NOT NULL,
     seller VARCHAR(50) NOT NULL,
     provider VARCHAR(50) NOT NULL,
-    FOREIGN KEY (category_id) REFERENCES Category(id)
+    provider_id LONG NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES Category(id),
+    FOREIGN KEY (provider_id) REFERENCES Providers(id)
 );
 
 CREATE TABLE IF NOT EXISTS Pets (
@@ -37,6 +39,7 @@ CREATE TABLE IF NOT EXISTS Clients (
     pet_name VARCHAR(50) NOT NULL,
     FOREIGN KEY (pet_id) REFERENCES Pets(id)
 );
+
 CREATE TABLE IF NOT EXISTS Sales (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
@@ -54,3 +57,10 @@ CREATE TABLE IF NOT EXISTS SalesProducts (
     FOREIGN KEY (sale_id) REFERENCES Sales(id),
     FOREIGN KEY (product_id) REFERENCES Products(id)
 );
+
+CREATE TABLE IF NOT EXISTS Providers (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    contact_name VARCHAR(50),
+    phone VARCHAR(50)
+)
