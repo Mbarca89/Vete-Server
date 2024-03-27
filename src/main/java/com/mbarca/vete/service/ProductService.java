@@ -10,5 +10,6 @@ import java.util.List;
 public interface ProductService {
     String createProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws MissingDataException;
     List<ProductResponseDto> getAllProducts ();
+    List<ProductResponseDto> getProductsPaginated(int page, int size);
     byte[] compressImage(byte[] imageData) throws IOException;
 }

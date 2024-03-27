@@ -16,6 +16,8 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     private final String CREATE_PRODUCT = "INSERT INTO products (name, cost, price, stock, category_id, category_name, image, seller, provider) VALUES (?,?,?,?,?,?,?,?,?)";
     private final String GET_ALL_PRODUCTS = "SELECT * FROM products";
+
+    private final String GET_PRODUCTS_PAGINATED = "SELECT * FROM products LIMIT ? OFFSET ?";
     private final String GET_CATEGORY = "SELECT * FROM Category WHERE name = ?";
     private final JdbcTemplate jdbcTemplate;
 
@@ -47,7 +49,10 @@ public class ProductRepositoryImpl implements ProductRepository {
     public List<Product> getAllProducts () {
         return jdbcTemplate.query(GET_ALL_PRODUCTS, new ProductRowMapper());
     }
-
+    @Override
+    public List<Product> getProductsPaginated(int limit, int offset) {
+        return jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper());
+    }
     static class CategoryRowMapper implements RowMapper<Category> {
         @Override
         public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -64,6 +69,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             Product product = new Product();
             product.setId(rs.getLong("id"));
             product.setName(rs.getString("name"));
+            product.setDescription(rs.getString("description"));
+            product.setBarCode(rs.getDouble("bar_code"));
             product.setCost(rs.getDouble("cost"));
             product.setPrice(rs.getDouble("price"));
             product.setStock(rs.getInt("stock"));

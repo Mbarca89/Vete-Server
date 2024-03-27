@@ -31,6 +31,7 @@ public class ProductController {
     @PostMapping("/create")
     public ResponseEntity<String> createProductHandler(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("product") String productJson) {
+        System.out.println("producto" + productJson);
         try {
             ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
             byte[] compressedImage = productService.compressImage(file.getBytes());
@@ -43,19 +44,30 @@ public class ProductController {
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error json" + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
 
         }
     }
 
     @CrossOrigin
     @GetMapping("/getProducts")
-    public ResponseEntity<List<ProductResponseDto>> getAllProductsHandler() {
+    public ResponseEntity<?> getAllProductsHandler() {
         try {
             List<ProductResponseDto> products = productService.getAllProducts();
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+    @CrossOrigin
+    @GetMapping("/getProductsPaginated")
+    public ResponseEntity<?> getProductsPaginatedHandler(@RequestParam(defaultValue = "1") int page,
+                                                         @RequestParam(defaultValue = "12") int size) {
+        try {
+            List<ProductResponseDto> products = productService.getProductsPaginated(page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
         }
     }
 }

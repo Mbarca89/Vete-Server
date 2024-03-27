@@ -2,6 +2,8 @@ package com.mbarca.vete.dto.request;
 
 public class ProductRequestDto {
     private String name;
+    private String description;
+    private Double barCode;
     private Double cost;
     private Double price;
     private Integer stock;
@@ -12,8 +14,10 @@ public class ProductRequestDto {
     public ProductRequestDto() {
     }
 
-    public ProductRequestDto(String name, Double cost, Double price, Integer stock, String categoryName, String seller, String provider) {
+    public ProductRequestDto(String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String seller, String provider) {
         this.name = name;
+        this.description = description;
+        this.barCode = barCode;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
@@ -21,6 +25,7 @@ public class ProductRequestDto {
         this.seller = seller;
         this.provider = provider;
     }
+
 
     public String getName() {
         return name;
@@ -89,4 +94,19 @@ public class ProductRequestDto {
                 '}';
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(Double barCode) {
+        this.barCode = barCode;
+    }
 }

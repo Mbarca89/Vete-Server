@@ -27,15 +27,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String createProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws MissingDataException {
-        if(productRequestDto.getName() == null ||
-        productRequestDto.getCost() == null ||
-        productRequestDto.getPrice() == null ||
-        productRequestDto.getStock() == null ||
-        productRequestDto.getCategoryName() == null ||
-        productRequestDto.getSeller() == null ||
-                Objects.equals(productRequestDto.getName(),"") ||
-        Objects.equals(productRequestDto.getCategoryName(),"") ||
-                Objects.equals(productRequestDto.getProvider(),"")
+        System.out.println("nomb" + productRequestDto.getName() + "costo:" + productRequestDto.getCost() + "precio:" + productRequestDto.getPrice() + "stock" + productRequestDto.getStock() + "categoria:" + productRequestDto.getCategoryName());
+        if (productRequestDto.getName() == null ||
+                productRequestDto.getCost() == null ||
+                productRequestDto.getPrice() == null ||
+                productRequestDto.getStock() == null ||
+                productRequestDto.getCategoryName() == null ||
+                Objects.equals(productRequestDto.getName(), "") ||
+                Objects.equals(productRequestDto.getCategoryName(), "") ||
+                Objects.equals(productRequestDto.getProvider(), "")
         ) {
             throw new MissingDataException("Faltan datos!");
         }
@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = mapDtoToProduct(productRequestDto);
         product.setImage(compressedImage);
         Integer response = productRepository.createProduct(product);
-        if (response.equals(0)){
+        if (response.equals(0)) {
             return "Error al crear el producto!";
         }
         return "Producto creado correctamente!";
@@ -55,15 +55,25 @@ public class ProductServiceImpl implements ProductService {
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ProductResponseDto> getProductsPaginated(int page, int size) {
+        int offset = (page - 1) * size;
+        List<Product> products = productRepository.getProductsPaginated(size, offset);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+
     public byte[] compressImage(byte[] imageData) throws IOException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(ImageIO.read(new ByteArrayInputStream(imageData)), "jpg", outputStream);
         return outputStream.toByteArray();
     }
-    private Product mapDtoToProduct(ProductRequestDto productRequestDto){
+
+    private Product mapDtoToProduct(ProductRequestDto productRequestDto) {
 
         Product product = new Product();
         product.setName(productRequestDto.getName());
+        product.setDescription(productRequestDto.getDescription());
+        product.setBarCode(productRequestDto.getBarCode());
         product.setCost(productRequestDto.getCost());
         product.setPrice(productRequestDto.getPrice());
         product.setStock(productRequestDto.getStock());
@@ -73,10 +83,12 @@ public class ProductServiceImpl implements ProductService {
         return product;
     }
 
-    private ProductResponseDto mapProductToDto (Product product){
+    private ProductResponseDto mapProductToDto(Product product) {
         ProductResponseDto productResponseDto = new ProductResponseDto();
         productResponseDto.setId(product.getId());
         productResponseDto.setName(product.getName());
+        productResponseDto.setDescription(product.getDescription());
+        productResponseDto.setBarCode(product.getBarCode());
         productResponseDto.setCost(product.getCost());
         productResponseDto.setPrice(product.getPrice());
         productResponseDto.setImage(product.getImage());
