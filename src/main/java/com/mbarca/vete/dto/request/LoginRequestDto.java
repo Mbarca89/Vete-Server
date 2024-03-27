@@ -15,4 +15,12 @@ public class LoginRequestDto {
     public String getPassword() {
         return password;
     }
+
+    @Override
+    public String toString() {
+        return "LoginRequestDto{" +
+                "userName='" + userName + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
 }

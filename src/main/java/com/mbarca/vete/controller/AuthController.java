@@ -6,10 +6,7 @@ import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.PreparedStatement;
 
@@ -18,15 +15,20 @@ import java.sql.PreparedStatement;
 public class AuthController {
 
     private final AuthService authService;
-    public AuthController(AuthService authService){this.authService = authService;}
+
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
+
+    @CrossOrigin
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequestDto request) {
         AuthResponseDto response = new AuthResponseDto();
         try {
-        response = authService.login(request);
+            response = authService.login(request);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (UserNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

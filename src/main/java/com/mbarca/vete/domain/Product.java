@@ -1,8 +1,12 @@
 package com.mbarca.vete.domain;
-
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Lob;
 public class Product {
     private Long id;
     private String name;
+    private String description;
+    private Double barCode;
     private Double cost;
     private Double price;
     private Integer stock;
@@ -10,6 +14,8 @@ public class Product {
     private String categoryName;
     private String seller;
     private String provider;
+    @Lob
+    private byte[] image;
 
     public Product() {
     }
@@ -109,4 +115,27 @@ public class Product {
                 '}';
     }
 
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(Double barCode) {
+        this.barCode = barCode;
+    }
 }

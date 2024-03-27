@@ -8,8 +8,11 @@ import com.mbarca.vete.service.AuthService;
 import com.mbarca.vete.service.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.Collection;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -32,7 +35,9 @@ public class AuthServiceImpl implements AuthService {
         }
         String token = jwtService.getToken(user);
         AuthResponseDto response = new AuthResponseDto();
+        response.setUserName(user.getUsername());
         response.setToken(token);
+        response.setRole(user.getAuthorities());
         return response;
     }
 }

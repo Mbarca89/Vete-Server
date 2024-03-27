@@ -22,6 +22,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @CrossOrigin
     @PostMapping("/create")
     public ResponseEntity<String> createUserHandler(@RequestBody UserRequestDto userRequestDto) {
         try {
@@ -36,6 +37,7 @@ public class UserController {
         }
     }
 
+    @CrossOrigin
     @DeleteMapping("/delete/{name}")
     public ResponseEntity<String> deleteUserHandler(@PathVariable String name){
         try{
@@ -48,6 +50,7 @@ public class UserController {
         }
     }
 
+    @CrossOrigin
     @GetMapping("/getUsers")
     public ResponseEntity<?> getUsersHandler () {
         try {
@@ -55,6 +58,21 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/edit")
+    public ResponseEntity<String> editUserHandler(@RequestBody UserRequestDto userRequestDto) {
+        try {
+            String response = userService.editUser(userRequestDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (MissingDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (DuplicateKeyException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No existe un usuario con ese nombre!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }

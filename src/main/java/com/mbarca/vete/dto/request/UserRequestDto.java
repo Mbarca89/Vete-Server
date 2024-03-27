@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 public class UserRequestDto implements UserDetails {
+    private String id;
+    private String name;
+    private String surname;
     private String userName;
     private String password;
     private String role;
@@ -64,5 +67,29 @@ public class UserRequestDto implements UserDetails {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }

@@ -1,6 +1,8 @@
 CREATE TABLE IF NOT EXISTS Users (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL UNIQUE,
+    name VARCHAR(50) NOT NULL,
+    surname VARCHAR(50) NOT NULL,
+    user_name VARCHAR(50) NOT NULL UNIQUE,
     password VARCHAR(64) NOT NULL,
     role VARCHAR(50) NOT NULL
 );
@@ -13,6 +15,7 @@ CREATE TABLE IF NOT EXISTS Category (
 CREATE TABLE IF NOT EXISTS Products (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
+    description VARCHAR(255),
     bar_code LONG UNIQUE,
     cost DECIMAL(10,2) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
@@ -22,6 +25,7 @@ CREATE TABLE IF NOT EXISTS Products (
     seller VARCHAR(50) NOT NULL,
     provider VARCHAR(50) NOT NULL,
     provider_id LONG NOT NULL,
+    image BLOB,
     FOREIGN KEY (category_id) REFERENCES Category(id),
     FOREIGN KEY (provider_id) REFERENCES Providers(id)
 );
@@ -29,7 +33,7 @@ CREATE TABLE IF NOT EXISTS Products (
 CREATE TABLE IF NOT EXISTS Pets (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
-    photo VARCHAR(255)
+    image BLOB,
 );
 
 CREATE TABLE IF NOT EXISTS Clients (

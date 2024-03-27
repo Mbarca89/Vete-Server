@@ -4,6 +4,7 @@ import com.mbarca.vete.domain.User;
 import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.UserResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
+import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.repository.UserRepository;
 import com.mbarca.vete.service.UserService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -60,11 +61,30 @@ public class UserServiceImpl implements UserService {
         return users.stream().map(this::mapUserToDto).collect(Collectors.toList());
     }
 
+    public String editUser (UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException {
+        if (userRequestDto.getUserName() == null ||
+                userRequestDto.getRole() == null || Objects.equals(userRequestDto.getUserName(), "")
+                || Objects.equals(userRequestDto.getRole(), "")) {
+            throw new MissingDataException("Faltan datos!");
+        }
+
+        User user = mapDtoToUser(userRequestDto);
+        Integer response = userRepository.editUser(user);
+
+        if (response.equals(0)){
+            return "Error al editar el usuario!";
+        }
+        return "Usuario editado correctamente!";
+    }
+
     private User mapDtoToUser(UserRequestDto userRequestDto) throws NoSuchAlgorithmException {
 
         String hashedPassword = passwordEncoder.encode(userRequestDto.getPassword());
 
         User user = new User();
+        if(userRequestDto.getId() != null) user.setId(Long.valueOf(userRequestDto.getId()));
+        user.setName(userRequestDto.getName());
+        user.setSurname(userRequestDto.getSurname());
         user.setUserName(userRequestDto.getUserName());
         user.setPassword(hashedPassword);
         user.setRole(userRequestDto.getRole());
@@ -73,6 +93,9 @@ public class UserServiceImpl implements UserService {
 
     private UserResponseDto mapUserToDto (User user) {
         UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setId(user.getId());
+        userResponseDto.setName(user.getName());
+        userResponseDto.setSurname(user.getSurname());
         userResponseDto.setRole(user.getRole());
         userResponseDto.setUserName(user.getUserName());
         return userResponseDto;

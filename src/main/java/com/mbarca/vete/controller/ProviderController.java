@@ -20,6 +20,7 @@ public class ProviderController {
         this.providerService = providerService;
     }
 
+    @CrossOrigin
     @PostMapping("/create")
     public ResponseEntity<?> createProviderHandler(@RequestBody ProviderRequestDto providerRequestDto) {
         try {
@@ -32,7 +33,8 @@ public class ProviderController {
         }
     }
 
-    @GetMapping("/getall")
+    @CrossOrigin
+    @GetMapping("/getProviders")
     public ResponseEntity<?> getAllProvidersHandler() {
         try {
             List<ProviderResponseDto> providers = providerService.getAllProviders();
@@ -42,6 +44,7 @@ public class ProviderController {
         }
     }
 
+    @CrossOrigin
     @GetMapping("getbyname/{name}")
     public ResponseEntity<?> getProviderByNameHandler(@PathVariable String name) {
         try {

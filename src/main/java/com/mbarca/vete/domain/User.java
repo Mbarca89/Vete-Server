@@ -9,6 +9,8 @@ import java.util.List;
 
 public class User implements UserDetails {
     private Long id;
+    private String name;
+    private String surname;
     private String userName;
     private String password;
     private String role;
@@ -94,5 +96,21 @@ public class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", role='" + role + '\'' +
                 '}';
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 }

@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public class ProductRepositoryImpl implements ProductRepository {
 
-    private final String CREATE_PRODUCT = "INSERT INTO products (name, cost, price, stock, category_id, category_name, seller, provider) VALUES (?,?,?,?,?,?,?,?)";
+    private final String CREATE_PRODUCT = "INSERT INTO products (name, cost, price, stock, category_id, category_name, image, seller, provider) VALUES (?,?,?,?,?,?,?,?,?)";
     private final String GET_ALL_PRODUCTS = "SELECT * FROM products";
     private final String GET_CATEGORY = "SELECT * FROM Category WHERE name = ?";
     private final JdbcTemplate jdbcTemplate;
@@ -37,6 +37,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 product.getStock(),
                 category.getId(),
                 category.getName(),
+                product.getImage(),
                 product.getSeller(),
                 product.getProvider()
                 );
@@ -61,10 +62,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         @Override
         public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
             Product product = new Product();
+            product.setId(rs.getLong("id"));
             product.setName(rs.getString("name"));
             product.setCost(rs.getDouble("cost"));
             product.setPrice(rs.getDouble("price"));
             product.setStock(rs.getInt("stock"));
+            product.setImage(rs.getBytes("image"));
             product.setCategoryName(rs.getString("category_name"));
             product.setProvider(rs.getString("provider"));
             return product;
