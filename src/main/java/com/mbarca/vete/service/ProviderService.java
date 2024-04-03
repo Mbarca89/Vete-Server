@@ -9,5 +9,6 @@ import java.util.List;
 public interface ProviderService {
     String createProvider (ProviderRequestDto provider) throws MissingDataException;
     List<ProviderResponseDto> getAllProviders ();
+    List<String> getProvidersNames ();
     ProviderResponseDto getProviderByName(String name) throws MissingDataException;
 }

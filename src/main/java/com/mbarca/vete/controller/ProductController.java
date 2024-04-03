@@ -13,6 +13,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -43,6 +44,8 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error" + e.getMessage());
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error json" + e.getMessage());
+        }catch (MaxUploadSizeExceededException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La imagen es demasiado grande");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
 
@@ -55,6 +58,41 @@ public class ProductController {
         try {
             List<ProductResponseDto> products = productService.getAllProducts();
             return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getByCategory")
+    public ResponseEntity<?> getByCategoryHandler(@RequestParam String categoryName,
+                                                  @RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "12") int size) {
+        try {
+            List<ProductResponseDto> products = productService.getByCategory(categoryName, page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getProductCount")
+    public ResponseEntity<?> getProductCountHandler() {
+        try {
+            int count = productService.getProductCount();
+            return ResponseEntity.status(HttpStatus.OK).body(count);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getCategoryCount")
+    public ResponseEntity<?> getCategoryCountHandler(@RequestParam String categoryName) {
+        try {
+            int count = productService.getCategoryCount(categoryName);
+            return ResponseEntity.status(HttpStatus.OK).body(count);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
         }

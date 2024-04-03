@@ -45,6 +45,17 @@ public class ProviderController {
     }
 
     @CrossOrigin
+    @GetMapping("/getProvidersNames")
+    public ResponseEntity<?> getAllProvidersNamesHandler() {
+        try {
+            List<String> providers = providerService.getProvidersNames();
+            return ResponseEntity.status(HttpStatus.OK).body(providers);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @GetMapping("getbyname/{name}")
     public ResponseEntity<?> getProviderByNameHandler(@PathVariable String name) {
         try {

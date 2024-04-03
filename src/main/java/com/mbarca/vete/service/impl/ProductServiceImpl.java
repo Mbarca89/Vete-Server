@@ -7,6 +7,7 @@ import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.repository.ProductRepository;
 import com.mbarca.vete.service.ProductService;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,7 +28,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public String createProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws MissingDataException {
-        System.out.println("nomb" + productRequestDto.getName() + "costo:" + productRequestDto.getCost() + "precio:" + productRequestDto.getPrice() + "stock" + productRequestDto.getStock() + "categoria:" + productRequestDto.getCategoryName());
         if (productRequestDto.getName() == null ||
                 productRequestDto.getCost() == null ||
                 productRequestDto.getPrice() == null ||
@@ -56,20 +56,35 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public List<ProductResponseDto> getByCategory(String categoryName, int page, int size) {
+        int offset = (page - 1) * size;
+        List<Product> products = productRepository.getByCategory(categoryName, size, offset);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public Integer getProductCount() {
+        return productRepository.getProductCount();
+    }
+    @Override
+    public Integer getCategoryCount(String categoryName) {
+        return productRepository.getCategoryCount(categoryName);
+    }
+
+    @Override
     public List<ProductResponseDto> getProductsPaginated(int page, int size) {
         int offset = (page - 1) * size;
         List<Product> products = productRepository.getProductsPaginated(size, offset);
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
     }
 
-    public byte[] compressImage(byte[] imageData) throws IOException {
+    public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(ImageIO.read(new ByteArrayInputStream(imageData)), "jpg", outputStream);
         return outputStream.toByteArray();
     }
 
     private Product mapDtoToProduct(ProductRequestDto productRequestDto) {
-
         Product product = new Product();
         product.setName(productRequestDto.getName());
         product.setDescription(productRequestDto.getDescription());

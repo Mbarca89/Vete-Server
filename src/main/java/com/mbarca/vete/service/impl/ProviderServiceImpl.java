@@ -45,6 +45,11 @@ public class ProviderServiceImpl implements ProviderService {
     }
 
     @Override
+    public List<String> getProvidersNames() {
+        return providerRepository.getProvidersNames();
+    }
+
+    @Override
     public ProviderResponseDto getProviderByName(String name) throws MissingDataException {
         if(name == null || name.isEmpty()) {
             throw new MissingDataException("Faltan datos!");

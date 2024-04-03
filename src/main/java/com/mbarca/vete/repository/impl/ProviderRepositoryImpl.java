@@ -15,6 +15,7 @@ import java.util.List;
 public class ProviderRepositoryImpl implements ProviderRepository {
     private final String CREATE_PROVIDER = "INSERT INTO Providers (name, contact_name, phone) VALUES (?,?,?)";
     private final String GET_ALL_PROVIDERS = "SELECT * FROM Providers";
+    private final String GET_PROVIDERS_NAMES = "SELECT name FROM Providers";
     private final String GET_PROVIDER_BY_NAME = "SELECT * FROM Providers WHERE UPPER(name) = UPPER(?)";
 
     private final JdbcTemplate jdbcTemplate;
@@ -29,13 +30,18 @@ public class ProviderRepositoryImpl implements ProviderRepository {
                 provider.getName(),
                 provider.getContactName(),
                 provider.getPhone()
-                );
+        );
 
     }
 
     @Override
     public List<Provider> getAllProviders() {
         return jdbcTemplate.query(GET_ALL_PROVIDERS, new ProviderRowMapper());
+    }
+
+    @Override
+    public List<String> getProvidersNames() {
+        return jdbcTemplate.queryForList(GET_PROVIDERS_NAMES, String.class);
     }
 
     @Override

@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class JwtServiceImpl implements JwtService {
 
-    private static final String SECREY_KEY="sUdI3HpxjCXjtPrQngVsl6ZAPLQIQp6iSBiXo2arARM/gt67tz98NhHlX5mCZMG+";
+    private static final String SECRET_KEY="sUdI3HpxjCXjtPrQngVsl6ZAPLQIQp6iSBiXo2arARM/gt67tz98NhHlX5mCZMG+";
 
     @Override
     public String getToken(UserDetails user) {
@@ -64,13 +64,13 @@ public class JwtServiceImpl implements JwtService {
                 .setClaims(extraClaims)
                 .setSubject(user.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*720))
+                .setExpiration(new Date(System.currentTimeMillis()+(30L * 24 * 60 * 60 * 1000)))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
     private Key getKey() {
-        byte[] keyBytes= Decoders.BASE64.decode(SECREY_KEY);
+        byte[] keyBytes= Decoders.BASE64.decode(SECRET_KEY);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 }
