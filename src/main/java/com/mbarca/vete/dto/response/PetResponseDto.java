@@ -1,19 +1,19 @@
-package com.mbarca.vete.domain;
+package com.mbarca.vete.dto.response;
 
-import javax.persistence.Lob;
+import java.util.Arrays;
 
-public class Pet {
+public class PetResponseDto {
     private Long id;
     private String name;
-    @Lob
-    private String photo;
+    private byte[] photo;
 
-    public Pet() {
-    }
-
-    public Pet(String name, String photo) {
+    public PetResponseDto(Long id, String name, byte[] photo) {
+        this.id = id;
         this.name = name;
         this.photo = photo;
+    }
+
+    public PetResponseDto() {
     }
 
     public Long getId() {
@@ -32,20 +32,20 @@ public class Pet {
         this.name = name;
     }
 
-    public String getPhoto() {
+    public byte[] getPhoto() {
         return photo;
     }
 
-    public void setPhoto(String photo) {
+    public void setPhoto(byte[] photo) {
         this.photo = photo;
     }
 
     @Override
     public String toString() {
-        return "Pet{" +
+        return "PetResponseDto{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", photo='" + photo + '\'' +
+                ", photo=" + Arrays.toString(photo) +
                 '}';
     }
 }

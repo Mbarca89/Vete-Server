@@ -42,7 +42,7 @@ private final String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
                 product.getStock(),
                 category.getId(),
                 category.getName(),
-                product.getImage(),
+                product.getPhoto(),
                 product.getSeller(),
                 product.getProvider()
                 );
@@ -90,7 +90,7 @@ private final String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
             product.setCost(rs.getDouble("cost"));
             product.setPrice(rs.getDouble("price"));
             product.setStock(rs.getInt("stock"));
-            product.setImage(rs.getBytes("image"));
+            product.setPhoto(rs.getBytes("image"));
             product.setCategoryName(rs.getString("category_name"));
             product.setProvider(rs.getString("provider"));
             return product;

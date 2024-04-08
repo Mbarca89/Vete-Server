@@ -7,25 +7,22 @@ public class ProductRequestDto {
     private Double cost;
     private Double price;
     private Integer stock;
-    private String categoryName;
-    private String seller;
+    private String category;
     private String provider;
 
     public ProductRequestDto() {
     }
 
-    public ProductRequestDto(String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String seller, String provider) {
+    public ProductRequestDto(String name, String description, Double barCode, Double cost, Double price, Integer stock, String category, String provider) {
         this.name = name;
         this.description = description;
         this.barCode = barCode;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
-        this.categoryName = categoryName;
-        this.seller = seller;
+        this.category = category;
         this.provider = provider;
     }
-
 
     public String getName() {
         return name;
@@ -33,6 +30,22 @@ public class ProductRequestDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(Double barCode) {
+        this.barCode = barCode;
     }
 
     public Double getCost() {
@@ -59,20 +72,12 @@ public class ProductRequestDto {
         this.stock = stock;
     }
 
-    public String getCategoryName() {
-        return categoryName;
+    public String getCategory() {
+        return category;
     }
 
-    public void setCategoryName(String categoryName) {
-        this.categoryName = categoryName;
-    }
-
-    public String getSeller() {
-        return seller;
-    }
-
-    public void setSeller(String seller) {
-        this.seller = seller;
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     public String getProvider() {
@@ -82,31 +87,29 @@ public class ProductRequestDto {
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
+    public ProductRequestDto(String name, String description, Double barCode, Double cost, Double price, Integer stock, String category, String seller, String provider) {
+        this.name = name;
+        this.description = description;
+        this.barCode = barCode;
+        this.cost = cost;
+        this.price = price;
+        this.stock = stock;
+        this.category = category;
+        this.provider = provider;
+    }
+
     @Override
     public String toString() {
         return "ProductRequestDto{" +
                 "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", barCode=" + barCode +
                 ", cost=" + cost +
                 ", price=" + price +
                 ", stock=" + stock +
-                ", categoryName='" + categoryName + '\'' +
-                ", seller='" + seller + '\'' +
+                ", category='" + category + '\'' +
+                ", provider='" + provider + '\'' +
                 '}';
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Double getBarCode() {
-        return barCode;
-    }
-
-    public void setBarCode(Double barCode) {
-        this.barCode = barCode;
     }
 }

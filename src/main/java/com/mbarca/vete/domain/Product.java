@@ -1,7 +1,7 @@
 package com.mbarca.vete.domain;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Lob;
+import java.util.Arrays;
+
 public class Product {
     private Long id;
     private String name;
@@ -15,13 +15,16 @@ public class Product {
     private String seller;
     private String provider;
     @Lob
-    private byte[] image;
+    private byte[] photo;
 
     public Product() {
     }
 
-    public Product(String name, Double cost, Double price, Integer stock, Long categoryId, String categoryName, String seller, String provider) {
+    public Product(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, Long categoryId, String categoryName, String seller, String provider, byte[] photo) {
+        this.id = id;
         this.name = name;
+        this.description = description;
+        this.barCode = barCode;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
@@ -29,6 +32,7 @@ public class Product {
         this.categoryName = categoryName;
         this.seller = seller;
         this.provider = provider;
+        this.photo = photo;
     }
 
     public Long getId() {
@@ -45,6 +49,22 @@ public class Product {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Double getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(Double barCode) {
+        this.barCode = barCode;
     }
 
     public Double getCost() {
@@ -102,40 +122,30 @@ public class Product {
     public void setProvider(String provider) {
         this.provider = provider;
     }
+
+    public byte[] getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(byte[] photo) {
+        this.photo = photo;
+    }
+
     @Override
     public String toString() {
         return "Product{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", barCode=" + barCode +
                 ", cost=" + cost +
                 ", price=" + price +
                 ", stock=" + stock +
                 ", categoryId=" + categoryId +
                 ", categoryName='" + categoryName + '\'' +
+                ", seller='" + seller + '\'' +
+                ", provider='" + provider + '\'' +
+                ", photo=" + Arrays.toString(photo) +
                 '}';
-    }
-
-    public byte[] getImage() {
-        return image;
-    }
-
-    public void setImage(byte[] image) {
-        this.image = image;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public Double getBarCode() {
-        return barCode;
-    }
-
-    public void setBarCode(Double barCode) {
-        this.barCode = barCode;
     }
 }

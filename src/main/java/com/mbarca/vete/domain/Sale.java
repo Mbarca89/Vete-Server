@@ -2,17 +2,20 @@ package com.mbarca.vete.domain;
 
 public class Sale {
     private Long id;
-    private String name;
+    private double amount;
     private String date;
     private Long clientId;
+    private Long sellerId;
 
     public Sale() {
     }
 
-    public Sale(String name, String date, Long clientId) {
-        this.name = name;
+    public Sale(Long id, double amount, String date, Long clientId, Long sellerId) {
+        this.id = id;
+        this.amount = amount;
         this.date = date;
         this.clientId = clientId;
+        this.sellerId = sellerId;
     }
 
     public Long getId() {
@@ -23,12 +26,12 @@ public class Sale {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public double getAmount() {
+        return amount;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setAmount(double amount) {
+        this.amount = amount;
     }
 
     public String getDate() {
@@ -47,13 +50,22 @@ public class Sale {
         this.clientId = clientId;
     }
 
+    public Long getSellerId() {
+        return sellerId;
+    }
+
+    public void setSellerId(Long sellerId) {
+        this.sellerId = sellerId;
+    }
+
     @Override
     public String toString() {
         return "Sale{" +
                 "id=" + id +
-                ", name='" + name + '\'' +
+                ", amount=" + amount +
                 ", date='" + date + '\'' +
                 ", clientId=" + clientId +
+                ", sellerId=" + sellerId +
                 '}';
     }
 }

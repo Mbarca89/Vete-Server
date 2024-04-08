@@ -1,15 +1,15 @@
-package com.mbarca.vete.domain;
+package com.mbarca.vete.dto.request;
 
-public class Client {
+public class ClientRequestDto {
     private Long id;
     private String name;
     private String surname;
-    private String phone;
+    private  String phone;
 
-    public Client() {
+    public ClientRequestDto() {
     }
 
-    public Client(Long id, String name, String surname, String phone) {
+    public ClientRequestDto(Long id, String name, String surname, String phone) {
         this.id = id;
         this.name = name;
         this.surname = surname;
@@ -23,7 +23,6 @@ public class Client {
     public void setId(Long id) {
         this.id = id;
     }
-
     public String getName() {
         return name;
     }
@@ -50,11 +49,11 @@ public class Client {
 
     @Override
     public String toString() {
-        return "Client{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
+        return "ClientRequestDto{" +
+                "name='" + name + '\'' +
                 ", surname='" + surname + '\'' +
                 ", phone='" + phone + '\'' +
                 '}';
     }
+
 }

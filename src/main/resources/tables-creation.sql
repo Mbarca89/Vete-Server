@@ -7,11 +7,6 @@ CREATE TABLE IF NOT EXISTS Users (
     role VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS Category (
-    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL
-);
-
 CREATE TABLE IF NOT EXISTS Products (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
@@ -20,14 +15,42 @@ CREATE TABLE IF NOT EXISTS Products (
     cost DECIMAL(10,2) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL,
+    image BLOB
+);
+
+CREATE TABLE IF NOT EXISTS Category (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Providers (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    contact_name VARCHAR(50),
+    phone VARCHAR(50)
+);
+
+CREATE TABLE IF NOT EXISTS ProductCategories (
+    product_id LONG NOT NULL,
     category_id LONG NOT NULL,
-    category_name VARCHAR(50) NOT NULL,
-    seller VARCHAR(50) NOT NULL,
-    provider VARCHAR(50) NOT NULL,
+    PRIMARY KEY (product_id, category_id),
+    FOREIGN KEY (product_id) REFERENCES Products(id),
+    FOREIGN KEY (category_id) REFERENCES Category(id)
+);
+
+CREATE TABLE IF NOT EXISTS ProductProviders (
+    product_id LONG NOT NULL,
     provider_id LONG NOT NULL,
-    image BLOB,
-    FOREIGN KEY (category_id) REFERENCES Category(id),
+    PRIMARY KEY (product_id, provider_id),
+    FOREIGN KEY (product_id) REFERENCES Products(id),
     FOREIGN KEY (provider_id) REFERENCES Providers(id)
+);
+
+CREATE TABLE IF NOT EXISTS Clients (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    surname VARCHAR(50),
+    phone VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS Pets (
@@ -36,35 +59,30 @@ CREATE TABLE IF NOT EXISTS Pets (
     image BLOB
 );
 
-CREATE TABLE IF NOT EXISTS Clients (
-    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL,
+CREATE TABLE IF NOT EXISTS ClientPets (
+    client_id LONG NOT NULL,
     pet_id LONG NOT NULL,
-    pet_name VARCHAR(50) NOT NULL,
+    PRIMARY KEY (client_id, pet_id),
+    FOREIGN KEY (client_id) REFERENCES Clients(id),
     FOREIGN KEY (pet_id) REFERENCES Pets(id)
 );
 
 CREATE TABLE IF NOT EXISTS Sales (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    date VARCHAR(20) NOT NULL,
+    sale_date DATE NOT NULL,
     client_id LONG,
-    seller VARCHAR(50) NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES Clients(id)
+    sale_amount DECIMAL(10, 2) NOT NULL,
+    seller_id LONG NOT NULL,
+    FOREIGN KEY (client_id) REFERENCES Clients(id),
+    FOREIGN KEY (seller_id) REFERENCES Users(id)
 );
 
 
 CREATE TABLE IF NOT EXISTS SalesProducts (
     sale_id LONG NOT NULL,
     product_id LONG NOT NULL,
+    quantity INT NOT NULL,
     PRIMARY KEY (sale_id, product_id),
     FOREIGN KEY (sale_id) REFERENCES Sales(id),
     FOREIGN KEY (product_id) REFERENCES Products(id)
 );
-
-CREATE TABLE IF NOT EXISTS Providers (
-    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    name VARCHAR(50) NOT NULL,
-    contact_name VARCHAR(50),
-    phone VARCHAR(50)
-)

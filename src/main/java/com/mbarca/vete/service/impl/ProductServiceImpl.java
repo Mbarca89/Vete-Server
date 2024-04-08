@@ -32,16 +32,16 @@ public class ProductServiceImpl implements ProductService {
                 productRequestDto.getCost() == null ||
                 productRequestDto.getPrice() == null ||
                 productRequestDto.getStock() == null ||
-                productRequestDto.getCategoryName() == null ||
+                productRequestDto.getCategory() == null ||
                 Objects.equals(productRequestDto.getName(), "") ||
-                Objects.equals(productRequestDto.getCategoryName(), "") ||
+                Objects.equals(productRequestDto.getCategory(), "") ||
                 Objects.equals(productRequestDto.getProvider(), "")
         ) {
             throw new MissingDataException("Faltan datos!");
         }
 
         Product product = mapDtoToProduct(productRequestDto);
-        product.setImage(compressedImage);
+        product.setPhoto(compressedImage);
         Integer response = productRepository.createProduct(product);
         if (response.equals(0)) {
             return "Error al crear el producto!";
@@ -92,8 +92,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCost(productRequestDto.getCost());
         product.setPrice(productRequestDto.getPrice());
         product.setStock(productRequestDto.getStock());
-        product.setCategoryName(productRequestDto.getCategoryName());
-        product.setSeller(productRequestDto.getSeller());
+        product.setCategoryName(productRequestDto.getCategory());
         product.setProvider(productRequestDto.getProvider());
         return product;
     }
@@ -106,7 +105,7 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setBarCode(product.getBarCode());
         productResponseDto.setCost(product.getCost());
         productResponseDto.setPrice(product.getPrice());
-        productResponseDto.setImage(product.getImage());
+        productResponseDto.setImage(product.getPhoto());
         productResponseDto.setCategoryName(product.getCategoryName());
         productResponseDto.setProvider(product.getProvider());
         return productResponseDto;
