@@ -75,7 +75,6 @@ public class ClientServiceImpl implements ClientService {
         client.setName(clientRequestDto.getName());
         client.setSurname(clientRequestDto.getSurname());
         client.setPhone(clientRequestDto.getPhone());
-        System.out.println(client.toString());
         return client;
     }
 

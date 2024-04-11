@@ -32,7 +32,6 @@ public class ProductController {
     @PostMapping("/create")
     public ResponseEntity<String> createProductHandler(@RequestParam("file") MultipartFile file,
                                                        @RequestParam("product") String productJson) {
-        System.out.println("producto" + productJson);
         try {
             ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
             byte[] compressedImage = productService.compressImage(file.getBytes());

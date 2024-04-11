@@ -17,7 +17,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     private final String CREATE_PRODUCT = "INSERT INTO products (name, description, cost, price, stock, category_id, category_name, image, seller, provider) VALUES (?,?,?,?,?,?,?,?,?,?)";
     private final String GET_ALL_PRODUCTS = "SELECT * FROM products";
     private final String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? LIMIT ? OFFSET ?";
-private final String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
+    private final String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
     private final String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ?";
     private final String GET_PRODUCTS_PAGINATED = "SELECT * FROM products LIMIT ? OFFSET ?";
     private final String GET_CATEGORY = "SELECT * FROM Category WHERE name = ?";
@@ -45,30 +45,34 @@ private final String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
                 product.getPhoto(),
                 product.getSeller(),
                 product.getProvider()
-                );
+        );
     }
 
     @Override
-    public List<Product> getAllProducts () {
+    public List<Product> getAllProducts() {
         return jdbcTemplate.query(GET_ALL_PRODUCTS, new ProductRowMapper());
     }
 
     @Override
-    public List<Product> getByCategory (String categoryName, int limit, int offset) {
+    public List<Product> getByCategory(String categoryName, int limit, int offset) {
         return jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper());
     }
+
     @Override
-    public Integer getProductCount () {
+    public Integer getProductCount() {
         return jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
     }
+
     @Override
-    public Integer getCategoryCount (String categoryName) {
+    public Integer getCategoryCount(String categoryName) {
         return jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
     }
+
     @Override
     public List<Product> getProductsPaginated(int limit, int offset) {
         return jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper());
     }
+
     static class CategoryRowMapper implements RowMapper<Category> {
         @Override
         public Category mapRow(ResultSet rs, int rowNum) throws SQLException {

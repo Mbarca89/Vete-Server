@@ -56,7 +56,10 @@ CREATE TABLE IF NOT EXISTS Clients (
 CREATE TABLE IF NOT EXISTS Pets (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
-    image BLOB
+    race VARCHAR(50),
+    weight DOUBLE,
+    born DATE,
+    photo BLOB
 );
 
 CREATE TABLE IF NOT EXISTS ClientPets (
@@ -77,7 +80,6 @@ CREATE TABLE IF NOT EXISTS Sales (
     FOREIGN KEY (seller_id) REFERENCES Users(id)
 );
 
-
 CREATE TABLE IF NOT EXISTS SalesProducts (
     sale_id LONG NOT NULL,
     product_id LONG NOT NULL,
@@ -85,4 +87,14 @@ CREATE TABLE IF NOT EXISTS SalesProducts (
     PRIMARY KEY (sale_id, product_id),
     FOREIGN KEY (sale_id) REFERENCES Sales(id),
     FOREIGN KEY (product_id) REFERENCES Products(id)
+);
+
+CREATE TABLE IF NOT EXISTS medical_history (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    date DATE NOT NULL,
+    type VARCHAR(50) NOT NULL,
+    notes TEXT,
+    medicine VARCHAR(100),
+    pet_id LONG UNIQUE,
+    FOREIGN KEY (pet_id) REFERENCES Pets(id)
 );

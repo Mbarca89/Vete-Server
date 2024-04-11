@@ -1,19 +1,29 @@
 package com.mbarca.vete.domain;
 
 import javax.persistence.Lob;
+import java.sql.Date;
 
 public class Pet {
     private Long id;
     private String name;
+    private String race;
+    private Double weight;
+    private Date born;
     @Lob
-    private String photo;
+    private byte[] photo;
+    MedicalHistory medicalHistory;
 
     public Pet() {
     }
 
-    public Pet(String name, String photo) {
+    public Pet(Long id, String name, String race, Double weight, Date born, byte[] photo, MedicalHistory medicalHistory) {
+        this.id = id;
         this.name = name;
+        this.race = race;
+        this.weight = weight;
+        this.born = born;
         this.photo = photo;
+        this.medicalHistory = medicalHistory;
     }
 
     public Long getId() {
@@ -32,20 +42,43 @@ public class Pet {
         this.name = name;
     }
 
-    public String getPhoto() {
+    public byte[] getPhoto() {
         return photo;
     }
 
-    public void setPhoto(String photo) {
+    public void setPhoto(byte[] photo) {
         this.photo = photo;
     }
 
-    @Override
-    public String toString() {
-        return "Pet{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", photo='" + photo + '\'' +
-                '}';
+    public MedicalHistory getMedicalHistory() {
+        return medicalHistory;
+    }
+
+    public void setMedicalHistory(MedicalHistory medicalHistory) {
+        this.medicalHistory = medicalHistory;
+    }
+
+    public String getRace() {
+        return race;
+    }
+
+    public void setRace(String race) {
+        this.race = race;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public java.sql.Date getBorn() {
+        return born;
+    }
+
+    public void setBorn(Date born) {
+        this.born = born;
     }
 }
