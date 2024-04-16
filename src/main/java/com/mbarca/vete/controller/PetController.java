@@ -28,12 +28,15 @@ public class PetController {
 
     @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<String> createPetHandler(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<String> createPetHandler(@RequestParam(value = "file", required = false) MultipartFile file ,
                                                    @RequestParam("pet") String petJson,
                                                    @RequestParam("clientId") String clientId) {
         try {
             PetRequestDto petRequestDto = new ObjectMapper().readValue(petJson, PetRequestDto.class);
-            byte[] compressedImage = petService.compressImage(file.getBytes());
+            byte[] compressedImage = null;
+            if (file != null && !file.isEmpty()) {
+                compressedImage = petService.compressImage(file.getBytes());
+            }
             String response = petService.createPet(petRequestDto, compressedImage, Long.parseLong(clientId));
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (JsonMappingException e) {
@@ -69,6 +72,30 @@ public class PetController {
         try {
             List<PetResponseDto> pets = petService.getPetsFromClient(clientId);
             return ResponseEntity.status(HttpStatus.OK).body(pets);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getPetsByName")
+    public ResponseEntity<?> getPetsByNameHandler(@RequestParam(defaultValue = "") String name,
+                                                  @RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "12") int size) {
+        try {
+            List<PetResponseDto> pets = petService.getPetsByName(name, page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(pets);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("getPetById")
+    public ResponseEntity<?> getPetById(@RequestParam Long petId) {
+        try {
+            PetResponseDto pet = petService.getPetById(petId);
+            return ResponseEntity.status(HttpStatus.OK).body(pet);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
         }

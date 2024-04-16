@@ -61,6 +61,17 @@ public class ClientController {
     }
 
     @CrossOrigin
+    @GetMapping("/getClientById")
+    public ResponseEntity<?> getClientByIdHandler (@RequestParam Long clientId) {
+        try {
+            ClientResponseDto response = clientService.getClientById(clientId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @PostMapping("/edit")
     public ResponseEntity<String> editClientHandler(@RequestBody ClientRequestDto clientRequestDto) {
         try {

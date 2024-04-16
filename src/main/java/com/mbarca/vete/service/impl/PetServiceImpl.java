@@ -60,6 +60,18 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
+    public List<PetResponseDto> getPetsByName(String name, int page, int size) {
+        int offset = (page - 1) * size;
+        List<Pet> pets = petRepository.getPetsByName(name, size, offset);
+        return pets.stream().map(this::mapPetToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public PetResponseDto getPetById (Long petId) {
+        return mapPetToDto(petRepository.getPetById(petId));
+    }
+
+    @Override
     public String deletePet(Long petId) {
         Integer response = petRepository.deletePet(petId);
         if (response.equals(0)) {

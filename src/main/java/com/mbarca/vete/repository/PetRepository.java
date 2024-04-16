@@ -9,5 +9,7 @@ public interface PetRepository {
     Integer getPetCount ();
     List<Pet> getAllPets (int limit, int offset);
     List<Pet> getPetsFromClient (Long clientId);
+    List<Pet> getPetsByName (String name, int limit, int offset);
+    Pet getPetById (Long petId);
     Integer deletePet (Long petId);
 }

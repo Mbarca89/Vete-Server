@@ -18,8 +18,8 @@ public class ClientRepositoryImpl implements ClientRepository {
     private final String CREATE_CLIENT = "INSERT INTO clients (name, surname, phone) VALUES (?,?,?)";
     private final String DELETE_CLIENT = "DELETE FROM Clients WHERE id = ?";
     private final String GET_ALL_CLIENTS = "SELECT * FROM Clients";
-    private final String EDIT_CLIENT = "UPDATE clients SET name = ?, surname = ?, phone = ? WHERE id = ?";
     private final String GET_CLIENT_BY_ID = "SELECT * FROM Clients WHERE id = ?";
+    private final String EDIT_CLIENT = "UPDATE clients SET name = ?, surname = ?, phone = ? WHERE id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -33,7 +33,14 @@ public class ClientRepositoryImpl implements ClientRepository {
                 client.getName(),
                 client.getSurname(),
                 client.getPhone()
-                );
+        );
+    }
+
+    @Override
+    public Client getClientById(Long clientId) {
+        Object[] params = {clientId};
+        int[] types = {1};
+        return jdbcTemplate.queryForObject(GET_CLIENT_BY_ID, params, types, new ClientRowMapper());
     }
 
     @Override
@@ -54,14 +61,17 @@ public class ClientRepositoryImpl implements ClientRepository {
         int[] types = {1};
         Client currentClient = jdbcTemplate.queryForObject(GET_CLIENT_BY_ID, params, types, new ClientRowMapper());
 
-        if(currentClient == null) {
+        if (currentClient == null) {
             throw new ClientNotFoundException("Cliente no encontrado!");
         }
 
         editClient.setName(currentClient.getName());
-        if (!client.getName().isEmpty()) editClient.setName(client.getName()); else editClient.setName(currentClient.getName());
-        if (!client.getSurname().isEmpty()) editClient.setSurname(client.getSurname()); else editClient.setSurname(currentClient.getSurname());
-        if (!client.getPhone().isEmpty()) editClient.setPhone(client.getPhone()); else editClient.setPhone(currentClient.getPhone());
+        if (!client.getName().isEmpty()) editClient.setName(client.getName());
+        else editClient.setName(currentClient.getName());
+        if (!client.getSurname().isEmpty()) editClient.setSurname(client.getSurname());
+        else editClient.setSurname(currentClient.getSurname());
+        if (!client.getPhone().isEmpty()) editClient.setPhone(client.getPhone());
+        else editClient.setPhone(currentClient.getPhone());
 
         return jdbcTemplate.update(EDIT_CLIENT, editClient.getName(), editClient.getSurname(), editClient.getPhone(), client.getId());
     }

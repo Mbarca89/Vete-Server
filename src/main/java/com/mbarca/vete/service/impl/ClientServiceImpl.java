@@ -55,6 +55,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public ClientResponseDto getClientById(Long clientId) {
+        return mapClientToDto(clientRepository.getClientById(clientId));
+    }
+
+    @Override
     public String editClient(ClientRequestDto clientRequestDto) throws MissingDataException, ClientNotFoundException {
         if (clientRequestDto.getName() == null || Objects.equals(clientRequestDto.getName(), "")) {
             throw new MissingDataException("Faltan datos!");

@@ -30,11 +30,14 @@ public class ProductController {
 
     @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<String> createProductHandler(@RequestParam("file") MultipartFile file,
+    public ResponseEntity<String> createProductHandler(@RequestParam(value = "file", required = false) MultipartFile file,
                                                        @RequestParam("product") String productJson) {
         try {
             ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
-            byte[] compressedImage = productService.compressImage(file.getBytes());
+            byte[] compressedImage = null;
+            if (file != null && !file.isEmpty()) {
+                compressedImage = productService.compressImage(file.getBytes());
+            }
             String response = productService.createProduct(productRequestDto, compressedImage);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (MissingDataException e) {

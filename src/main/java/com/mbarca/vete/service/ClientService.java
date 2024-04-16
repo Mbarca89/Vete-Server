@@ -11,5 +11,6 @@ public interface ClientService {
     String createClient (ClientRequestDto clientRequestDto) throws MissingDataException;
     String deleteClient (Long id);
     List<ClientResponseDto> getClients();
+    ClientResponseDto getClientById(Long clientId);
     String editClient (ClientRequestDto clientRequestDto) throws MissingDataException, ClientNotFoundException;
 }

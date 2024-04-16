@@ -18,11 +18,13 @@ import java.util.Objects;
 @Repository
 public class PetRepositoryImpl implements PetRepository {
 
-    private final String CREATE_PET = "INSERT INTO Pets (name, race, weight, born, photo, VALUES (?,?,?,?,?)";
+    private final String CREATE_PET = "INSERT INTO Pets (name, race, weight, born, photo) VALUES (?,?,?,?,?)";
     private final String GET_PET_COUNT = "SELECT COUNT(*) FROM pets";
-    private final String GET_ALL_PETS = "SELECT * FROM Pets";
+    private final String GET_ALL_PETS = "SELECT * FROM Pets LIMIT ? OFFSET ?";
     private final String DELETE_PET = "DELETE FROM Pets WHERE id = ?";
+    private final String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE name LIKE ? LIMIT ? OFFSET ?";
     private final String GET_PETS_FROM_CLIENT = "SELECT p.* FROM Pets p JOIN ClientPets cp ON p.id = cp.pet_id WHERE cp.client_id = ?";
+    private final String GET_PET_BY_ID = "SELECT * FROM Pets WHERE id = ?";
 private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VALUES (?, ?)";
     private final JdbcTemplate jdbcTemplate;
 
@@ -65,6 +67,20 @@ private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VA
     }
 
     @Override
+    public List<Pet> getPetsByName (String name, int limit, int offset) {
+        String searchTerm = "%" + name + "%";
+        List<Pet> pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper());
+        return pets;
+    }
+
+    @Override
+    public Pet getPetById (Long petId) {
+        Object[] params = {petId};
+        int[] types = {1};
+        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper());
+    }
+
+    @Override
     public Integer deletePet(Long petId) {
         return jdbcTemplate.update(DELETE_PET, petId);
     }
@@ -77,6 +93,7 @@ private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VA
             pet.setName(rs.getString("name"));
             pet.setRace(rs.getString("race"));
             pet.setWeight(rs.getDouble("weight"));
+            pet.setBorn(rs.getDate("born"));
             pet.setPhoto(rs.getBytes("photo"));
             return pet;
         }

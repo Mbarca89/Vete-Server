@@ -9,5 +9,6 @@ public interface ClientRepository {
     Integer createClient(Client client);
     Integer deleteClient(Long id);
     List<Client> getClients();
+    Client getClientById(Long clientId);
     Integer editClient(Client client) throws ClientNotFoundException;
 }
