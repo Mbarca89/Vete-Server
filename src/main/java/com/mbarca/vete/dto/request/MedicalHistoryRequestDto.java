@@ -6,15 +6,17 @@ public class MedicalHistoryRequestDto {
     private Date date;
     private String type;
     private String notes;
+    private String description;
     private String medicine;
 
     public MedicalHistoryRequestDto() {
     }
 
-    public MedicalHistoryRequestDto(Date date, String type, String notes, String medicine) {
+    public MedicalHistoryRequestDto(Date date, String type, String notes, String description, String medicine) {
         this.date = date;
         this.type = type;
         this.notes = notes;
+        this.description = description;
         this.medicine = medicine;
     }
 
@@ -48,5 +50,13 @@ public class MedicalHistoryRequestDto {
 
     public void setMedicine(String medicine) {
         this.medicine = medicine;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

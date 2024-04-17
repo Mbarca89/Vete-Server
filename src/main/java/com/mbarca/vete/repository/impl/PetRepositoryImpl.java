@@ -25,7 +25,7 @@ public class PetRepositoryImpl implements PetRepository {
     private final String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE name LIKE ? LIMIT ? OFFSET ?";
     private final String GET_PETS_FROM_CLIENT = "SELECT p.* FROM Pets p JOIN ClientPets cp ON p.id = cp.pet_id WHERE cp.client_id = ?";
     private final String GET_PET_BY_ID = "SELECT * FROM Pets WHERE id = ?";
-private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VALUES (?, ?)";
+    private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VALUES (?, ?)";
     private final JdbcTemplate jdbcTemplate;
 
     public PetRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -67,14 +67,14 @@ private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VA
     }
 
     @Override
-    public List<Pet> getPetsByName (String name, int limit, int offset) {
+    public List<Pet> getPetsByName(String name, int limit, int offset) {
         String searchTerm = "%" + name + "%";
         List<Pet> pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper());
         return pets;
     }
 
     @Override
-    public Pet getPetById (Long petId) {
+    public Pet getPetById(Long petId) {
         Object[] params = {petId};
         int[] types = {1};
         return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper());

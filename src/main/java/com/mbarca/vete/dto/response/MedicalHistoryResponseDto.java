@@ -7,16 +7,18 @@ public class MedicalHistoryResponseDto {
     private Date date;
     private String type;
     private String notes;
+    private String description;
     private String medicine;
 
     public MedicalHistoryResponseDto() {
     }
 
-    public MedicalHistoryResponseDto(Long id, Date date, String type, String notes, String medicine) {
+    public MedicalHistoryResponseDto(Long id, Date date, String type, String notes, String description, String medicine) {
         this.id = id;
         this.date = date;
         this.type = type;
         this.notes = notes;
+        this.description = description;
         this.medicine = medicine;
     }
 
@@ -58,5 +60,13 @@ public class MedicalHistoryResponseDto {
 
     public void setMedicine(String medicine) {
         this.medicine = medicine;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

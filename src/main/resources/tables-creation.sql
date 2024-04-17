@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS medical_history (
     date DATE NOT NULL,
     type VARCHAR(50) NOT NULL,
     notes TEXT,
+    description TEXT,
     medicine VARCHAR(100),
     pet_id LONG UNIQUE,
     FOREIGN KEY (pet_id) REFERENCES Pets(id)

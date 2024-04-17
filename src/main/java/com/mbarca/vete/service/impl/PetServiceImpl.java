@@ -38,7 +38,7 @@ public class PetServiceImpl implements PetService {
         if (response.equals(0)) {
             return "Error al crear la mascota!";
         }
-        return "Mascota creadoa correctamente!";
+        return "Mascota creada correctamente!";
     }
 
     @Override
