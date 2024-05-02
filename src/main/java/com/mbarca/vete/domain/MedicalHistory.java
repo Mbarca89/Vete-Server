@@ -9,6 +9,7 @@ public class MedicalHistory {
     private String notes;
     private String description;
     private String medicine;
+    private Long petId;
 
     public MedicalHistory() {
     }
@@ -68,5 +69,13 @@ public class MedicalHistory {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getPetId() {
+        return petId;
+    }
+
+    public void setPetId(Long petId) {
+        this.petId = petId;
     }
 }

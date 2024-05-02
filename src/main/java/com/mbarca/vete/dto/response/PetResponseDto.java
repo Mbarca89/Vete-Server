@@ -7,17 +7,20 @@ public class PetResponseDto {
     private Long id;
     private String name;
     private String race;
+    private String gender;
+    private String species;
     private Double weight;
     private Date born;
     private byte[] photo;
 
     public PetResponseDto() {
     }
-
-    public PetResponseDto(Long id, String name, String race, Double weight, Date born, byte[] photo) {
+    public PetResponseDto(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo) {
         this.id = id;
         this.name = name;
         this.race = race;
+        this.gender = gender;
+        this.species = species;
         this.weight = weight;
         this.born = born;
         this.photo = photo;
@@ -69,14 +72,19 @@ public class PetResponseDto {
     public void setBorn(Date born) {
         this.born = born;
     }
-
-    @Override
-    public String toString() {
-        return "PetResponseDto{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", photo=" + Arrays.toString(photo) +
-                '}';
+    public String getGender() {
+        return gender;
     }
 
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(String species) {
+        this.species = species;
+    }
 }

@@ -1,9 +1,11 @@
 package com.mbarca.vete.controller;
 
 import com.mbarca.vete.dto.request.ProviderRequestDto;
+import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.ProviderResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ProviderService;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,7 +58,7 @@ public class ProviderController {
     }
 
     @CrossOrigin
-    @GetMapping("getbyname/{name}")
+    @GetMapping("getByName/{name}")
     public ResponseEntity<?> getProviderByNameHandler(@PathVariable String name) {
         try {
             ProviderResponseDto response = providerService.getProviderByName(name);
@@ -66,6 +68,21 @@ public class ProviderController {
         } catch (EmptyResultDataAccessException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proveedor no encontrado!");
         }catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/edit")
+    public ResponseEntity<String> editProviderHandler(@RequestBody ProviderRequestDto providerRequestDto) {
+        try {
+            String response = providerService.editProvider(providerRequestDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (MissingDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (DuplicateKeyException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No existe un proveedor con ese nombre!");
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }

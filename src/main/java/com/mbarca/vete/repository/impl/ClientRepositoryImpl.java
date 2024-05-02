@@ -15,11 +15,11 @@ import java.util.Objects;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepository {
-    private final String CREATE_CLIENT = "INSERT INTO clients (name, surname, phone) VALUES (?,?,?)";
+    private final String CREATE_CLIENT = "INSERT INTO clients (name, surname, phone, email, social, user_name) VALUES (?,?,?,?,?,?)";
     private final String DELETE_CLIENT = "DELETE FROM Clients WHERE id = ?";
     private final String GET_ALL_CLIENTS = "SELECT * FROM Clients";
     private final String GET_CLIENT_BY_ID = "SELECT * FROM Clients WHERE id = ?";
-    private final String EDIT_CLIENT = "UPDATE clients SET name = ?, surname = ?, phone = ? WHERE id = ?";
+    private final String EDIT_CLIENT = "UPDATE clients SET name = ?, surname = ?, phone = ?, email = ?, social = ?, user_name = ? WHERE id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,7 +32,10 @@ public class ClientRepositoryImpl implements ClientRepository {
         return jdbcTemplate.update(CREATE_CLIENT,
                 client.getName(),
                 client.getSurname(),
-                client.getPhone()
+                client.getPhone(),
+                client.getEmail(),
+                client.getSocial(),
+                client.getUserName()
         );
     }
 
@@ -72,8 +75,14 @@ public class ClientRepositoryImpl implements ClientRepository {
         else editClient.setSurname(currentClient.getSurname());
         if (!client.getPhone().isEmpty()) editClient.setPhone(client.getPhone());
         else editClient.setPhone(currentClient.getPhone());
+        if (!client.getEmail().isEmpty()) editClient.setEmail(client.getEmail());
+        else editClient.setEmail(currentClient.getEmail());
+        if (!client.getSocial().isEmpty()) editClient.setSocial(client.getSocial());
+        else editClient.setSocial(currentClient.getSocial());
+        if (!client.getUserName().isEmpty()) editClient.setUserName(client.getUserName());
+        else editClient.setUserName(currentClient.getUserName());
 
-        return jdbcTemplate.update(EDIT_CLIENT, editClient.getName(), editClient.getSurname(), editClient.getPhone(), client.getId());
+        return jdbcTemplate.update(EDIT_CLIENT, editClient.getName(), editClient.getSurname(), editClient.getPhone(),editClient.getEmail(), editClient.getSocial(), editClient.getUserName(), client.getId());
     }
 
     static class ClientRowMapper implements RowMapper<Client> {
@@ -84,6 +93,9 @@ public class ClientRepositoryImpl implements ClientRepository {
             client.setName(rs.getString("name"));
             client.setSurname(rs.getString("surname"));
             client.setPhone(rs.getString("phone"));
+            client.setEmail(rs.getString("email"));
+            client.setSocial(rs.getString("social"));
+            client.setUserName(rs.getString("user_name"));
             return client;
         }
     }

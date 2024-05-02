@@ -3,6 +3,7 @@ package com.mbarca.vete.service;
 import com.mbarca.vete.dto.request.ProductRequestDto;
 import com.mbarca.vete.dto.response.ProductResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
+import com.mbarca.vete.exceptions.NotFoundException;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,4 +16,8 @@ public interface ProductService {
     Integer getCategoryCount (String categoryName);
     List<ProductResponseDto> getProductsPaginated(int page, int size);
     byte[] compressImage(byte[] imageData) throws IOException;
+    String editProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws Exception;
+    String deleteProduct (Long productId) throws Exception;
+    List<ProductResponseDto> searchProduct (String searchTerm);
+    List<ProductResponseDto> getProductsFromProvider (Long providerId);
 }

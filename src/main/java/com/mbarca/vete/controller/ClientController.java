@@ -7,6 +7,7 @@ import com.mbarca.vete.dto.response.UserResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ClientService;
 import com.mbarca.vete.service.UserService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -44,7 +45,9 @@ public class ClientController {
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }catch (EmptyResultDataAccessException e){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Cliente no encontrado!");
-        }catch (Exception e) {
+        }catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("El cliente tiene mascotas asociadas!");
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }

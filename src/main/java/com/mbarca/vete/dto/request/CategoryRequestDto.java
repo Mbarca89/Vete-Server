@@ -1,14 +1,16 @@
 package com.mbarca.vete.dto.request;
 
 public class CategoryRequestDto {
+    private Long id;
+    private String name;
 
-    String name;
+    public CategoryRequestDto(String name, Long id) {
+        this.name = name;
+        this.id = id;
+    }
 
     public CategoryRequestDto(String name) {
         this.name = name;
-    }
-
-    public CategoryRequestDto() {
     }
 
     public String getName() {
@@ -17,5 +19,13 @@ public class CategoryRequestDto {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

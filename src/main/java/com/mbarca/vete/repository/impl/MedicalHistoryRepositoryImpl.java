@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public class MedicalHistoryRepositoryImpl implements MedicalHistoryRepository {
 
-    private final String CREATE_MEDICAL_HISTORY = "INSERT INTO Medical_history (date, type, notes, description, medicine, petId) VALUES (?,?,?,?,?,?)";
+    private final String CREATE_MEDICAL_HISTORY = "INSERT INTO medical_history (`date`, `type`, notes, description, medicine, pet_id) VALUES (?,?,?,?,?,?)";
     private final String GET_MEDICAL_HISTORY_FOR_PET = "SELECT * FROM medical_history WHERE pet_id = ?";
     private final String GET_MEDICAL_HISTORY_BY_ID = "SELECT * FROM medical_history WHERE id = ?";
     private final String DELETE_MEDICAL_HISTORY = "DELETE FROM medical_history WHERE id = ?";
@@ -26,14 +26,14 @@ public class MedicalHistoryRepositoryImpl implements MedicalHistoryRepository {
     }
 
     @Override
-    public Integer createMedicalHistory(MedicalHistory medicalHistory, Long petId) {
+    public Integer createMedicalHistory(MedicalHistory medicalHistory) {
         return jdbcTemplate.update(CREATE_MEDICAL_HISTORY,
                 medicalHistory.getDate(),
                 medicalHistory.getType(),
                 medicalHistory.getNotes(),
                 medicalHistory.getDescription(),
                 medicalHistory.getMedicine(),
-                petId);
+                medicalHistory.getPetId());
     }
 
     @Override

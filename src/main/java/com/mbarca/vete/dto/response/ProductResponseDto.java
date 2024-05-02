@@ -9,19 +9,20 @@ public class ProductResponseDto {
     private Double price;
     private Integer stock;
     private String categoryName;
-    private String provider;
+    private String providerName;
     private byte[] image;
 
     public ProductResponseDto() {
     }
 
-    public ProductResponseDto(String name, Double cost, Double price, Integer stock, String categoryName, String provider) {
+    public ProductResponseDto(Long id, String name, Double cost, Double price, Integer stock, String categoryName, String providerName) {
+        this.id = id;
         this.name = name;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
         this.categoryName = categoryName;
-        this.provider = provider;
+        this.providerName = providerName;
     }
 
     public String getName() {
@@ -64,12 +65,12 @@ public class ProductResponseDto {
         this.categoryName = categoryName;
     }
 
-    public String getProvider() {
-        return provider;
+    public String getProviderName() {
+        return providerName;
     }
 
-    public void setProvider(String provider) {
-        this.provider = provider;
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     @Override
@@ -80,7 +81,7 @@ public class ProductResponseDto {
                 ", price=" + price +
                 ", stock=" + stock +
                 ", categoryName='" + categoryName + '\'' +
-                ", provider='" + provider + '\'' +
+                ", provider='" + providerName + '\'' +
                 '}';
     }
 

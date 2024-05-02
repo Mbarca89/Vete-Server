@@ -4,6 +4,7 @@ import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.dto.request.ProductRequestDto;
 import com.mbarca.vete.dto.response.ProductResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
+import com.mbarca.vete.exceptions.NotFoundException;
 import com.mbarca.vete.repository.ProductRepository;
 import com.mbarca.vete.service.ProductService;
 import org.springframework.stereotype.Service;
@@ -32,10 +33,10 @@ public class ProductServiceImpl implements ProductService {
                 productRequestDto.getCost() == null ||
                 productRequestDto.getPrice() == null ||
                 productRequestDto.getStock() == null ||
-                productRequestDto.getCategory() == null ||
+                productRequestDto.getCategoryName() == null ||
                 Objects.equals(productRequestDto.getName(), "") ||
-                Objects.equals(productRequestDto.getCategory(), "") ||
-                Objects.equals(productRequestDto.getProvider(), "")
+                Objects.equals(productRequestDto.getCategoryName(), "") ||
+                Objects.equals(productRequestDto.getProviderName(), "")
         ) {
             throw new MissingDataException("Faltan datos!");
         }
@@ -78,6 +79,48 @@ public class ProductServiceImpl implements ProductService {
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public String editProduct (ProductRequestDto productRequestDto, byte[] compressedImage) throws Exception {
+        if(Objects.equals(productRequestDto.getName(), "") ||
+        productRequestDto.getStock() == null ||
+        productRequestDto.getCost() == null ||
+        productRequestDto.getPrice() == null ||
+                Objects.equals(productRequestDto.getProviderName(), "") ||
+                Objects.equals(productRequestDto.getCategoryName(), "")) {
+            throw new MissingDataException("Faltan datos!");
+        }
+
+        Product product = mapDtoToProduct(productRequestDto);
+        if(compressedImage != null) product.setPhoto(compressedImage);
+        Integer response = productRepository.editProduct(product);
+
+        if (response.equals(0)) {
+            throw new Exception("Error al editar el producto!");
+        }
+        return "Producto editado correctamente!";
+    }
+
+    @Override
+    public String deleteProduct (Long productId) throws Exception {
+        int response = productRepository.deleteProduct(productId);
+        if (response == 0) {
+            throw new Exception("Error al eliminar el producto");
+        }
+        return "Producto eliminado correctamente";
+    }
+
+    @Override
+    public List<ProductResponseDto> searchProduct(String searchTerm) {
+        List<Product> products = productRepository.searchProduct(searchTerm);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<ProductResponseDto> getProductsFromProvider (Long providerId) {
+        List <Product> products = productRepository.getProductsFromProvider(providerId);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+
     public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(ImageIO.read(new ByteArrayInputStream(imageData)), "jpg", outputStream);
@@ -86,14 +129,15 @@ public class ProductServiceImpl implements ProductService {
 
     private Product mapDtoToProduct(ProductRequestDto productRequestDto) {
         Product product = new Product();
+        product.setId(productRequestDto.getId());
         product.setName(productRequestDto.getName());
         product.setDescription(productRequestDto.getDescription());
         product.setBarCode(productRequestDto.getBarCode());
         product.setCost(productRequestDto.getCost());
         product.setPrice(productRequestDto.getPrice());
         product.setStock(productRequestDto.getStock());
-        product.setCategoryName(productRequestDto.getCategory());
-        product.setProvider(productRequestDto.getProvider());
+        product.setCategoryName(productRequestDto.getCategoryName());
+        product.setProviderName(productRequestDto.getProviderName());
         return product;
     }
 
@@ -105,9 +149,10 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setBarCode(product.getBarCode());
         productResponseDto.setCost(product.getCost());
         productResponseDto.setPrice(product.getPrice());
-        productResponseDto.setImage(product.getPhoto());
+        productResponseDto.setStock(product.getStock());
         productResponseDto.setCategoryName(product.getCategoryName());
-        productResponseDto.setProvider(product.getProvider());
+        productResponseDto.setImage(product.getPhoto());
+        productResponseDto.setProviderName(product.getProviderName());
         return productResponseDto;
     }
 

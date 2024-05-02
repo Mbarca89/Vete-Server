@@ -40,14 +40,14 @@ public class UserServiceImpl implements UserService {
         User user = mapDtoToUser(userRequestDto);
         Integer response = userRepository.createUser(user);
 
-        if (response.equals(0)){
+        if (response.equals(0)) {
             return "Error al crear el usuario!";
         }
         return "Usuario creado correctamente!";
     }
 
     @Override
-    public String deleteUser(String name){
+    public String deleteUser(String name) {
         Integer response = userRepository.deleteUser(name);
         if (response.equals(0)) {
             throw new EmptyResultDataAccessException(1);
@@ -61,7 +61,8 @@ public class UserServiceImpl implements UserService {
         return users.stream().map(this::mapUserToDto).collect(Collectors.toList());
     }
 
-    public String editUser (UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException {
+    @Override
+    public String editUser(UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException {
         if (userRequestDto.getUserName() == null ||
                 userRequestDto.getRole() == null || Objects.equals(userRequestDto.getUserName(), "")
                 || Objects.equals(userRequestDto.getRole(), "")) {
@@ -71,7 +72,7 @@ public class UserServiceImpl implements UserService {
         User user = mapDtoToUser(userRequestDto);
         Integer response = userRepository.editUser(user);
 
-        if (response.equals(0)){
+        if (response.equals(0)) {
             return "Error al editar el usuario!";
         }
         return "Usuario editado correctamente!";
@@ -82,7 +83,7 @@ public class UserServiceImpl implements UserService {
         String hashedPassword = passwordEncoder.encode(userRequestDto.getPassword());
 
         User user = new User();
-        if(userRequestDto.getId() != null) user.setId(Long.valueOf(userRequestDto.getId()));
+        if (userRequestDto.getId() != null) user.setId(Long.valueOf(userRequestDto.getId()));
         user.setName(userRequestDto.getName());
         user.setSurname(userRequestDto.getSurname());
         user.setUserName(userRequestDto.getUserName());
@@ -91,7 +92,7 @@ public class UserServiceImpl implements UserService {
         return user;
     }
 
-    private UserResponseDto mapUserToDto (User user) {
+    private UserResponseDto mapUserToDto(User user) {
         UserResponseDto userResponseDto = new UserResponseDto();
         userResponseDto.setId(user.getId());
         userResponseDto.setName(user.getName());

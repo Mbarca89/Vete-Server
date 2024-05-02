@@ -1,5 +1,6 @@
 package com.mbarca.vete.service.impl;
 
+import com.mbarca.vete.domain.User;
 import com.mbarca.vete.dto.request.LoginRequestDto;
 import com.mbarca.vete.dto.response.AuthResponseDto;
 import com.mbarca.vete.exceptions.UserNotFoundException;
@@ -29,7 +30,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public AuthResponseDto login(LoginRequestDto request) throws UserNotFoundException {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword()));
-        UserDetails user = userRepository.findUserByName(request.getUserName());
+        User user = userRepository.findUserByName(request.getUserName());
+
         if (user == null) {
             throw new UserNotFoundException("Usuario no encontrado!");
         }
@@ -38,6 +40,9 @@ public class AuthServiceImpl implements AuthService {
         response.setUserName(user.getUsername());
         response.setToken(token);
         response.setRole(user.getAuthorities());
+        response.setName(user.getName());
+        response.setSurname(user.getSurname());
+        response.setId(user.getId());
         return response;
     }
 }

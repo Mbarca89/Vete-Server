@@ -4,9 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mbarca.vete.dto.request.PetRequestDto;
+import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.PetService;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -122,6 +124,32 @@ public class PetController {
             return ResponseEntity.status(HttpStatus.OK).body(count);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/edit")
+    public ResponseEntity<String> editUserHandler(@RequestParam(value = "file", required = false) MultipartFile file ,
+                                                  @RequestParam("pet") String petJson)
+                                                  {
+        try {
+            PetRequestDto petRequestDto = new ObjectMapper().readValue(petJson, PetRequestDto.class);
+            byte[] compressedImage = null;
+            if (file != null && !file.isEmpty()) {
+                compressedImage = petService.compressImage(file.getBytes());
+            }
+            String response = petService.editPet(petRequestDto, compressedImage);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (MissingDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (DuplicateKeyException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No existe una mascota con ese nombre!");
+        } catch (MaxUploadSizeExceededException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La imagen es demasiado grande");
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Imagen no soportada");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception: " + e.getMessage());
         }
     }
 }

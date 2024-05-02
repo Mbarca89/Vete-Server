@@ -1,34 +1,28 @@
-package com.mbarca.vete.domain;
+package com.mbarca.vete.dto.response;
+
+import com.mbarca.vete.domain.SaleProduct;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
-public class Sale {
+public class SaleResponseDto {
     private Long id;
     private BigDecimal amount;
     private BigDecimal cost;
-    private Date date;
+    private String date;
     private String seller;
     private List<SaleProduct> saleProducts;
-    public Sale() {
+
+    public SaleResponseDto() {
     }
 
-    public Sale(Long id, BigDecimal amount, BigDecimal cost, Date date, String seller, List<SaleProduct> saleProducts) {
+    public SaleResponseDto(Long id, BigDecimal amount, BigDecimal cost, String date, String seller, List<SaleProduct> saleProducts) {
         this.id = id;
         this.amount = amount;
         this.cost = cost;
         this.date = date;
         this.seller = seller;
         this.saleProducts = saleProducts;
-    }
-
-    public void addSaleProduct(SaleProduct saleProduct) {
-        if (saleProducts == null) {
-            saleProducts = new ArrayList<>();
-        }
-        saleProducts.add(saleProduct);
     }
 
     public Long getId() {
@@ -47,13 +41,14 @@ public class Sale {
         this.amount = amount;
     }
 
-    public Date getDate() {
+    public String getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(String date) {
         this.date = date;
     }
+
     public String getSeller() {
         return seller;
     }
@@ -61,6 +56,7 @@ public class Sale {
     public void setSeller(String seller) {
         this.seller = seller;
     }
+
     public List<SaleProduct> getSaleProducts() {
         return saleProducts;
     }

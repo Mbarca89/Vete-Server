@@ -11,6 +11,8 @@ CREATE TABLE IF NOT EXISTS Products (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
     description VARCHAR(255),
+    category_name VARCHAR(50) NOT NULL,
+    provider_name VARCHAR(50) NOT NULL,
     bar_code LONG UNIQUE,
     cost DECIMAL(10,2) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
@@ -50,13 +52,18 @@ CREATE TABLE IF NOT EXISTS Clients (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
     surname VARCHAR(50),
-    phone VARCHAR(50)
+    phone VARCHAR(50),
+    email VARCHAR(50),
+    social VARCHAR(50),
+    user_name VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS Pets (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     name VARCHAR(50) NOT NULL,
     race VARCHAR(50),
+    gender VARCHAR(50),
+    species VARCHAR(50),
     weight DOUBLE,
     born DATE,
     photo BLOB
@@ -72,12 +79,10 @@ CREATE TABLE IF NOT EXISTS ClientPets (
 
 CREATE TABLE IF NOT EXISTS Sales (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
-    sale_date DATE NOT NULL,
-    client_id LONG,
+    sale_date DATETIME NOT NULL,
     sale_amount DECIMAL(10, 2) NOT NULL,
-    seller_id LONG NOT NULL,
-    FOREIGN KEY (client_id) REFERENCES Clients(id),
-    FOREIGN KEY (seller_id) REFERENCES Users(id)
+    sale_cost DECIMAL(10, 2) NOT NULL,
+    seller VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS SalesProducts (
@@ -96,6 +101,15 @@ CREATE TABLE IF NOT EXISTS medical_history (
     notes TEXT,
     description TEXT,
     medicine VARCHAR(100),
-    pet_id LONG UNIQUE,
+    pet_id LONG,
+    FOREIGN KEY (pet_id) REFERENCES Pets(id)
+);
+
+CREATE TABLE IF NOT EXISTS Vaccines (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    date DATE NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    notes TEXT,
+    pet_id LONG,
     FOREIGN KEY (pet_id) REFERENCES Pets(id)
 );

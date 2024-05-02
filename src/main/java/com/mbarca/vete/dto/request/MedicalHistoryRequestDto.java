@@ -8,16 +8,18 @@ public class MedicalHistoryRequestDto {
     private String notes;
     private String description;
     private String medicine;
+    private Long petId;
 
     public MedicalHistoryRequestDto() {
     }
 
-    public MedicalHistoryRequestDto(Date date, String type, String notes, String description, String medicine) {
+    public MedicalHistoryRequestDto(Date date, String type, String notes, String description, String medicine, Long petId) {
         this.date = date;
         this.type = type;
         this.notes = notes;
         this.description = description;
         this.medicine = medicine;
+        this.petId = petId;
     }
 
     public Date getDate() {
@@ -58,5 +60,13 @@ public class MedicalHistoryRequestDto {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Long getPetId() {
+        return petId;
+    }
+
+    public void setPetId(Long petId) {
+        this.petId = petId;
     }
 }

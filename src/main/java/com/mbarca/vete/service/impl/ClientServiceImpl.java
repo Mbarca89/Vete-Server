@@ -80,6 +80,9 @@ public class ClientServiceImpl implements ClientService {
         client.setName(clientRequestDto.getName());
         client.setSurname(clientRequestDto.getSurname());
         client.setPhone(clientRequestDto.getPhone());
+        client.setEmail(clientRequestDto.getEmail());
+        client.setSocial(clientRequestDto.getSocial());
+        client.setUserName(clientRequestDto.getUserName());
         return client;
     }
 
@@ -89,6 +92,9 @@ public class ClientServiceImpl implements ClientService {
         clientResponseDto.setName(client.getName());
         clientResponseDto.setSurname(client.getSurname());
         clientResponseDto.setPhone(client.getPhone());
+        clientResponseDto.setEmail(client.getEmail());
+        clientResponseDto.setSocial(client.getSocial());
+        clientResponseDto.setUserName(client.getUserName());
         return clientResponseDto;
     }
 }

@@ -7,12 +7,14 @@ import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.ProviderResponseDto;
 import com.mbarca.vete.dto.response.UserResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
+import com.mbarca.vete.exceptions.NotFoundException;
 import com.mbarca.vete.repository.ProviderRepository;
 import com.mbarca.vete.service.ProviderService;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,8 +60,24 @@ public class ProviderServiceImpl implements ProviderService {
         return mapProviderToDto(provider);
     }
 
+    @Override
+    public String editProvider (ProviderRequestDto providerRequestDto) throws MissingDataException, NotFoundException {
+        if (providerRequestDto.getName() == null || Objects.equals(providerRequestDto.getName(), "")){
+            throw new MissingDataException("Faltan datos!");
+        }
+
+        Provider provider = mapDtoToProvider(providerRequestDto);
+        Integer response = providerRepository.editProvider(provider);
+
+        if (response.equals(0)) {
+            return "Error al editar el proveedor!";
+        }
+        return "Proveedor editado correctamente!";
+    }
+
     private Provider mapDtoToProvider(ProviderRequestDto providerRequestDto) {
         Provider provider = new Provider();
+        provider.setId(providerRequestDto.getId());
         provider.setName(providerRequestDto.getName());
         provider.setContactName(providerRequestDto.getContactName());
         provider.setPhone(providerRequestDto.getPhone());
@@ -68,6 +86,7 @@ public class ProviderServiceImpl implements ProviderService {
 
     private ProviderResponseDto mapProviderToDto (Provider provider) {
         ProviderResponseDto providerResponseDto = new ProviderResponseDto();
+        providerResponseDto.setId(provider.getId());
         providerResponseDto.setName(provider.getName());
         providerResponseDto.setContactName(provider.getContactName());
         providerResponseDto.setPhone(provider.getPhone());

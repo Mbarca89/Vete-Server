@@ -1,42 +1,27 @@
-package com.mbarca.vete.domain;
+package com.mbarca.vete.dto.request;
+
+import com.mbarca.vete.domain.SaleProduct;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class Sale {
-    private Long id;
+public class SaleRequestDto {
     private BigDecimal amount;
     private BigDecimal cost;
     private Date date;
     private String seller;
     private List<SaleProduct> saleProducts;
-    public Sale() {
+
+    public SaleRequestDto() {
     }
 
-    public Sale(Long id, BigDecimal amount, BigDecimal cost, Date date, String seller, List<SaleProduct> saleProducts) {
-        this.id = id;
+    public SaleRequestDto(BigDecimal amount, BigDecimal cost, Date date, String seller, List<SaleProduct> saleProducts) {
         this.amount = amount;
         this.cost = cost;
         this.date = date;
         this.seller = seller;
         this.saleProducts = saleProducts;
-    }
-
-    public void addSaleProduct(SaleProduct saleProduct) {
-        if (saleProducts == null) {
-            saleProducts = new ArrayList<>();
-        }
-        saleProducts.add(saleProduct);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public BigDecimal getAmount() {
@@ -54,6 +39,7 @@ public class Sale {
     public void setDate(Date date) {
         this.date = date;
     }
+
     public String getSeller() {
         return seller;
     }
@@ -61,12 +47,23 @@ public class Sale {
     public void setSeller(String seller) {
         this.seller = seller;
     }
+
     public List<SaleProduct> getSaleProducts() {
         return saleProducts;
     }
 
     public void setSaleProducts(List<SaleProduct> saleProducts) {
         this.saleProducts = saleProducts;
+    }
+
+    @Override
+    public String toString() {
+        return "SaleRequestDto{" +
+                "amount=" + amount +
+                ", date=" + date +
+                ", sellerId=" + seller +
+                ", saleProducts=" + saleProducts +
+                '}';
     }
 
     public BigDecimal getCost() {

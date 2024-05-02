@@ -10,17 +10,15 @@ public class Product {
     private Double cost;
     private Double price;
     private Integer stock;
-    private Long categoryId;
     private String categoryName;
-    private String seller;
-    private String provider;
+    private String providerName;
     @Lob
     private byte[] photo;
 
     public Product() {
     }
 
-    public Product(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, Long categoryId, String categoryName, String seller, String provider, byte[] photo) {
+    public Product(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, byte[] photo) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,10 +26,8 @@ public class Product {
         this.cost = cost;
         this.price = price;
         this.stock = stock;
-        this.categoryId = categoryId;
         this.categoryName = categoryName;
-        this.seller = seller;
-        this.provider = provider;
+        this.providerName = providerName;
         this.photo = photo;
     }
 
@@ -91,14 +87,6 @@ public class Product {
         this.stock = stock;
     }
 
-    public Long getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(Long categoryId) {
-        this.categoryId = categoryId;
-    }
-
     public String getCategoryName() {
         return categoryName;
     }
@@ -107,20 +95,12 @@ public class Product {
         this.categoryName = categoryName;
     }
 
-    public String getSeller() {
-        return seller;
+    public String getProviderName() {
+        return providerName;
     }
 
-    public void setSeller(String seller) {
-        this.seller = seller;
-    }
-
-    public String getProvider() {
-        return provider;
-    }
-
-    public void setProvider(String provider) {
-        this.provider = provider;
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     public byte[] getPhoto() {
@@ -141,10 +121,8 @@ public class Product {
                 ", cost=" + cost +
                 ", price=" + price +
                 ", stock=" + stock +
-                ", categoryId=" + categoryId +
                 ", categoryName='" + categoryName + '\'' +
-                ", seller='" + seller + '\'' +
-                ", provider='" + provider + '\'' +
+                ", provider='" + providerName + '\'' +
                 ", photo=" + Arrays.toString(photo) +
                 '}';
     }

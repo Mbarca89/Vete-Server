@@ -9,9 +9,12 @@ import com.mbarca.vete.service.MedicalHistoryService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 @Service
 public class MedicalHistoryServiceImpl implements MedicalHistoryService {
@@ -22,16 +25,15 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     }
 
     @Override
-    public String createMedicalHistory(MedicalHistoryRequestDto medicalHistoryRequestDto, Long petId) throws MissingDataException {
+    public String createMedicalHistory(MedicalHistoryRequestDto medicalHistoryRequestDto) throws MissingDataException {
         if (medicalHistoryRequestDto.getType() == null ||
-                medicalHistoryRequestDto.getDate() == null ||
                 Objects.equals(medicalHistoryRequestDto.getType(), "")
         ) {
             throw new MissingDataException("Faltan datos!");
         }
 
         MedicalHistory medicalHistory = mapDtoToMedicalHistory(medicalHistoryRequestDto);
-        Integer response = medicalHistoryRepository.createMedicalHistory(medicalHistory, petId);
+        Integer response = medicalHistoryRepository.createMedicalHistory(medicalHistory);
         if (response.equals(0)) {
             return "Error al crear la Historia clínica!";
         }
@@ -59,12 +61,16 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     }
 
     private MedicalHistory mapDtoToMedicalHistory (MedicalHistoryRequestDto medicalHistoryRequestDto) {
+        LocalDate currentDate = LocalDate.now();
+        Date date = Date.from(currentDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+
         MedicalHistory medicalHistory = new MedicalHistory();
-        medicalHistory.setDate(medicalHistoryRequestDto.getDate());
+        medicalHistory.setDate(date);
         medicalHistory.setType(medicalHistoryRequestDto.getType());
         medicalHistory.setNotes(medicalHistoryRequestDto.getNotes());
         medicalHistory.setDescription(medicalHistoryRequestDto.getDescription());
         medicalHistory.setMedicine(medicalHistoryRequestDto.getMedicine());
+        medicalHistory.setPetId(medicalHistoryRequestDto.getPetId());
         return medicalHistory;
     }
 

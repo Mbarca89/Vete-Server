@@ -23,9 +23,9 @@ public class MedicalHistoryController {
 
     @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<?> createMedicalHistoryController(@RequestBody MedicalHistoryRequestDto medicalHistoryRequestDto, @RequestBody Long petId) {
+    public ResponseEntity<?> createMedicalHistoryController(@RequestBody MedicalHistoryRequestDto medicalHistoryRequestDto) {
         try {
-            String response = medicalHistoryService.createMedicalHistory(medicalHistoryRequestDto, petId);
+            String response = medicalHistoryService.createMedicalHistory(medicalHistoryRequestDto);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (MissingDataException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

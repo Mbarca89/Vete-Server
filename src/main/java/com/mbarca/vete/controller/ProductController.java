@@ -10,8 +10,10 @@ import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ProductService;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,8 +47,10 @@ public class ProductController {
         } catch (DataAccessException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error" + e.getMessage());
         } catch (JsonProcessingException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error json" + e.getMessage());
-        }catch (MaxUploadSizeExceededException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error json " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Imagen no soportada");
+        } catch (MaxUploadSizeExceededException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La imagen es demasiado grande");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
@@ -60,6 +64,8 @@ public class ProductController {
         try {
             List<ProductResponseDto> products = productService.getAllProducts();
             return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (BadSqlGrammarException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error sql: " + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
         }
@@ -105,6 +111,66 @@ public class ProductController {
                                                          @RequestParam(defaultValue = "12") int size) {
         try {
             List<ProductResponseDto> products = productService.getProductsPaginated(page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @PostMapping("/edit")
+    public ResponseEntity<?> editProductHandler(@RequestParam(value = "file", required = false) MultipartFile file,
+                                                @RequestParam("product") String productJson) {
+        try {
+            ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
+            byte[] compressedImage = null;
+            if (file != null && !file.isEmpty()) {
+                compressedImage = productService.compressImage(file.getBytes());
+            }
+            String response = productService.editProduct(productRequestDto, compressedImage);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (MissingDataException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (DataAccessException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en BD: " + e.getMessage());
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error Json: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Imagen no soportada!");
+        } catch (MaxUploadSizeExceededException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La imagen es demasiado grande!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error: " + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @DeleteMapping("/delete")
+    public ResponseEntity<?> deleteProductHandler(@RequestParam Long productId) {
+        try {
+            String response = productService.deleteProduct(productId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/searchProduct")
+    public ResponseEntity<?> searchProductHandler(@RequestParam String searchTerm) {
+        try {
+            List<ProductResponseDto> products = productService.searchProduct(searchTerm);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getFromProvider")
+    public ResponseEntity<?> getProductsFromProviderHandler(@RequestParam Long providerId) {
+        try {
+            List<ProductResponseDto> products = productService.getProductsFromProvider(providerId);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());

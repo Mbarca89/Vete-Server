@@ -5,15 +5,21 @@ public class Client {
     private String name;
     private String surname;
     private String phone;
+    private String email;
+    private String social;
+    private String userName;
 
     public Client() {
     }
 
-    public Client(Long id, String name, String surname, String phone) {
+    public Client(Long id, String name, String surname, String phone, String email, String social, String userName) {
         this.id = id;
         this.name = name;
         this.surname = surname;
         this.phone = phone;
+        this.email = email;
+        this.social = social;
+        this.userName = userName;
     }
 
     public Long getId() {
@@ -48,6 +54,29 @@ public class Client {
         this.phone = phone;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSocial() {
+        return social;
+    }
+
+    public void setSocial(String social) {
+        this.social = social;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
     @Override
     public String toString() {
         return "Client{" +
@@ -57,4 +86,5 @@ public class Client {
                 ", phone='" + phone + '\'' +
                 '}';
     }
+
 }

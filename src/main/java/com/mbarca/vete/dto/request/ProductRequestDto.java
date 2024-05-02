@@ -1,27 +1,29 @@
 package com.mbarca.vete.dto.request;
 
 public class ProductRequestDto {
+    private Long id;
     private String name;
     private String description;
     private Double barCode;
     private Double cost;
     private Double price;
     private Integer stock;
-    private String category;
-    private String provider;
+    private String categoryName;
+    private String providerName;
 
     public ProductRequestDto() {
     }
 
-    public ProductRequestDto(String name, String description, Double barCode, Double cost, Double price, Integer stock, String category, String provider) {
+    public ProductRequestDto(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName) {
+        this.id = id;
         this.name = name;
         this.description = description;
         this.barCode = barCode;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
-        this.category = category;
-        this.provider = provider;
+        this.categoryName = categoryName;
+        this.providerName = providerName;
     }
 
     public String getName() {
@@ -72,33 +74,28 @@ public class ProductRequestDto {
         this.stock = stock;
     }
 
-    public String getCategory() {
-        return category;
+    public String getCategoryName() {
+        return categoryName;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 
-    public String getProvider() {
-        return provider;
+    public String getProviderName() {
+        return providerName;
     }
 
-    public void setProvider(String provider) {
-        this.provider = provider;
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
+    }
+    public Long getId() {
+        return id;
     }
 
-    public ProductRequestDto(String name, String description, Double barCode, Double cost, Double price, Integer stock, String category, String seller, String provider) {
-        this.name = name;
-        this.description = description;
-        this.barCode = barCode;
-        this.cost = cost;
-        this.price = price;
-        this.stock = stock;
-        this.category = category;
-        this.provider = provider;
+    public void setId(Long id) {
+        this.id = id;
     }
-
     @Override
     public String toString() {
         return "ProductRequestDto{" +
@@ -108,8 +105,9 @@ public class ProductRequestDto {
                 ", cost=" + cost +
                 ", price=" + price +
                 ", stock=" + stock +
-                ", category='" + category + '\'' +
-                ", provider='" + provider + '\'' +
+                ", category='" + categoryName + '\'' +
+                ", provider='" + providerName + '\'' +
                 '}';
     }
+
 }

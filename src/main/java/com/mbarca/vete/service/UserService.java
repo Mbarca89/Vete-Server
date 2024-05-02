@@ -12,6 +12,5 @@ public interface UserService {
     String createUser (UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException;
     String deleteUser (String name);
     List<UserResponseDto> getUsers();
-
     String editUser (UserRequestDto userRequestDto) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException;
 }

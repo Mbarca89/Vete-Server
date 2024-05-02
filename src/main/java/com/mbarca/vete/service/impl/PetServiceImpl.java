@@ -2,9 +2,13 @@ package com.mbarca.vete.service.impl;
 
 import com.mbarca.vete.domain.Pet;
 import com.mbarca.vete.domain.Product;
+import com.mbarca.vete.domain.User;
 import com.mbarca.vete.dto.request.PetRequestDto;
+import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
+import com.mbarca.vete.exceptions.PetNotFoundException;
+import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.repository.PetRepository;
 import com.mbarca.vete.service.PetService;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -15,6 +19,7 @@ import javax.imageio.ImageIO;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -81,6 +86,23 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
+    public String editPet(PetRequestDto petRequestDto, byte[] compressedImage) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException, PetNotFoundException {
+
+        if (petRequestDto.getName() == null || Objects.equals(petRequestDto.getName(), "")) {
+            throw new MissingDataException("Faltan datos!");
+        }
+
+        Pet pet = mapDtoToPet(petRequestDto);
+        if(compressedImage != null) pet.setPhoto(compressedImage);
+        Integer response = petRepository.editPet(pet);
+
+        if (response.equals(0)) {
+            return "Error al editar la mascota!";
+        }
+        return "Mascota editada correctamente!";
+    }
+
+    @Override
     public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(ImageIO.read(new ByteArrayInputStream(imageData)), "jpg", outputStream);
@@ -89,8 +111,11 @@ public class PetServiceImpl implements PetService {
 
     private Pet mapDtoToPet(PetRequestDto petRequestDto) {
         Pet pet = new Pet();
+        pet.setId(petRequestDto.getId());
         pet.setName(petRequestDto.getName());
         pet.setRace(petRequestDto.getRace());
+        pet.setGender(petRequestDto.getGender());
+        pet.setSpecies(petRequestDto.getSpecies());
         pet.setWeight(petRequestDto.getWeight());
         pet.setBorn(petRequestDto.getBorn());
 
@@ -102,6 +127,8 @@ public class PetServiceImpl implements PetService {
         petResponseDto.setId(pet.getId());
         petResponseDto.setName(pet.getName());
         petResponseDto.setRace(pet.getRace());
+        petResponseDto.setGender(pet.getGender());
+        petResponseDto.setSpecies(pet.getSpecies());
         petResponseDto.setWeight(pet.getWeight());
         petResponseDto.setBorn(pet.getBorn());
         petResponseDto.setPhoto(pet.getPhoto());

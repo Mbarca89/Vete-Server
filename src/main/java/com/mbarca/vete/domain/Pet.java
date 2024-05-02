@@ -7,23 +7,27 @@ public class Pet {
     private Long id;
     private String name;
     private String race;
+    private String gender;
+    private String species;
     private Double weight;
     private Date born;
     @Lob
     private byte[] photo;
     MedicalHistory medicalHistory;
 
-    public Pet() {
-    }
-
-    public Pet(Long id, String name, String race, Double weight, Date born, byte[] photo, MedicalHistory medicalHistory) {
+    public Pet(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo, MedicalHistory medicalHistory) {
         this.id = id;
         this.name = name;
         this.race = race;
+        this.gender = gender;
+        this.species = species;
         this.weight = weight;
         this.born = born;
         this.photo = photo;
         this.medicalHistory = medicalHistory;
+    }
+
+    public Pet() {
     }
 
     public Long getId() {
@@ -80,5 +84,21 @@ public class Pet {
 
     public void setBorn(Date born) {
         this.born = born;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(String species) {
+        this.species = species;
     }
 }
