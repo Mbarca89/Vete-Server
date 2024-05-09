@@ -1,5 +1,7 @@
 package com.mbarca.vete.service;
 
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.MetadataException;
 import com.mbarca.vete.dto.request.PetRequestDto;
 import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
@@ -20,5 +22,5 @@ public interface PetService {
     PetResponseDto getPetById (Long petId);
     String deletePet (Long petId);
     String editPet (PetRequestDto petRequestDto, byte[] compressedImage) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException, PetNotFoundException;
-    byte[] compressImage(byte[] imageData) throws IOException;
+    byte[] compressImage(byte[] imageData) throws IOException, ImageProcessingException, ImageProcessingException, MetadataException;
 }

@@ -17,6 +17,7 @@ import com.mbarca.vete.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
@@ -144,6 +145,7 @@ public class ProductServiceImpl implements ProductService {
         return stockAlerts.stream().map(this::mapStockAlertsToDto).collect(Collectors.toList());
     }
 
+    @Override
     public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException, ImageProcessingException, MetadataException {
         Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageData));
         ExifIFD0Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
@@ -153,20 +155,26 @@ public class ProductServiceImpl implements ProductService {
             AffineTransform transform = new AffineTransform();
             switch (orientation) {
                 case 6:
+                    transform.translate(originalImage.getHeight(), 0);
                     transform.rotate(Math.toRadians(90));
                     break;
                 case 3:
+                    transform.translate(originalImage.getWidth(), originalImage.getHeight());
                     transform.rotate(Math.toRadians(180));
                     break;
                 case 8:
+                    transform.translate(0, originalImage.getWidth());
                     transform.rotate(Math.toRadians(270));
                     break;
             }
             originalImage = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
                     .filter(originalImage, null);
         }
+        BufferedImage outputImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
+        outputImage.createGraphics().drawImage(originalImage, 0, 0, Color.WHITE, null);
+
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(originalImage, "jpg", outputStream);
+        ImageIO.write(outputImage, "jpg", outputStream);
         return outputStream.toByteArray();
     }
 
