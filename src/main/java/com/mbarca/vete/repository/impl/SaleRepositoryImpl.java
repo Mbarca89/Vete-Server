@@ -43,7 +43,6 @@ public class SaleRepositoryImpl implements SaleRepository {
 
     @Override
     public Integer createSale(Sale sale) {
-        System.out.println(sale.getSeller());
         Integer res = jdbcTemplate.execute((ConnectionCallback<Integer>) connection -> {
             connection.setAutoCommit(false);
             try {

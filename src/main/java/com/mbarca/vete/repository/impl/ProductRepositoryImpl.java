@@ -3,6 +3,7 @@ package com.mbarca.vete.repository.impl;
 import com.mbarca.vete.domain.Category;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.domain.Provider;
+import com.mbarca.vete.domain.StockAlert;
 import com.mbarca.vete.exceptions.NotFoundException;
 import com.mbarca.vete.repository.ProductRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,13 +33,13 @@ public class ProductRepositoryImpl implements ProductRepository {
     private final String RELATE_PRODUCT_PROVIDER = "INSERT INTO ProductProviders (product_id, provider_id) VALUES (?, ?)";
     private final String RELATE_PRODUCT_CATEGORY = "INSERT INTO ProductCategories (product_id, category_id) VALUES (?, ?)";
     private final String GET_PRODUCT_BY_ID = "SELECT * FROM products WHERE id= ?";
-    private final String EDIT_PRODUCT = "UPDATE products SET name = ?, bar_code = ?, description = ?, cost = ?, price = ?, stock = ?, category_name = ?, image = ?, provider_name = ? WHERE id = ?";
+    private final String EDIT_PRODUCT = "UPDATE products SET name = ?, bar_code = ?, description = ?, cost = ?, price = ?, stock = ?, category_name = ?, image = ?, provider_name = ?, stock_alert = ?, published = ? WHERE id = ?";
     private final String DELETE_PRODUCT = "DELETE FROM products WHERE id = ?";
     private final String DELETE_PRODUCT_CATEGORY = "DELETE FROM ProductCategories WHERE product_id = ?";
     private final String DELETE_PRODUCT_PROVIDER = "DELETE FROM ProductProviders WHERE product_id = ?";
     private final String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
     private final String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
-
+    private final String GET_STOCK_ALERTS = "SELECT * FROM Products WHERE stock_alert = true AND stock <= 5";
     private final String GET_PRODUCTS_FROM_PROVIDERS = "SELECT p.id, p.name, p.description, p.category_name, p.provider_name, p.bar_code, p.cost, p.price, p.stock " +
             "FROM Products p " +
             "JOIN ProductProviders pp ON p.id = pp.product_id " +
@@ -57,8 +58,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         int[] types = {1};
         Category category = jdbcTemplate.queryForObject(GET_CATEGORY, params, types, new CategoryRowMapper());
 
-        Object[] params2 = {product.getProviderName()};
-        Provider provider = jdbcTemplate.queryForObject(GET_PROVIDER, params2, types, new ProviderRepositoryImpl.ProviderRowMapper());
+
 
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(CREATE_PRODUCT, Statement.RETURN_GENERATED_KEYS);
@@ -74,14 +74,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             ps.setDouble(6, product.getStock());
             ps.setString(7, category.getName());
             ps.setBytes(8, product.getPhoto());
-            ps.setString(9, provider.getName());
+            ps.setString(9, product.getProviderName());
             return ps;
         }, keyHolder);
-
         Long productId = keyHolder.getKey().longValue();
 
-        jdbcTemplate.update(RELATE_PRODUCT_CATEGORY, productId, category.getId());
-        return jdbcTemplate.update(RELATE_PRODUCT_PROVIDER, productId, provider.getId());
+        if(!Objects.equals(product.getProviderName(), "Ninguno")) {
+            Object[] params2 = {product.getProviderName()};
+            Provider provider = jdbcTemplate.queryForObject(GET_PROVIDER, params2, types, new ProviderRepositoryImpl.ProviderRowMapper());
+            jdbcTemplate.update(RELATE_PRODUCT_PROVIDER, productId, provider.getId());
+        }
+
+        return jdbcTemplate.update(RELATE_PRODUCT_CATEGORY, productId, category.getId());
     }
 
     @Override
@@ -120,7 +124,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
 
         Product editProduct = getEditProduct(newProduct, currentProduct);
-
         return jdbcTemplate.update(EDIT_PRODUCT,
                 editProduct.getName(),
                 editProduct.getBarCode(),
@@ -131,6 +134,8 @@ public class ProductRepositoryImpl implements ProductRepository {
                 editProduct.getCategoryName(),
                 editProduct.getPhoto(),
                 editProduct.getProviderName(),
+                editProduct.getStockAlert(),
+                editProduct.getPublished(),
                 currentProduct.getId());
     }
 
@@ -156,6 +161,23 @@ public class ProductRepositoryImpl implements ProductRepository {
         return jdbcTemplate.query(GET_PRODUCTS_FROM_PROVIDERS, new Object[]{providerId}, new ProductRowMapper(false));
     }
 
+    @Override
+    public Product getProductById (Long productId) throws NotFoundException {
+        Object[] params = {productId};
+        int [] types = {1};
+        Product currentProduct = jdbcTemplate.queryForObject(GET_PRODUCT_BY_ID, params, types, new ProductRowMapper(true));
+        if(currentProduct == null) {
+            throw new NotFoundException("Producto no encontrado!");
+        } else {
+            return currentProduct;
+        }
+    }
+
+    @Override
+    public List<StockAlert> getStockAlerts () {
+        return jdbcTemplate.query(GET_STOCK_ALERTS, new StockAlertRowMapper());
+    }
+
     private static Product getEditProduct(Product newProduct, Product currentProduct) {
         Product editProduct = new Product();
         editProduct.setName(!Objects.equals(newProduct.getName(), "") ? newProduct.getName() : currentProduct.getName());
@@ -167,6 +189,8 @@ public class ProductRepositoryImpl implements ProductRepository {
         editProduct.setCategoryName(!Objects.equals(newProduct.getCategoryName(), "") ? newProduct.getCategoryName() : currentProduct.getCategoryName());
         editProduct.setProviderName(!Objects.equals(newProduct.getProviderName(), "") ? newProduct.getProviderName() : currentProduct.getProviderName());
         editProduct.setPhoto(newProduct.getPhoto() != null ? newProduct.getPhoto() : currentProduct.getPhoto());
+        editProduct.setStockAlert(newProduct.getStockAlert());
+        editProduct.setPublished(newProduct.getPublished());
         return editProduct;
     }
 
@@ -177,6 +201,16 @@ public class ProductRepositoryImpl implements ProductRepository {
             category.setId(rs.getLong("id"));
             category.setName(rs.getString("name"));
             return category;
+        }
+    }
+
+    static class StockAlertRowMapper implements RowMapper<StockAlert> {
+        @Override
+        public StockAlert mapRow(ResultSet rs, int rowNum) throws SQLException {
+            StockAlert stockAlert = new StockAlert();
+            stockAlert.setProductName(rs.getString("name"));
+            stockAlert.setStock(rs.getInt("stock"));
+            return stockAlert;
         }
     }
 
@@ -199,6 +233,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setPrice(rs.getDouble("price"));
             product.setStock(rs.getInt("stock"));
             product.setProviderName(rs.getString("provider_name"));
+            product.setStockAlert(rs.getBoolean("stock_alert"));
+            product.setPublished(rs.getBoolean("published"));
             if(includeImage) product.setPhoto(rs.getBytes("image"));
             return product;
         }

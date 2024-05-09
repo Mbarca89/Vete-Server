@@ -27,7 +27,6 @@ public class VaccineServiceImpl implements VaccineService {
 
     @Override
     public String createVaccine(VaccineRequestDto vaccineRequestDto) throws NoSuchAlgorithmException, MissingDataException {
-
         if (vaccineRequestDto.getDate() == null ||
                 vaccineRequestDto.getName() == null ||
                 Objects.equals(vaccineRequestDto.getName(), "")){
@@ -59,7 +58,7 @@ public class VaccineServiceImpl implements VaccineService {
 
     private Vaccine mapDtoToVaccine(VaccineRequestDto vaccineRequestDto) throws NoSuchAlgorithmException {
         Vaccine vaccine = new Vaccine();
-        if (vaccineRequestDto.getId() != null) vaccine.setId(Long.valueOf(vaccineRequestDto.getId()));
+        if (vaccineRequestDto.getId() != null) vaccine.setId(vaccineRequestDto.getId());
         vaccine.setName(vaccineRequestDto.getName());
         vaccine.setDate(vaccineRequestDto.getDate());
         vaccine.setNotes(vaccineRequestDto.getNotes());

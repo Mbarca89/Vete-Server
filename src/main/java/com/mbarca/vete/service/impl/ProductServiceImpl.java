@@ -1,8 +1,15 @@
 package com.mbarca.vete.service.impl;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import com.mbarca.vete.domain.Product;
+import com.mbarca.vete.domain.StockAlert;
 import com.mbarca.vete.dto.request.ProductRequestDto;
 import com.mbarca.vete.dto.response.ProductResponseDto;
+import com.mbarca.vete.dto.response.StockAlertResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.exceptions.NotFoundException;
 import com.mbarca.vete.repository.ProductRepository;
@@ -10,6 +17,9 @@ import com.mbarca.vete.service.ProductService;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
+import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -67,6 +77,7 @@ public class ProductServiceImpl implements ProductService {
     public Integer getProductCount() {
         return productRepository.getProductCount();
     }
+
     @Override
     public Integer getCategoryCount(String categoryName) {
         return productRepository.getCategoryCount(categoryName);
@@ -80,18 +91,18 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String editProduct (ProductRequestDto productRequestDto, byte[] compressedImage) throws Exception {
-        if(Objects.equals(productRequestDto.getName(), "") ||
-        productRequestDto.getStock() == null ||
-        productRequestDto.getCost() == null ||
-        productRequestDto.getPrice() == null ||
-                Objects.equals(productRequestDto.getProviderName(), "") ||
+    public String editProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws Exception {
+        if (Objects.equals(productRequestDto.getName(), "") ||
+                productRequestDto.getStock() == null ||
+                productRequestDto.getCost() == null ||
+                productRequestDto.getPrice() == null ||
                 Objects.equals(productRequestDto.getCategoryName(), "")) {
+
             throw new MissingDataException("Faltan datos!");
         }
 
         Product product = mapDtoToProduct(productRequestDto);
-        if(compressedImage != null) product.setPhoto(compressedImage);
+        if (compressedImage != null) product.setPhoto(compressedImage);
         Integer response = productRepository.editProduct(product);
 
         if (response.equals(0)) {
@@ -101,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String deleteProduct (Long productId) throws Exception {
+    public String deleteProduct(Long productId) throws Exception {
         int response = productRepository.deleteProduct(productId);
         if (response == 0) {
             throw new Exception("Error al eliminar el producto");
@@ -116,14 +127,46 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponseDto> getProductsFromProvider (Long providerId) {
-        List <Product> products = productRepository.getProductsFromProvider(providerId);
+    public List<ProductResponseDto> getProductsFromProvider(Long providerId) {
+        List<Product> products = productRepository.getProductsFromProvider(providerId);
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
     }
 
-    public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException {
+    @Override
+    public ProductResponseDto getProductById(Long productId) throws NotFoundException {
+        Product product = productRepository.getProductById(productId);
+        return mapProductToDto(product);
+    }
+
+    @Override
+    public List<StockAlertResponseDto> getStockAlerts() {
+        List<StockAlert> stockAlerts = productRepository.getStockAlerts();
+        return stockAlerts.stream().map(this::mapStockAlertsToDto).collect(Collectors.toList());
+    }
+
+    public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException, ImageProcessingException, MetadataException {
+        Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageData));
+        ExifIFD0Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+        int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageData));
+        if (orientation != 1) {
+            AffineTransform transform = new AffineTransform();
+            switch (orientation) {
+                case 6:
+                    transform.rotate(Math.toRadians(90));
+                    break;
+                case 3:
+                    transform.rotate(Math.toRadians(180));
+                    break;
+                case 8:
+                    transform.rotate(Math.toRadians(270));
+                    break;
+            }
+            originalImage = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
+                    .filter(originalImage, null);
+        }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(ImageIO.read(new ByteArrayInputStream(imageData)), "jpg", outputStream);
+        ImageIO.write(originalImage, "jpg", outputStream);
         return outputStream.toByteArray();
     }
 
@@ -138,7 +181,16 @@ public class ProductServiceImpl implements ProductService {
         product.setStock(productRequestDto.getStock());
         product.setCategoryName(productRequestDto.getCategoryName());
         product.setProviderName(productRequestDto.getProviderName());
+        product.setStockAlert(productRequestDto.getStockAlert());
+        product.setPublished(productRequestDto.getPublished());
         return product;
+    }
+
+    private StockAlertResponseDto mapStockAlertsToDto(StockAlert stockAlert) {
+        StockAlertResponseDto stockAlertResponseDto = new StockAlertResponseDto();
+        stockAlertResponseDto.setProductName(stockAlert.getProductName());
+        stockAlertResponseDto.setStock(stockAlert.getStock());
+        return stockAlertResponseDto;
     }
 
     private ProductResponseDto mapProductToDto(Product product) {
@@ -153,6 +205,8 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setCategoryName(product.getCategoryName());
         productResponseDto.setImage(product.getPhoto());
         productResponseDto.setProviderName(product.getProviderName());
+        productResponseDto.setStockAlert(product.getStockAlert());
+        productResponseDto.setPublished(product.getPublished());
         return productResponseDto;
     }
 

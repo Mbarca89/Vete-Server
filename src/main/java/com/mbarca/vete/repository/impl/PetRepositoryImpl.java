@@ -23,11 +23,19 @@ public class PetRepositoryImpl implements PetRepository {
 
     private final String CREATE_PET = "INSERT INTO Pets (name, race, gender, species, weight, born, photo) VALUES (?,?,?,?,?,?,?)";
     private final String GET_PET_COUNT = "SELECT COUNT(*) FROM pets";
-    private final String GET_ALL_PETS = "SELECT * FROM Pets LIMIT ? OFFSET ?";
+    private final String GET_ALL_PETS = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name " +
+            "FROM Pets p " +
+            "INNER JOIN ClientPets cp ON p.id = cp.pet_id " +
+            "INNER JOIN Clients c ON cp.client_id = c.id " +
+            "LIMIT ? OFFSET ?";
     private final String DELETE_PET = "DELETE FROM Pets WHERE id = ?";
     private final String DELETE_PET_CLIENT = "DELETE FROM ClientPets WHERE pet_id = ?";
     private final String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE name LIKE ? LIMIT ? OFFSET ?";
-    private final String GET_PETS_FROM_CLIENT = "SELECT p.* FROM Pets p JOIN ClientPets cp ON p.id = cp.pet_id WHERE cp.client_id = ?";
+    private final String GET_PETS_FROM_CLIENT = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name " +
+            "FROM Pets p " +
+            "JOIN ClientPets cp ON p.id = cp.pet_id " +
+            "JOIN Clients c ON cp.client_id = c.id " +
+            "WHERE cp.client_id = ?";
     private final String GET_PET_BY_ID = "SELECT * FROM Pets WHERE id = ?";
     private final String RELATE_PET = "INSERT INTO ClientPets (client_id, pet_id) VALUES (?, ?)";
     private final String EDIT_PET = "UPDATE pets SET name = ?, race = ?, gender = ?, species = ?, weight = ?, born = ?, photo = ? WHERE id = ?";
@@ -65,19 +73,19 @@ public class PetRepositoryImpl implements PetRepository {
 
     @Override
     public List<Pet> getAllPets(int limit, int offset) {
-        return jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper());
+        return jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true));
     }
 
     @Override
     public List<Pet> getPetsFromClient(Long clientId) {
         Object[] params = {clientId};
-        return jdbcTemplate.query(GET_PETS_FROM_CLIENT, params, new PetRowMapper());
+        return jdbcTemplate.query(GET_PETS_FROM_CLIENT, params, new PetRowMapper(true));
     }
 
     @Override
     public List<Pet> getPetsByName(String name, int limit, int offset) {
         String searchTerm = "%" + name + "%";
-        List<Pet> pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper());
+        List<Pet> pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false));
         return pets;
     }
 
@@ -85,7 +93,7 @@ public class PetRepositoryImpl implements PetRepository {
     public Pet getPetById(Long petId) {
         Object[] params = {petId};
         int[] types = {1};
-        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper());
+        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false));
     }
 
     @Override
@@ -97,14 +105,11 @@ public class PetRepositoryImpl implements PetRepository {
     @Override
     public Integer editPet(Pet newPet) throws PetNotFoundException, PetNotFoundException {
         Pet editPet = new Pet();
-
         Long petId = newPet.getId();
-
-        System.out.println(petId);
 
         Object[] params = {petId};
         int[] types = {1};
-        Pet currentPet = jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper());
+        Pet currentPet = jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false));
 
         if (currentPet == null) {
             throw new PetNotFoundException("Mascota no encontrada!");
@@ -122,6 +127,12 @@ public class PetRepositoryImpl implements PetRepository {
     }
 
     static class PetRowMapper implements RowMapper<Pet> {
+        boolean includeOwner;
+
+        public PetRowMapper(boolean includeOwner) {
+            this.includeOwner = includeOwner;
+        }
+
         @Override
         public Pet mapRow(ResultSet rs, int rowNum) throws SQLException {
             Pet pet = new Pet();
@@ -133,6 +144,7 @@ public class PetRepositoryImpl implements PetRepository {
             pet.setWeight(rs.getDouble("weight"));
             pet.setBorn(rs.getDate("born"));
             pet.setPhoto(rs.getBytes("photo"));
+            if(includeOwner) pet.setOwnerName(rs.getString("owner_name"));
             return pet;
         }
     }

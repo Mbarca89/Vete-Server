@@ -10,11 +10,13 @@ public class ProductRequestDto {
     private Integer stock;
     private String categoryName;
     private String providerName;
+    private Boolean stockAlert;
+    private Boolean published;
 
     public ProductRequestDto() {
     }
 
-    public ProductRequestDto(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName) {
+    public ProductRequestDto(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, Boolean stockAlert, Boolean published) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -24,6 +26,8 @@ public class ProductRequestDto {
         this.stock = stock;
         this.categoryName = categoryName;
         this.providerName = providerName;
+        this.stockAlert = stockAlert;
+        this.published = published;
     }
 
     public String getName() {
@@ -95,6 +99,21 @@ public class ProductRequestDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+    public Boolean getStockAlert() {
+        return stockAlert;
+    }
+
+    public void setStockAlert(Boolean stockAlert) {
+        this.stockAlert = stockAlert;
+    }
+
+    public Boolean getPublished() {
+        return published;
+    }
+
+    public void setPublished(Boolean published) {
+        this.published = published;
     }
     @Override
     public String toString() {

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.dto.request.ProductRequestDto;
 import com.mbarca.vete.dto.response.ProductResponseDto;
+import com.mbarca.vete.dto.response.StockAlertResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ProductService;
 import org.springframework.dao.DataAccessException;
@@ -172,6 +173,28 @@ public class ProductController {
         try {
             List<ProductResponseDto> products = productService.getProductsFromProvider(providerId);
             return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getById")
+    public ResponseEntity<?> getProductByIdHandler(@RequestParam Long productId) {
+        try {
+            ProductResponseDto product = productService.getProductById(productId);
+            return ResponseEntity.status(HttpStatus.OK).body(product);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getStockAlerts")
+    public ResponseEntity<?> getStockAlertsHandler() {
+        try {
+            List<StockAlertResponseDto> response = productService.getStockAlerts();
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
         }

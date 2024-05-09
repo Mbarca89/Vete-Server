@@ -17,6 +17,8 @@ CREATE TABLE IF NOT EXISTS Products (
     cost DECIMAL(10,2) NOT NULL,
     price DECIMAL(10,2) NOT NULL,
     stock INT NOT NULL,
+    stock_alert BOOLEAN DEFAULT FALSE,
+    published BOOLEAN DEFAULT FALSE,
     image BLOB
 );
 
@@ -94,6 +96,21 @@ CREATE TABLE IF NOT EXISTS SalesProducts (
     FOREIGN KEY (product_id) REFERENCES Products(id)
 );
 
+CREATE TABLE IF NOT EXISTS Orders (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    order_date DATETIME NOT NULL,
+    order_amount DECIMAL(10, 2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS OrdersProducts (
+    order_id LONG NOT NULL,
+    product_id LONG NOT NULL,
+    quantity INT NOT NULL,
+    PRIMARY KEY (order_id, product_id),
+    FOREIGN KEY (order_id) REFERENCES Orders(id),
+    FOREIGN KEY (product_id) REFERENCES Products(id)
+);
+
 CREATE TABLE IF NOT EXISTS medical_history (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     date DATE NOT NULL,
@@ -112,4 +129,11 @@ CREATE TABLE IF NOT EXISTS Vaccines (
     notes TEXT,
     pet_id LONG,
     FOREIGN KEY (pet_id) REFERENCES Pets(id)
+);
+
+CREATE TABLE IF NOT EXISTS Reminders (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    date DATE NOT NULL,
+    name VARCHAR(50) NOT NULL,
+    notes TEXT
 );

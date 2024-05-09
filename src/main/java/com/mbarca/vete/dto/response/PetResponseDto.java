@@ -12,6 +12,7 @@ public class PetResponseDto {
     private Double weight;
     private Date born;
     private byte[] photo;
+    private String ownerName;
 
     public PetResponseDto() {
     }
@@ -86,5 +87,13 @@ public class PetResponseDto {
 
     public void setSpecies(String species) {
         this.species = species;
+    }
+
+    public String getOwnerName() {
+        return ownerName;
+    }
+
+    public void setOwnerName(String ownerName) {
+        this.ownerName = ownerName;
     }
 }

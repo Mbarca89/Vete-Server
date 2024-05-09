@@ -10,19 +10,26 @@ public class ProductResponseDto {
     private Integer stock;
     private String categoryName;
     private String providerName;
+    private Boolean stockAlert;
+    private Boolean published;
     private byte[] image;
 
     public ProductResponseDto() {
     }
 
-    public ProductResponseDto(Long id, String name, Double cost, Double price, Integer stock, String categoryName, String providerName) {
+    public ProductResponseDto(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, Boolean stockAlert, Boolean published, byte[] image) {
         this.id = id;
         this.name = name;
+        this.description = description;
+        this.barCode = barCode;
         this.cost = cost;
         this.price = price;
         this.stock = stock;
         this.categoryName = categoryName;
         this.providerName = providerName;
+        this.stockAlert = stockAlert;
+        this.published = published;
+        this.image = image;
     }
 
     public String getName() {
@@ -73,18 +80,6 @@ public class ProductResponseDto {
         this.providerName = providerName;
     }
 
-    @Override
-    public String toString() {
-        return "ProductResponseDto{" +
-                "name='" + name + '\'' +
-                ", cost=" + cost +
-                ", price=" + price +
-                ", stock=" + stock +
-                ", categoryName='" + categoryName + '\'' +
-                ", provider='" + providerName + '\'' +
-                '}';
-    }
-
     public byte[] getImage() {
         return image;
     }
@@ -116,4 +111,32 @@ public class ProductResponseDto {
     public void setBarCode(Double barCode) {
         this.barCode = barCode;
     }
+
+    public Boolean getStockAlert() {
+        return stockAlert;
+    }
+
+    public void setStockAlert(Boolean stockAlert) {
+        this.stockAlert = stockAlert;
+    }
+
+    public Boolean getPublished() {
+        return published;
+    }
+
+    public void setPublished(Boolean published) {
+        this.published = published;
+    }
+    @Override
+    public String toString() {
+        return "ProductResponseDto{" +
+                "name='" + name + '\'' +
+                ", cost=" + cost +
+                ", price=" + price +
+                ", stock=" + stock +
+                ", categoryName='" + categoryName + '\'' +
+                ", provider='" + providerName + '\'' +
+                '}';
+    }
+
 }

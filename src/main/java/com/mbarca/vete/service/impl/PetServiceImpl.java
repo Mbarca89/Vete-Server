@@ -132,6 +132,7 @@ public class PetServiceImpl implements PetService {
         petResponseDto.setWeight(pet.getWeight());
         petResponseDto.setBorn(pet.getBorn());
         petResponseDto.setPhoto(pet.getPhoto());
+        petResponseDto.setOwnerName(pet.getOwnerName());
         return petResponseDto;
     }
 }

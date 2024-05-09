@@ -1,6 +1,7 @@
 package com.mbarca.vete.repository;
 
 import com.mbarca.vete.domain.Product;
+import com.mbarca.vete.domain.StockAlert;
 import com.mbarca.vete.exceptions.NotFoundException;
 
 import java.util.List;
@@ -16,4 +17,6 @@ public interface ProductRepository {
     Integer deleteProduct (Long productId);
     List<Product> searchProduct (String searchTerm);
     List<Product> getProductsFromProvider (Long providerId);
+    Product getProductById (Long productId) throws NotFoundException;
+    List<StockAlert> getStockAlerts ();
 }
