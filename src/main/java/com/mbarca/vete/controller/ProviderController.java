@@ -5,6 +5,7 @@ import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.ProviderResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ProviderService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -84,6 +85,21 @@ public class ProviderController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No existe un proveedor con ese nombre!");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteProviderHandler(@RequestParam Long providerId){
+        try{
+            String response = providerService.deleteProvider(providerId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        }catch (EmptyResultDataAccessException e){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Proveedor no encontrado!");
+        }catch (DataIntegrityViolationException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("El proveedor tiene productos asociados!");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }

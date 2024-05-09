@@ -10,6 +10,7 @@ import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.exceptions.NotFoundException;
 import com.mbarca.vete.repository.ProviderRepository;
 import com.mbarca.vete.service.ProviderService;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
@@ -73,6 +74,15 @@ public class ProviderServiceImpl implements ProviderService {
             return "Error al editar el proveedor!";
         }
         return "Proveedor editado correctamente!";
+    }
+
+    @Override
+    public String deleteProvider(Long providerId) {
+        Integer response = providerRepository.deleteProvider(providerId);
+        if (response.equals(0)) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return "Proveedor eliminado correctamente!";
     }
 
     private Provider mapDtoToProvider(ProviderRequestDto providerRequestDto) {

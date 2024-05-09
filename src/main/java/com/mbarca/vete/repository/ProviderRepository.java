@@ -11,4 +11,5 @@ public interface ProviderRepository {
     List<String> getProvidersNames ();
     Provider getProviderByName(String name);
     Integer editProvider(Provider provider) throws NotFoundException;
+    Integer deleteProvider(Long providerId);
 }

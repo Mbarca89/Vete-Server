@@ -13,4 +13,5 @@ public interface ProviderService {
     List<String> getProvidersNames ();
     ProviderResponseDto getProviderByName(String name) throws MissingDataException;
     String editProvider (ProviderRequestDto providerRequestDto) throws MissingDataException, NotFoundException;
+    String deleteProvider (Long providerId);
 }

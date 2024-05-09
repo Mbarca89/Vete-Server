@@ -22,6 +22,7 @@ public class ProviderRepositoryImpl implements ProviderRepository {
     private final String GET_PROVIDER_BY_NAME = "SELECT * FROM Providers WHERE UPPER(name) = UPPER(?)";
     private final String GET_PROVIDER_BY_ID = "SELECT * FROM Providers WHERE id = ?";
     private final String EDIT_PROVIDER = "UPDATE Providers SET name = ?, contact_name = ?, phone = ? WHERE id = ?";
+    private final String DELETE_PROVIDER = "DELETE FROM Providers WHERE id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -74,6 +75,11 @@ public class ProviderRepositoryImpl implements ProviderRepository {
 
 
         return jdbcTemplate.update(EDIT_PROVIDER, editProvider.getName(), editProvider.getContactName(), editProvider.getPhone(), newProvider.getId());
+    }
+
+    @Override
+    public Integer deleteProvider (Long providerId) {
+        return jdbcTemplate.update(DELETE_PROVIDER, providerId);
     }
 
     static class ProviderRowMapper implements RowMapper<Provider> {
