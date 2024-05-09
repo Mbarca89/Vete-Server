@@ -30,7 +30,7 @@ public class PetRepositoryImpl implements PetRepository {
             "LIMIT ? OFFSET ?";
     private final String DELETE_PET = "DELETE FROM Pets WHERE id = ?";
     private final String DELETE_PET_CLIENT = "DELETE FROM ClientPets WHERE pet_id = ?";
-    private final String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE name LIKE ? LIMIT ? OFFSET ?";
+    private final String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?";
     private final String GET_PETS_FROM_CLIENT = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name " +
             "FROM Pets p " +
             "JOIN ClientPets cp ON p.id = cp.pet_id " +
