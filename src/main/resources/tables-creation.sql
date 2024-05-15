@@ -137,3 +137,13 @@ CREATE TABLE IF NOT EXISTS Reminders (
     name VARCHAR(50) NOT NULL,
     notes TEXT
 );
+
+CREATE TABLE IF NOT EXISTS Messages (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    date DATE DEFAULT CURRENT_DATE NOT NULL,
+    client_name VARCHAR(50) NOT NULL,
+    client_phone VARCHAR(50) NOT NULL,
+    pet_name VARCHAR(50) NOT NULL,
+    vaccine VARCHAR(50) NOT NULL,
+    sent BOOLEAN DEFAULT false
+);

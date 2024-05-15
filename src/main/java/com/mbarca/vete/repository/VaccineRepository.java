@@ -2,9 +2,8 @@ package com.mbarca.vete.repository;
 
 import com.mbarca.vete.domain.Vaccine;
 import com.mbarca.vete.domain.VaccineNotification;
-import com.mbarca.vete.dto.request.VaccineRequestDto;
-import com.mbarca.vete.dto.response.VaccineResponseDto;
 
+import java.util.Date;
 import java.util.List;
 
 public interface VaccineRepository {
@@ -12,4 +11,5 @@ public interface VaccineRepository {
     List<Vaccine> getVaccinesById(Long petId);
     Integer deleteVaccine(Long id);
     List<VaccineNotification> getTodayVaccines();
+    List<Vaccine> getVaccinesByDate(Date date);
 }

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mbarca.vete.dto.request.PetRequestDto;
-import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.PetService;

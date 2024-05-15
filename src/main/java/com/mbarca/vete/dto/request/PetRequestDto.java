@@ -1,6 +1,6 @@
 package com.mbarca.vete.dto.request;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class PetRequestDto {
     private Long id;
@@ -77,5 +77,18 @@ public class PetRequestDto {
 
     public void setSpecies(String species) {
         this.species = species;
+    }
+
+    @Override
+    public String toString() {
+        return "PetRequestDto{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", race='" + race + '\'' +
+                ", gender='" + gender + '\'' +
+                ", species='" + species + '\'' +
+                ", weight=" + weight +
+                ", born=" + born +
+                '}';
     }
 }

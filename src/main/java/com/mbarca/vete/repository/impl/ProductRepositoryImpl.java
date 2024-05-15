@@ -23,27 +23,7 @@ import java.util.Objects;
 public class ProductRepositoryImpl implements ProductRepository {
 
     private final String CREATE_PRODUCT = "INSERT INTO products (name, bar_code, description, cost, price, stock, category_name, image, provider_name) VALUES (?,?,?,?,?,?,?,?,?)";
-    private final String GET_ALL_PRODUCTS = "SELECT * FROM Products";
-    private final String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? LIMIT ? OFFSET ?";
-    private final String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
-    private final String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ?";
-    private final String GET_PRODUCTS_PAGINATED = "SELECT * FROM products LIMIT ? OFFSET ?";
-    private final String GET_CATEGORY = "SELECT * FROM Category WHERE name = ?";
-    private final String GET_PROVIDER = "SELECT * FROM providers WHERE name = ?";
-    private final String RELATE_PRODUCT_PROVIDER = "INSERT INTO ProductProviders (product_id, provider_id) VALUES (?, ?)";
-    private final String RELATE_PRODUCT_CATEGORY = "INSERT INTO ProductCategories (product_id, category_id) VALUES (?, ?)";
     private final String GET_PRODUCT_BY_ID = "SELECT * FROM products WHERE id= ?";
-    private final String EDIT_PRODUCT = "UPDATE products SET name = ?, bar_code = ?, description = ?, cost = ?, price = ?, stock = ?, category_name = ?, image = ?, provider_name = ?, stock_alert = ?, published = ? WHERE id = ?";
-    private final String DELETE_PRODUCT = "DELETE FROM products WHERE id = ?";
-    private final String DELETE_PRODUCT_CATEGORY = "DELETE FROM ProductCategories WHERE product_id = ?";
-    private final String DELETE_PRODUCT_PROVIDER = "DELETE FROM ProductProviders WHERE product_id = ?";
-    private final String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
-    private final String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
-    private final String GET_STOCK_ALERTS = "SELECT * FROM Products WHERE stock_alert = true AND stock <= 5";
-    private final String GET_PRODUCTS_FROM_PROVIDERS = "SELECT p.id, p.name, p.description, p.category_name, p.provider_name, p.bar_code, p.cost, p.price, p.stock " +
-            "FROM Products p " +
-            "JOIN ProductProviders pp ON p.id = pp.product_id " +
-            "WHERE pp.provider_id = ?";
     private final JdbcTemplate jdbcTemplate;
 
     public ProductRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -56,6 +36,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
         Object[] params = {product.getCategoryName()};
         int[] types = {1};
+        String GET_CATEGORY = "SELECT * FROM Category WHERE name = ?";
         Category category = jdbcTemplate.queryForObject(GET_CATEGORY, params, types, new CategoryRowMapper());
 
 
@@ -72,45 +53,55 @@ public class ProductRepositoryImpl implements ProductRepository {
             ps.setDouble(4, product.getCost());
             ps.setDouble(5, product.getPrice());
             ps.setDouble(6, product.getStock());
+            assert category != null;
             ps.setString(7, category.getName());
             ps.setBytes(8, product.getPhoto());
             ps.setString(9, product.getProviderName());
             return ps;
         }, keyHolder);
-        Long productId = keyHolder.getKey().longValue();
+        Long productId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
         if(!Objects.equals(product.getProviderName(), "Ninguno")) {
             Object[] params2 = {product.getProviderName()};
+            String GET_PROVIDER = "SELECT * FROM providers WHERE name = ?";
             Provider provider = jdbcTemplate.queryForObject(GET_PROVIDER, params2, types, new ProviderRepositoryImpl.ProviderRowMapper());
+            String RELATE_PRODUCT_PROVIDER = "INSERT INTO ProductProviders (product_id, provider_id) VALUES (?, ?)";
+            assert provider != null;
             jdbcTemplate.update(RELATE_PRODUCT_PROVIDER, productId, provider.getId());
         }
 
+        String RELATE_PRODUCT_CATEGORY = "INSERT INTO ProductCategories (product_id, category_id) VALUES (?, ?)";
+        assert category != null;
         return jdbcTemplate.update(RELATE_PRODUCT_CATEGORY, productId, category.getId());
     }
 
     @Override
     public List<Product> getAllProducts() {
-        System.out.println(GET_ALL_PRODUCTS);
+        String GET_ALL_PRODUCTS = "SELECT * FROM Products";
         return jdbcTemplate.query(GET_ALL_PRODUCTS, new ProductRowMapper(true));
     }
 
     @Override
     public List<Product> getByCategory(String categoryName, int limit, int offset) {
+        String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? LIMIT ? OFFSET ?";
         return jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(true));
     }
 
     @Override
     public Integer getProductCount() {
+        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
         return jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
     }
 
     @Override
     public Integer getCategoryCount(String categoryName) {
+        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ?";
         return jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
     }
 
     @Override
     public List<Product> getProductsPaginated(int limit, int offset) {
+        String GET_PRODUCTS_PAGINATED = "SELECT * FROM products LIMIT ? OFFSET ?";
         return jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(true));
     }
 
@@ -124,6 +115,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
 
         Product editProduct = getEditProduct(newProduct, currentProduct);
+        String EDIT_PRODUCT = "UPDATE products SET name = ?, bar_code = ?, description = ?, cost = ?, price = ?, stock = ?, category_name = ?, image = ?, provider_name = ?, stock_alert = ?, published = ? WHERE id = ?";
         return jdbcTemplate.update(EDIT_PRODUCT,
                 editProduct.getName(),
                 editProduct.getBarCode(),
@@ -141,23 +133,32 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Integer deleteProduct (Long productId) {
+        String DELETE_PRODUCT_CATEGORY = "DELETE FROM ProductCategories WHERE product_id = ?";
         jdbcTemplate.update(DELETE_PRODUCT_CATEGORY, productId);
+        String DELETE_PRODUCT_PROVIDER = "DELETE FROM ProductProviders WHERE product_id = ?";
         jdbcTemplate.update(DELETE_PRODUCT_PROVIDER, productId);
+        String DELETE_PRODUCT = "DELETE FROM products WHERE id = ?";
         return jdbcTemplate.update(DELETE_PRODUCT, productId);
     }
     @Override
     public List<Product> searchProduct (String searchTerm) {
         try {
-            Double barCode = Double.parseDouble(searchTerm);
+            double barCode = Double.parseDouble(searchTerm);
+            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
             return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new ProductRowMapper(true));
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
+            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
             return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[] {searchTermOk}, new ProductRowMapper(true));
         }
     }
 
     @Override
     public List<Product> getProductsFromProvider (Long providerId) {
+        String GET_PRODUCTS_FROM_PROVIDERS = "SELECT p.id, p.name, p.description, p.category_name, p.provider_name, p.bar_code, p.cost, p.price, p.stock " +
+                "FROM Products p " +
+                "JOIN ProductProviders pp ON p.id = pp.product_id " +
+                "WHERE pp.provider_id = ?";
         return jdbcTemplate.query(GET_PRODUCTS_FROM_PROVIDERS, new Object[]{providerId}, new ProductRowMapper(false));
     }
 
@@ -175,6 +176,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public List<StockAlert> getStockAlerts () {
+        String GET_STOCK_ALERTS = "SELECT * FROM Products WHERE stock_alert = true AND stock <= 5";
         return jdbcTemplate.query(GET_STOCK_ALERTS, new StockAlertRowMapper());
     }
 
@@ -216,7 +218,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     static class ProductRowMapper implements RowMapper<Product> {
 
-        private boolean includeImage;
+        private final boolean includeImage;
 
         public ProductRowMapper(boolean includeImage) {
             this.includeImage = includeImage;

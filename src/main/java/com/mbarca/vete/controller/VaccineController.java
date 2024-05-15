@@ -1,17 +1,17 @@
 package com.mbarca.vete.controller;
 
-import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.request.VaccineRequestDto;
-import com.mbarca.vete.dto.response.UserResponseDto;
+import com.mbarca.vete.dto.response.ReminderResponseDto;
 import com.mbarca.vete.dto.response.VaccineResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.VaccineService;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -55,6 +55,17 @@ public class VaccineController {
     public ResponseEntity<?> getVaccinesHandler (@PathVariable Long petId) {
         try {
             List<VaccineResponseDto> response = vaccineService.getVaccinesById(petId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getVaccinesByDate")
+    public ResponseEntity<?> getVaccinesByDateHandler (@RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") Date date) {
+        try {
+            List<ReminderResponseDto> response = vaccineService.getVaccinesByDate(date);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

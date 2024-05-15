@@ -2,7 +2,6 @@ package com.mbarca.vete.repository.impl;
 
 import com.mbarca.vete.domain.Client;
 import com.mbarca.vete.exceptions.ClientNotFoundException;
-import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.repository.ClientRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,16 +10,10 @@ import org.springframework.stereotype.Repository;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Objects;
 
 @Repository
 public class ClientRepositoryImpl implements ClientRepository {
-    private final String CREATE_CLIENT = "INSERT INTO clients (name, surname, phone, email, social, user_name) VALUES (?,?,?,?,?,?)";
-    private final String DELETE_CLIENT = "DELETE FROM Clients WHERE id = ?";
-    private final String GET_ALL_CLIENTS = "SELECT * FROM Clients";
     private final String GET_CLIENT_BY_ID = "SELECT * FROM Clients WHERE id = ?";
-    private final String EDIT_CLIENT = "UPDATE clients SET name = ?, surname = ?, phone = ?, email = ?, social = ?, user_name = ? WHERE id = ?";
-
     private final JdbcTemplate jdbcTemplate;
 
     public ClientRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -29,6 +22,7 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public Integer createClient(Client client) {
+        String CREATE_CLIENT = "INSERT INTO clients (name, surname, phone, email, social, user_name) VALUES (?,?,?,?,?,?)";
         return jdbcTemplate.update(CREATE_CLIENT,
                 client.getName(),
                 client.getSurname(),
@@ -48,11 +42,13 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public Integer deleteClient(Long id) {
+        String DELETE_CLIENT = "DELETE FROM Clients WHERE id = ?";
         return jdbcTemplate.update(DELETE_CLIENT, id);
     }
 
     @Override
     public List<Client> getClients() {
+        String GET_ALL_CLIENTS = "SELECT * FROM Clients";
         return jdbcTemplate.query(GET_ALL_CLIENTS, new ClientRowMapper());
     }
 
@@ -82,7 +78,15 @@ public class ClientRepositoryImpl implements ClientRepository {
         if (!client.getUserName().isEmpty()) editClient.setUserName(client.getUserName());
         else editClient.setUserName(currentClient.getUserName());
 
-        return jdbcTemplate.update(EDIT_CLIENT, editClient.getName(), editClient.getSurname(), editClient.getPhone(),editClient.getEmail(), editClient.getSocial(), editClient.getUserName(), client.getId());
+        String EDIT_CLIENT = "UPDATE clients SET name = ?, surname = ?, phone = ?, email = ?, social = ?, user_name = ? WHERE id = ?";
+        return jdbcTemplate.update(EDIT_CLIENT, editClient.getName(), editClient.getSurname(), editClient.getPhone(), editClient.getEmail(), editClient.getSocial(), editClient.getUserName(), client.getId());
+    }
+
+    @Override
+    public List<Client> getClientsByName(String searchTerm) {
+        Object[] params = {"%" + searchTerm + "%"};
+        String GET_CLIENTS_NY_NAME = "SELECT * FROM Clients WHERE LOWER(name) LIKE LOWER(?)";
+        return jdbcTemplate.query(GET_CLIENTS_NY_NAME, params, new ClientRowMapper());
     }
 
     static class ClientRowMapper implements RowMapper<Client> {

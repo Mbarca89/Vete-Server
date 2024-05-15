@@ -1,14 +1,10 @@
 package com.mbarca.vete.controller;
 
 import com.mbarca.vete.dto.request.ClientRequestDto;
-import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.ClientResponseDto;
-import com.mbarca.vete.dto.response.UserResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ClientService;
-import com.mbarca.vete.service.UserService;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -57,6 +53,17 @@ public class ClientController {
     public ResponseEntity<?> getClientsHandler () {
         try {
             List<ClientResponseDto> response = clientService.getClients();
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getClientsByName")
+    public ResponseEntity<?> getClientsByNameHandler (@RequestParam String searchTerm) {
+        try {
+            List<ClientResponseDto> response = clientService.getClientsByName(searchTerm);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

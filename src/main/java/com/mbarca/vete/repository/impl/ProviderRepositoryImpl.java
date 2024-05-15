@@ -1,10 +1,7 @@
 package com.mbarca.vete.repository.impl;
 
-import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.domain.Provider;
-import com.mbarca.vete.domain.User;
 import com.mbarca.vete.exceptions.NotFoundException;
-import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.repository.ProviderRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -16,13 +13,6 @@ import java.util.List;
 
 @Repository
 public class ProviderRepositoryImpl implements ProviderRepository {
-    private final String CREATE_PROVIDER = "INSERT INTO Providers (name, contact_name, phone) VALUES (?,?,?)";
-    private final String GET_ALL_PROVIDERS = "SELECT * FROM Providers";
-    private final String GET_PROVIDERS_NAMES = "SELECT name FROM Providers";
-    private final String GET_PROVIDER_BY_NAME = "SELECT * FROM Providers WHERE UPPER(name) = UPPER(?)";
-    private final String GET_PROVIDER_BY_ID = "SELECT * FROM Providers WHERE id = ?";
-    private final String EDIT_PROVIDER = "UPDATE Providers SET name = ?, contact_name = ?, phone = ? WHERE id = ?";
-    private final String DELETE_PROVIDER = "DELETE FROM Providers WHERE id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -32,6 +22,7 @@ public class ProviderRepositoryImpl implements ProviderRepository {
 
     @Override
     public Integer createProvider(Provider provider) {
+        String CREATE_PROVIDER = "INSERT INTO Providers (name, contact_name, phone) VALUES (?,?,?)";
         return jdbcTemplate.update(CREATE_PROVIDER,
                 provider.getName(),
                 provider.getContactName(),
@@ -42,11 +33,13 @@ public class ProviderRepositoryImpl implements ProviderRepository {
 
     @Override
     public List<Provider> getAllProviders() {
+        String GET_ALL_PROVIDERS = "SELECT * FROM Providers";
         return jdbcTemplate.query(GET_ALL_PROVIDERS, new ProviderRowMapper());
     }
 
     @Override
     public List<String> getProvidersNames() {
+        String GET_PROVIDERS_NAMES = "SELECT name FROM Providers";
         return jdbcTemplate.queryForList(GET_PROVIDERS_NAMES, String.class);
     }
 
@@ -54,15 +47,16 @@ public class ProviderRepositoryImpl implements ProviderRepository {
     public Provider getProviderByName(String name) {
         Object[] params = {name};
         int[] types = {1};
+        String GET_PROVIDER_BY_NAME = "SELECT * FROM Providers WHERE UPPER(name) = UPPER(?)";
         return jdbcTemplate.queryForObject(GET_PROVIDER_BY_NAME, params, types, new ProviderRowMapper());
     }
 
     @Override
     public Integer editProvider(Provider newProvider) throws NotFoundException {
         Provider editProvider = new Provider();
-        System.out.println(newProvider.getId());
         Object[] params = {newProvider.getId()};
         int[] types = {1};
+        String GET_PROVIDER_BY_ID = "SELECT * FROM Providers WHERE id = ?";
         Provider currentProvider = jdbcTemplate.queryForObject(GET_PROVIDER_BY_ID, params, types, new ProviderRowMapper());
 
         if (currentProvider == null) {
@@ -74,11 +68,13 @@ public class ProviderRepositoryImpl implements ProviderRepository {
         if (!newProvider.getPhone().isEmpty()) editProvider.setPhone(newProvider.getPhone()); else editProvider.setPhone(currentProvider.getPhone());
 
 
+        String EDIT_PROVIDER = "UPDATE Providers SET name = ?, contact_name = ?, phone = ? WHERE id = ?";
         return jdbcTemplate.update(EDIT_PROVIDER, editProvider.getName(), editProvider.getContactName(), editProvider.getPhone(), newProvider.getId());
     }
 
     @Override
     public Integer deleteProvider (Long providerId) {
+        String DELETE_PROVIDER = "DELETE FROM Providers WHERE id = ?";
         return jdbcTemplate.update(DELETE_PROVIDER, providerId);
     }
 

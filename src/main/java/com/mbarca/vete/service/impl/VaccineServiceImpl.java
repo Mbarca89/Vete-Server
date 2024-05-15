@@ -1,10 +1,8 @@
 package com.mbarca.vete.service.impl;
 
-import com.mbarca.vete.domain.User;
 import com.mbarca.vete.domain.Vaccine;
-import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.request.VaccineRequestDto;
-import com.mbarca.vete.dto.response.UserResponseDto;
+import com.mbarca.vete.dto.response.ReminderResponseDto;
 import com.mbarca.vete.dto.response.VaccineResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.repository.VaccineRepository;
@@ -13,6 +11,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -56,6 +55,12 @@ public class VaccineServiceImpl implements VaccineService {
         return vaccines.stream().map(this::mapVaccineToDto).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ReminderResponseDto> getVaccinesByDate (Date date) {
+        List<Vaccine> vaccines = vaccineRepository.getVaccinesByDate(date);
+        return vaccines.stream().map(this::mapVaccineNotificationToReminderDto).collect(Collectors.toList());
+    }
+
     private Vaccine mapDtoToVaccine(VaccineRequestDto vaccineRequestDto) throws NoSuchAlgorithmException {
         Vaccine vaccine = new Vaccine();
         if (vaccineRequestDto.getId() != null) vaccine.setId(vaccineRequestDto.getId());
@@ -75,4 +80,12 @@ public class VaccineServiceImpl implements VaccineService {
         vaccineResponseDto.setPetId(vaccine.getPetId());
         return vaccineResponseDto;
     }
+
+    private ReminderResponseDto mapVaccineNotificationToReminderDto (Vaccine vaccine) {
+        ReminderResponseDto response = new ReminderResponseDto();
+        response.setName(vaccine.getName());
+        response.setDate(vaccine.getDate());
+        return response;
+    }
+
 }

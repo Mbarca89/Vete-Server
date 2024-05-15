@@ -1,7 +1,7 @@
 package com.mbarca.vete.domain;
 
 import javax.persistence.Lob;
-import java.sql.Date;
+import java.util.Date;
 
 public class Pet {
     private Long id;
@@ -79,7 +79,7 @@ public class Pet {
         this.weight = weight;
     }
 
-    public java.sql.Date getBorn() {
+    public java.util.Date getBorn() {
         return born;
     }
 

@@ -1,7 +1,6 @@
 package com.mbarca.vete.service.impl;
 
 import com.mbarca.vete.domain.Client;
-import com.mbarca.vete.domain.User;
 import com.mbarca.vete.dto.request.ClientRequestDto;
 import com.mbarca.vete.dto.response.ClientResponseDto;
 import com.mbarca.vete.exceptions.ClientNotFoundException;
@@ -11,7 +10,6 @@ import com.mbarca.vete.service.ClientService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -51,6 +49,11 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public List<ClientResponseDto> getClients() {
         List<Client> clients = clientRepository.getClients();
+        return clients.stream().map(this::mapClientToDto).collect(Collectors.toList());
+    }
+    @Override
+    public List<ClientResponseDto> getClientsByName(String searchTerm) {
+        List<Client> clients = clientRepository.getClientsByName(searchTerm);
         return clients.stream().map(this::mapClientToDto).collect(Collectors.toList());
     }
 

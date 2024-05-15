@@ -1,16 +1,16 @@
-package com.mbarca.vete.domain;
+package com.mbarca.vete.dto.response;
 
-public class VaccineNotification {
+public class MessageResponseDto {
     private String clientName;
     private String clientPhone;
     private String petName;
     private String vaccineName;
     private Boolean sent;
 
-    public VaccineNotification() {
+    public MessageResponseDto() {
     }
 
-    public VaccineNotification(String clientName, String clientPhone, String petName, String vaccineName, Boolean sent) {
+    public MessageResponseDto(String clientName, String clientPhone, String petName, String vaccineName, Boolean sent) {
         this.clientName = clientName;
         this.clientPhone = clientPhone;
         this.petName = petName;
@@ -57,14 +57,4 @@ public class VaccineNotification {
     public void setSent(Boolean sent) {
         this.sent = sent;
     }
-    @Override
-    public String toString() {
-        return "VaccineNotification{" +
-                "clientName='" + clientName + '\'' +
-                ", clientPhone='" + clientPhone + '\'' +
-                ", petName='" + petName + '\'' +
-                ", vaccineName='" + vaccineName + '\'' +
-                '}';
-    }
-
 }
