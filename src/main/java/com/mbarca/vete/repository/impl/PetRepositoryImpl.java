@@ -1,5 +1,6 @@
 package com.mbarca.vete.repository.impl;
 
+import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.domain.Pet;
 import com.mbarca.vete.exceptions.PetNotFoundException;
 import com.mbarca.vete.repository.PetRepository;
@@ -53,18 +54,20 @@ public class PetRepositoryImpl implements PetRepository {
 
     @Override
     public Integer getPetCount() {
-        String GET_PET_COUNT = "SELECT COUNT(*) FROM pets";
-        return jdbcTemplate.queryForObject(GET_PET_COUNT, Integer.class);
+    return null;
     }
 
     @Override
-    public List<Pet> getAllPets(int limit, int offset) {
+    public PaginatedResults<Pet> getAllPets(int limit, int offset) throws Exception {
+        String GET_PET_COUNT = "SELECT COUNT(*) FROM pets";
+        Integer totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT, Integer.class);
         String GET_ALL_PETS = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name " +
                 "FROM Pets p " +
                 "INNER JOIN ClientPets cp ON p.id = cp.pet_id " +
                 "INNER JOIN Clients c ON cp.client_id = c.id " +
                 "LIMIT ? OFFSET ?";
-        return jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true));
+        List<Pet> pets = jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true));
+        return new PaginatedResults(pets, totalCount != null ? totalCount:0);
     }
 
     @Override

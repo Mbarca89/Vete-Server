@@ -1,5 +1,6 @@
 package com.mbarca.vete.repository.impl;
 
+import com.mbarca.vete.domain.Reminder;
 import com.mbarca.vete.domain.VaccineNotification;
 import com.mbarca.vete.repository.MessagesRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -35,6 +36,16 @@ public class MessagesRepositoryImpl implements MessagesRepository {
     public List<VaccineNotification> getMessages(Date date) {
         Object[] params = {date};
         return jdbcTemplate.query(GET_MESSAGES, params, new MessageRowMapper());
+    }
+
+    @Override
+    public Integer saveReminder(Reminder message) {
+        return jdbcTemplate.update(SAVE_MESSAGE,
+                "Recordatorio manual",
+                message.getPhone(),
+                "Recordatorio manual",
+                message.getName(),
+                message.isSent());
     }
 
     static class MessageRowMapper implements RowMapper<VaccineNotification> {

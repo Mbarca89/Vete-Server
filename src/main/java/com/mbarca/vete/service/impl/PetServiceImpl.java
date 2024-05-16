@@ -5,6 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.domain.Pet;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.domain.User;
@@ -17,6 +18,7 @@ import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.repository.PetRepository;
 import com.mbarca.vete.service.PetService;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
@@ -61,10 +63,11 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public List<PetResponseDto> getAllPets(int page, int size) {
+    public PaginatedResults<PetResponseDto> getAllPets(int page, int size) throws Exception {
         int offset = (page -1) * size;
-        List<Pet> pets = petRepository.getAllPets(size, offset);
-        return pets.stream().map(this::mapPetToDto).collect(Collectors.toList());
+        PaginatedResults<Pet> pets = petRepository.getAllPets(size, offset);
+        List<PetResponseDto> petsResponse = pets.getData().stream().map(this::mapPetToDto).toList();
+        return new PaginatedResults<PetResponseDto>(petsResponse, pets.getTotalCount());
     }
 
     @Override

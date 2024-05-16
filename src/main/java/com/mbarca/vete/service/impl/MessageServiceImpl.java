@@ -48,6 +48,16 @@ public class MessageServiceImpl implements MessageService {
         }
     }
 
+    @Override
+    public String forceReminders() {
+        try {
+            notificationsScheduler.checkReminders();
+            return "Recordatorios enviados!";
+        } catch (Exception e) {
+            return "Error al enviar recordatorios: " + e.getMessage() ;
+        }
+    }
+
     private MessageResponseDto mapMessageToDto(VaccineNotification message) {
         MessageResponseDto messageResponseDto = new MessageResponseDto();
         messageResponseDto.setClientName(message.getClientName());

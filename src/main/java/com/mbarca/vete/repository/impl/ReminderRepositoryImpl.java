@@ -16,10 +16,11 @@ import java.util.List;
 @Repository
 public class ReminderRepositoryImpl implements ReminderRepository {
 
-    private final String CREATE_REMINDER = "INSERT INTO Reminders (name, date, notes) VALUES (?,?,?)";
+    private final String CREATE_REMINDER = "INSERT INTO Reminders (name, date, notes, phone) VALUES (?,?,?,?)";
     private final String DELETE_REMINDER = "DELETE FROM Reminders WHERE id = ?";
     private final String GET_REMINDERS = "SELECT * FROM Reminders WHERE date = ?";
     private final String GET_REMINDER_BY_ID = "SELECT * FROM Reminders WHERE id = ?";
+    private final String GET_TODAY_REMINDER = "SELECT * FROM Reminders WHERE date = ?";
     JdbcTemplate jdbcTemplate;
     public ReminderRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -30,7 +31,9 @@ public class ReminderRepositoryImpl implements ReminderRepository {
         return jdbcTemplate.update(CREATE_REMINDER,
                 reminder.getName(),
                 reminder.getDate(),
-                reminder.getNotes());
+                reminder.getNotes(),
+                reminder.getPhone()
+                );
     }
 
     @Override
@@ -48,6 +51,11 @@ public class ReminderRepositoryImpl implements ReminderRepository {
         int[] types = {1};
         return jdbcTemplate.queryForObject(GET_REMINDER_BY_ID, params, types, new ReminderRowMapper());
     }
+    @Override
+    public List<Reminder> getTodayReminder () {
+        LocalDate currentDate = LocalDate.now();
+        return jdbcTemplate.query(GET_TODAY_REMINDER, new Object[]{currentDate}, new ReminderRowMapper());
+    }
 
     static class ReminderRowMapper implements RowMapper<Reminder> {
         @Override
@@ -57,6 +65,7 @@ public class ReminderRepositoryImpl implements ReminderRepository {
             reminder.setName(rs.getString("name"));
             reminder.setDate(rs.getDate("date"));
             reminder.setNotes(rs.getString("notes"));
+            reminder.setPhone(rs.getString("phone"));
             return reminder;
         }
     }

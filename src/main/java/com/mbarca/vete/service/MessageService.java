@@ -10,4 +10,5 @@ public interface MessageService {
     Void saveMessage(VaccineNotification message);
     List<MessageResponseDto> getMessages(Date date);
     String forceMessage ();
+    String forceReminders ();
 }

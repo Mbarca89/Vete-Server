@@ -84,8 +84,8 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public List<Client> getClientsByName(String searchTerm) {
-        Object[] params = {"%" + searchTerm + "%"};
-        String GET_CLIENTS_NY_NAME = "SELECT * FROM Clients WHERE LOWER(name) LIKE LOWER(?)";
+        Object[] params = {"%" + searchTerm + "%", "%" + searchTerm + "%"};
+        String GET_CLIENTS_NY_NAME = "SELECT * FROM Clients WHERE LOWER(name) LIKE LOWER(?) OR LOWER(surname) LIKE LOWER(?)";
         return jdbcTemplate.query(GET_CLIENTS_NY_NAME, params, new ClientRowMapper());
     }
 

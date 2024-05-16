@@ -135,7 +135,8 @@ CREATE TABLE IF NOT EXISTS Reminders (
     id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
     date DATE NOT NULL,
     name VARCHAR(50) NOT NULL,
-    notes TEXT
+    notes TEXT,
+    phone VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS Messages (

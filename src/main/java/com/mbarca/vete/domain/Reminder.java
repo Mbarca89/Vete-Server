@@ -7,6 +7,8 @@ public class Reminder {
     private String name;
     private Date date;
     private String notes;
+    private String phone;
+    private boolean sent;
 
     public Reminder() {
     }
@@ -48,5 +50,21 @@ public class Reminder {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public boolean isSent() {
+        return sent;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent = sent;
     }
 }

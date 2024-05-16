@@ -1,9 +1,6 @@
 package com.mbarca.vete.repository.impl;
 
-import com.mbarca.vete.domain.Category;
-import com.mbarca.vete.domain.Product;
-import com.mbarca.vete.domain.Provider;
-import com.mbarca.vete.domain.StockAlert;
+import com.mbarca.vete.domain.*;
 import com.mbarca.vete.exceptions.NotFoundException;
 import com.mbarca.vete.repository.ProductRepository;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -55,7 +52,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             ps.setDouble(6, product.getStock());
             assert category != null;
             ps.setString(7, category.getName());
-            ps.setBytes(8, product.getPhoto());
+            ps.setBytes(8, product.getImage());
             ps.setString(9, product.getProviderName());
             return ps;
         }, keyHolder);
@@ -82,10 +79,14 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<Product> getByCategory(String categoryName, int limit, int offset) {
+    public PaginatedResults<Product> getByCategory(String categoryName, int limit, int offset) {
+        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ?";
         String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? LIMIT ? OFFSET ?";
-        return jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(true));
-    }
+        Integer totalCount = jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
+        List<Product> products = jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(true));
+
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount:0);
+          }
 
     @Override
     public Integer getProductCount() {
@@ -100,9 +101,14 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<Product> getProductsPaginated(int limit, int offset) {
+    public PaginatedResults<Product> getProductsPaginated(int limit, int offset) {
         String GET_PRODUCTS_PAGINATED = "SELECT * FROM products LIMIT ? OFFSET ?";
-        return jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(true));
+        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
+
+        Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
+        List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(true));
+
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount:0);
     }
 
     @Override
@@ -124,7 +130,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 editProduct.getPrice(),
                 editProduct.getStock(),
                 editProduct.getCategoryName(),
-                editProduct.getPhoto(),
+                editProduct.getImage(),
                 editProduct.getProviderName(),
                 editProduct.getStockAlert(),
                 editProduct.getPublished(),
@@ -190,7 +196,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         editProduct.setPrice(newProduct.getPrice() != null ? newProduct.getPrice() : currentProduct.getPrice());
         editProduct.setCategoryName(!Objects.equals(newProduct.getCategoryName(), "") ? newProduct.getCategoryName() : currentProduct.getCategoryName());
         editProduct.setProviderName(!Objects.equals(newProduct.getProviderName(), "") ? newProduct.getProviderName() : currentProduct.getProviderName());
-        editProduct.setPhoto(newProduct.getPhoto() != null ? newProduct.getPhoto() : currentProduct.getPhoto());
+        editProduct.setImage(newProduct.getImage() != null ? newProduct.getImage() : currentProduct.getImage());
         editProduct.setStockAlert(newProduct.getStockAlert());
         editProduct.setPublished(newProduct.getPublished());
         return editProduct;
@@ -237,7 +243,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setProviderName(rs.getString("provider_name"));
             product.setStockAlert(rs.getBoolean("stock_alert"));
             product.setPublished(rs.getBoolean("published"));
-            if(includeImage) product.setPhoto(rs.getBytes("image"));
+            if(includeImage) product.setImage(rs.getBytes("image"));
             return product;
         }
     }

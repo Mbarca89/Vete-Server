@@ -3,10 +3,12 @@ package com.mbarca.vete.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.dto.request.PetRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.PetService;
+import com.mbarca.vete.utils.ImageCompressor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -36,7 +38,7 @@ public class PetController {
             PetRequestDto petRequestDto = new ObjectMapper().readValue(petJson, PetRequestDto.class);
             byte[] compressedImage = null;
             if (file != null && !file.isEmpty()) {
-                compressedImage = petService.compressImage(file.getBytes());
+                compressedImage = ImageCompressor.compressImage(file.getBytes());
             }
             String response = petService.createPet(petRequestDto, compressedImage, Long.parseLong(clientId));
             return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -60,7 +62,7 @@ public class PetController {
     public ResponseEntity<?> getAllPetsHandler(@RequestParam(defaultValue = "1") int page,
                                                @RequestParam(defaultValue = "12") int size) {
         try {
-            List<PetResponseDto> pets = petService.getAllPets(page, size);
+            PaginatedResults<PetResponseDto> pets = petService.getAllPets(page, size);
             return ResponseEntity.status(HttpStatus.OK).body(pets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());

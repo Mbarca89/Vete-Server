@@ -5,6 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.domain.StockAlert;
 import com.mbarca.vete.dto.request.ProductRequestDto;
@@ -53,7 +54,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product product = mapDtoToProduct(productRequestDto);
-        product.setPhoto(compressedImage);
+        product.setImage(compressedImage);
         Integer response = productRepository.createProduct(product);
         if (response.equals(0)) {
             return "Error al crear el producto!";
@@ -68,10 +69,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponseDto> getByCategory(String categoryName, int page, int size) {
+    public PaginatedResults<ProductResponseDto> getByCategory(String categoryName, int page, int size) {
         int offset = (page - 1) * size;
-        List<Product> products = productRepository.getByCategory(categoryName, size, offset);
-        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+        PaginatedResults<Product> products = productRepository.getByCategory(categoryName, size, offset);
+        List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
+        return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
     }
 
     @Override
@@ -85,10 +87,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public List<ProductResponseDto> getProductsPaginated(int page, int size) {
+    public PaginatedResults<ProductResponseDto> getProductsPaginated(int page, int size) {
         int offset = (page - 1) * size;
-        List<Product> products = productRepository.getProductsPaginated(size, offset);
-        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+        PaginatedResults<Product> products = productRepository.getProductsPaginated(size, offset);
+        List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
+        return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
     }
 
     @Override
@@ -103,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product product = mapDtoToProduct(productRequestDto);
-        if (compressedImage != null) product.setPhoto(compressedImage);
+        if (compressedImage != null) product.setImage(compressedImage);
         Integer response = productRepository.editProduct(product);
 
         if (response.equals(0)) {
@@ -211,7 +214,7 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setPrice(product.getPrice());
         productResponseDto.setStock(product.getStock());
         productResponseDto.setCategoryName(product.getCategoryName());
-        productResponseDto.setImage(product.getPhoto());
+        productResponseDto.setImage(product.getImage());
         productResponseDto.setProviderName(product.getProviderName());
         productResponseDto.setStockAlert(product.getStockAlert());
         productResponseDto.setPublished(product.getPublished());

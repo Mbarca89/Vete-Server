@@ -30,6 +30,7 @@ public class ReminderServiceImpl implements ReminderService {
                 Objects.equals(reminderRequestDto.getName(), "")){
             throw new MissingDataException("Faltan datos!");
         }
+        System.out.println(reminderRequestDto.toString());
         Reminder reminder = mapDtoToReminder(reminderRequestDto);
         Integer response = reminderRepository.createReminder(reminder);
         if (response.equals(0)) {
@@ -65,6 +66,7 @@ public class ReminderServiceImpl implements ReminderService {
         reminder.setName(reminderRequestDto.getName());
         reminder.setDate(reminderRequestDto.getDate());
         reminder.setNotes(reminderRequestDto.getNotes());
+        reminder.setPhone(reminderRequestDto.getPhone());
         return reminder;
     }
 

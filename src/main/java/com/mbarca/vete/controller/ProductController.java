@@ -3,12 +3,14 @@ package com.mbarca.vete.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.dto.request.ProductRequestDto;
 import com.mbarca.vete.dto.response.ProductResponseDto;
 import com.mbarca.vete.dto.response.StockAlertResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.service.ProductService;
+import com.mbarca.vete.utils.ImageCompressor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -39,7 +41,7 @@ public class ProductController {
             ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
             byte[] compressedImage = null;
             if (file != null && !file.isEmpty()) {
-                compressedImage = productService.compressImage(file.getBytes());
+                compressedImage = ImageCompressor.compressImage(file.getBytes());
             }
             String response = productService.createProduct(productRequestDto, compressedImage);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -50,6 +52,7 @@ public class ProductController {
         } catch (JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error json " + e.getMessage());
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Imagen no soportada");
         } catch (MaxUploadSizeExceededException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La imagen es demasiado grande");
@@ -78,7 +81,7 @@ public class ProductController {
                                                   @RequestParam(defaultValue = "1") int page,
                                                   @RequestParam(defaultValue = "12") int size) {
         try {
-            List<ProductResponseDto> products = productService.getByCategory(categoryName, page, size);
+            PaginatedResults<ProductResponseDto> products = productService.getByCategory(categoryName, page, size);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
@@ -111,7 +114,7 @@ public class ProductController {
     public ResponseEntity<?> getProductsPaginatedHandler(@RequestParam(defaultValue = "1") int page,
                                                          @RequestParam(defaultValue = "12") int size) {
         try {
-            List<ProductResponseDto> products = productService.getProductsPaginated(page, size);
+            PaginatedResults<ProductResponseDto> products = productService.getProductsPaginated(page, size);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());

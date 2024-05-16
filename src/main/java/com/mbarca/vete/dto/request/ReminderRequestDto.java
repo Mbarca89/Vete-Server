@@ -7,6 +7,7 @@ public class ReminderRequestDto {
     private String name;
     private Date date;
     private String notes;
+    private String phone;
 
     public ReminderRequestDto() {
     }
@@ -48,5 +49,24 @@ public class ReminderRequestDto {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @Override
+    public String toString() {
+        return "ReminderRequestDto{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", date=" + date +
+                ", notes='" + notes + '\'' +
+                ", phone='" + phone + '\'' +
+                '}';
     }
 }
