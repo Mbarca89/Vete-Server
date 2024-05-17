@@ -67,7 +67,7 @@ public class VaccineRepositoryImpl implements VaccineRepository {
     @Override
     public List<Vaccine> getVaccinesByDate(Date date) {
         String GET_VACCINES_BY_DATE = "SELECT c.name AS client_name, c.phone AS client_phone, " +
-                "p.name AS pet_name, v.name AS vaccine_name " +
+                "p.name AS pet_name, v.name AS vaccine_name, v.date AS reminder_date " +
                 "FROM Vaccines v " +
                 "JOIN ClientPets cp ON v.pet_id = cp.pet_id " +
                 "JOIN Clients c ON cp.client_id = c.id " +
@@ -87,7 +87,7 @@ public class VaccineRepositoryImpl implements VaccineRepository {
         public Vaccine mapRow(ResultSet rs, int rowNum) throws SQLException {
             Vaccine vaccine = new Vaccine();
             vaccine.setName(rs.getString("vaccine_name") + " para: " + rs.getString("pet_name") + ". Dueño: " + rs.getString("client_name") + ".");
-            vaccine.setDate(this.date);
+            vaccine.setDate(rs.getDate("reminder_date"));
             return vaccine;
         }
     }

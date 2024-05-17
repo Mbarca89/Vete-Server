@@ -12,10 +12,10 @@ public class ImageMigration {
     }
 
     public static void migrateImages() {
-        String selectQuery = "SELECT id, photo FROM pets";
+        String selectQuery = "SELECT id, image FROM products";
         jdbcTemplate.query(selectQuery, (resultSet) -> {
             int id = resultSet.getInt("id");
-            byte[] imageData = resultSet.getBytes("photo");
+            byte[] imageData = resultSet.getBytes("image");
             if (imageData != null && imageData.length > 0) {
                 try {
                     byte[] compressedImageData = ImageCompressor.compressImage(imageData);
@@ -28,7 +28,7 @@ public class ImageMigration {
     }
 
     private static void updateProductWithCompressedImage(int id, byte[] compressedImageData) {
-        String updateQuery = "UPDATE pets SET new_image = ? WHERE id = ?";
+        String updateQuery = "UPDATE products SET new_image = ? WHERE id = ?";
         jdbcTemplate.update(updateQuery, compressedImageData, id);
     }
 }
