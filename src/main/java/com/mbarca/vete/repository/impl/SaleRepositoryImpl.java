@@ -1,6 +1,7 @@
 package com.mbarca.vete.repository.impl;
 
 import com.mbarca.vete.domain.CategoryTotal;
+import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.domain.Sale;
 import com.mbarca.vete.domain.SaleProduct;
 import com.mbarca.vete.repository.SaleRepository;
@@ -34,7 +35,8 @@ public class SaleRepositoryImpl implements SaleRepository {
             "FROM Sales s " +
             "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
             "INNER JOIN Products p ON sp.product_id = p.id " +
-            "WHERE p.category_name = ?";
+            "WHERE p.category_name = ? AND "+
+            "sale_date BETWEEN ? AND ?";
     JdbcTemplate jdbcTemplate;
 
     public SaleRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -89,12 +91,18 @@ public class SaleRepositoryImpl implements SaleRepository {
         return res;
     }
     @Override
-    public List<CategoryTotal> getSalesByCategory() {
+    public List<CategoryTotal> getSalesByCategory(Date dateStart, Date dateEnd) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateEnd);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        dateEnd = calendar.getTime();
         List<CategoryTotal> categoryTotals = new ArrayList<>();
         List<String> categoryNames = jdbcTemplate.queryForList(GET_CATEGORY_NAMES, String.class);
 
         for (String categoryName : categoryNames) {
-            Double totalAmount = jdbcTemplate.queryForObject(GET_SALES_BY_CATEGORY, new Object[]{categoryName}, Double.class);
+            Double totalAmount = jdbcTemplate.queryForObject(GET_SALES_BY_CATEGORY, new Object[]{categoryName, dateStart, dateEnd}, Double.class);
 
             if (totalAmount != null) {
                 categoryTotals.add(new CategoryTotal(categoryName, totalAmount));
@@ -119,6 +127,36 @@ public class SaleRepositoryImpl implements SaleRepository {
     @Override
     public Sale getSaleWithProductsById(long saleId) {
         return jdbcTemplate.query(GET_SALE_AND_PRODUCTS, new SaleWithProductsResultSetExtractor(), saleId);
+    }
+
+    @Override
+    public MonthlyReport getSalesReport(Date dateStart, Date dateEnd) {
+        final String GET_SALES_BY_MONTH = "SELECT SUM(sale_amount) AS totalAmount, SUM(sale_cost) AS totalCost " +
+                "FROM Sales " +
+                "WHERE sale_date BETWEEN ? AND ?";
+        final String GET_PAYMENTS = "SELECT SUM(amount) AS payment_amount FROM Payments WHERE date BETWEEN ? AND ? AND payed = true";
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(dateEnd);
+        calendar.set(Calendar.HOUR_OF_DAY, 23);
+        calendar.set(Calendar.MINUTE, 59);
+        calendar.set(Calendar.SECOND, 59);
+        dateEnd = calendar.getTime();
+        Double paymentAmount = jdbcTemplate.queryForObject(GET_PAYMENTS,new Object[]{dateStart, dateEnd}, new RowMapper<Double>() {
+            @Override
+            public Double mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return rs.getDouble("payment_amount");
+            }
+        });
+        MonthlyReport report =  jdbcTemplate.queryForObject(GET_SALES_BY_MONTH, new Object[]{dateStart, dateEnd}, new RowMapper<MonthlyReport>() {
+            @Override
+            public MonthlyReport mapRow(ResultSet rs, int rowNum) throws SQLException {
+                double totalAmount = rs.getDouble("totalAmount");
+                double totalCost = rs.getDouble("totalCost");
+                return new MonthlyReport(totalAmount, totalCost);
+            }
+        });
+        report.setPayments(paymentAmount);
+        return report;
     }
 
     static class SaleWithProductsResultSetExtractor implements ResultSetExtractor<Sale> {

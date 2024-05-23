@@ -148,3 +148,14 @@ CREATE TABLE IF NOT EXISTS Messages (
     vaccine VARCHAR(50) NOT NULL,
     sent BOOLEAN DEFAULT false
 );
+
+CREATE TABLE IF NOT EXISTS Payments (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    date DATE,
+    bill_number VARCHAR(50),
+    amount DECIMAL(10, 2),
+    provider VARCHAR(50),
+    payed BOOLEAN DEFAULT FALSE,
+    payment_method VARCHAR(50),
+    payment_date DATE
+)

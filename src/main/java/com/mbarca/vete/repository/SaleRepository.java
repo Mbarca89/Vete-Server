@@ -1,6 +1,7 @@
 package com.mbarca.vete.repository;
 
 import com.mbarca.vete.domain.CategoryTotal;
+import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.domain.Sale;
 
 import java.util.Date;
@@ -10,5 +11,6 @@ public interface SaleRepository {
     Integer createSale (Sale sale);
     Sale getSaleWithProductsById(long saleId);
     List<Sale> getSalesByDate(Date dateStart, Date dateEnd);
-    List<CategoryTotal> getSalesByCategory();
+    List<CategoryTotal> getSalesByCategory(Date dateStart, Date dateEnd);
+    MonthlyReport getSalesReport(Date dateStart, Date dateEnd);
 }

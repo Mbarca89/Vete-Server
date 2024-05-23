@@ -1,6 +1,7 @@
 package com.mbarca.vete.service.impl;
 
 import com.mbarca.vete.domain.CategoryTotal;
+import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.domain.Sale;
 import com.mbarca.vete.dto.request.SaleRequestDto;
 import com.mbarca.vete.dto.response.CategoryTotalResponseDto;
@@ -43,9 +44,14 @@ public class SaleServiceImpl implements SaleService {
     }
 
     @Override
-    public List<CategoryTotalResponseDto> getSalesByCategory () {
-        List<CategoryTotal> categoryTotals = saleRepository.getSalesByCategory();
+    public List<CategoryTotalResponseDto> getSalesByCategory (Date dateStart, Date dateEnd) {
+        List<CategoryTotal> categoryTotals = saleRepository.getSalesByCategory(dateStart, dateEnd);
         return categoryTotals.stream().map(this::mapSaleByCategoryToDto).collect(Collectors.toList());
+    }
+
+    @Override
+    public MonthlyReport getSalesReport(Date dateStart, Date dateEnd) {
+        return saleRepository.getSalesReport(dateStart, dateEnd);
     }
 
     private Sale mapDtoToSale(SaleRequestDto saleRequestDto) {
