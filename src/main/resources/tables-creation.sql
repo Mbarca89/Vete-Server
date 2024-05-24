@@ -19,7 +19,8 @@ CREATE TABLE IF NOT EXISTS Products (
     stock INT NOT NULL,
     stock_alert BOOLEAN DEFAULT FALSE,
     published BOOLEAN DEFAULT FALSE,
-    image BLOB
+    image BLOB,
+    thumbnail BLOB
 );
 
 CREATE TABLE IF NOT EXISTS Category (
@@ -68,7 +69,8 @@ CREATE TABLE IF NOT EXISTS Pets (
     species VARCHAR(50),
     weight DOUBLE,
     born DATE,
-    photo BLOB
+    photo BLOB,
+    thumbnail BLOB
 );
 
 CREATE TABLE IF NOT EXISTS ClientPets (

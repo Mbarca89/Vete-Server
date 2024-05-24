@@ -3,6 +3,7 @@ package com.mbarca.vete.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mbarca.vete.domain.Images;
 import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.dto.request.PetRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
@@ -36,11 +37,11 @@ public class PetController {
                                                    @RequestParam("clientId") String clientId) {
         try {
             PetRequestDto petRequestDto = new ObjectMapper().readValue(petJson, PetRequestDto.class);
-            byte[] compressedImage = null;
+            Images images = new Images();
             if (file != null && !file.isEmpty()) {
-                compressedImage = ImageCompressor.compressImage(file.getBytes());
+                images = ImageCompressor.compressImage(file.getBytes());
             }
-            String response = petService.createPet(petRequestDto, compressedImage, Long.parseLong(clientId));
+            String response = petService.createPet(petRequestDto, images, Long.parseLong(clientId));
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (JsonMappingException e) {
             throw new RuntimeException(e);
@@ -135,11 +136,11 @@ public class PetController {
                                                   {
         try {
             PetRequestDto petRequestDto = new ObjectMapper().readValue(petJson, PetRequestDto.class);
-            byte[] compressedImage = null;
+            Images images = new Images();
             if (file != null && !file.isEmpty()) {
-                compressedImage = petService.compressImage(file.getBytes());
+                images = ImageCompressor.compressImage(file.getBytes());
             }
-            String response = petService.editPet(petRequestDto, compressedImage);
+            String response = petService.editPet(petRequestDto, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (MissingDataException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

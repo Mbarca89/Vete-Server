@@ -20,8 +20,9 @@ import java.util.Objects;
 @Repository
 public class PetRepositoryImpl implements PetRepository {
 
-    private final String CREATE_PET = "INSERT INTO Pets (name, race, gender, species, weight, born, photo) VALUES (?,?,?,?,?,?,?)";
-    private final String GET_PET_BY_ID = "SELECT * FROM Pets WHERE id = ?";
+    private final String CREATE_PET = "INSERT INTO Pets (name, race, gender, species, weight, born, photo, thumbnail) VALUES (?,?,?,?,?,?,?,?)";
+    private final String GET_PET_BY_ID = "SELECT Pets.*, CONCAT(Clients.name, ' ', Clients.surname) AS owner_name FROM Pets JOIN ClientPets ON Pets.id = ClientPets.pet_id JOIN Clients ON ClientPets.client_id = Clients.id WHERE Pets.id = ?";
+
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -43,6 +44,7 @@ public class PetRepositoryImpl implements PetRepository {
             java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
             ps.setDate(6, sqlDate);
             ps.setBytes(7, pet.getPhoto());
+            ps.setBytes(8, pet.getThumbnail());
             return ps;
         }, keyHolder);
 
@@ -66,7 +68,7 @@ public class PetRepositoryImpl implements PetRepository {
                 "INNER JOIN ClientPets cp ON p.id = cp.pet_id " +
                 "INNER JOIN Clients c ON cp.client_id = c.id " +
                 "LIMIT ? OFFSET ?";
-        List<Pet> pets = jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true));
+        List<Pet> pets = jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true, false));
         return new PaginatedResults(pets, totalCount != null ? totalCount:0);
     }
 
@@ -78,21 +80,21 @@ public class PetRepositoryImpl implements PetRepository {
                 "JOIN ClientPets cp ON p.id = cp.pet_id " +
                 "JOIN Clients c ON cp.client_id = c.id " +
                 "WHERE cp.client_id = ?";
-        return jdbcTemplate.query(GET_PETS_FROM_CLIENT, params, new PetRowMapper(true));
+        return jdbcTemplate.query(GET_PETS_FROM_CLIENT, params, new PetRowMapper(true, false));
     }
 
     @Override
     public List<Pet> getPetsByName(String name, int limit, int offset) {
         String searchTerm = "%" + name + "%";
         String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?";
-        return jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false));
+        return jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false));
     }
 
     @Override
     public Pet getPetById(Long petId) {
         Object[] params = {petId};
         int[] types = {1};
-        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false));
+        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(true, true));
     }
 
     @Override
@@ -110,7 +112,7 @@ public class PetRepositoryImpl implements PetRepository {
 
         Object[] params = {petId};
         int[] types = {1};
-        Pet currentPet = jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false));
+        Pet currentPet = jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false, true));
 
         if (currentPet == null) {
             throw new PetNotFoundException("Mascota no encontrada!");
@@ -123,17 +125,21 @@ public class PetRepositoryImpl implements PetRepository {
         if (newPet.getWeight() != 0) editPet.setWeight(newPet.getWeight()); else editPet.setWeight(currentPet.getWeight());
         if (newPet.getBorn() != null) editPet.setBorn(newPet.getBorn()); else editPet.setBorn(currentPet.getBorn());
         if (newPet.getPhoto() != null) editPet.setPhoto(newPet.getPhoto()); else editPet.setPhoto(currentPet.getPhoto());
+        if (newPet.getThumbnail() != null) editPet.setThumbnail(newPet.getThumbnail()); else editPet.setThumbnail(currentPet.getThumbnail());
 
-        String EDIT_PET = "UPDATE pets SET name = ?, race = ?, gender = ?, species = ?, weight = ?, born = ?, photo = ? WHERE id = ?";
+        String EDIT_PET = "UPDATE pets SET name = ?, race = ?, gender = ?, species = ?, weight = ?, born = ?, photo = ?, thumbnail = ? WHERE id = ?";
         return jdbcTemplate.update(EDIT_PET, editPet.getName(), editPet.getRace(), editPet.getGender(), editPet.getSpecies(), editPet.getWeight(), editPet.getBorn(), editPet.getPhoto(), newPet.getId());
     }
 
     static class PetRowMapper implements RowMapper<Pet> {
         boolean includeOwner;
+        boolean includePhoto;
 
-        public PetRowMapper(boolean includeOwner) {
+        public PetRowMapper(boolean includeOwner, boolean includePhoto) {
             this.includeOwner = includeOwner;
+            this.includePhoto = includePhoto;
         }
+
 
         @Override
         public Pet mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -145,7 +151,8 @@ public class PetRepositoryImpl implements PetRepository {
             pet.setSpecies(rs.getString("species"));
             pet.setWeight(rs.getDouble("weight"));
             pet.setBorn(rs.getDate("born"));
-            pet.setPhoto(rs.getBytes("photo"));
+            if(includePhoto) pet.setPhoto(rs.getBytes("photo"));
+            pet.setThumbnail(rs.getBytes("thumbnail"));
             if(includeOwner) pet.setOwnerName(rs.getString("owner_name"));
             return pet;
         }

@@ -11,11 +11,13 @@ public class PetResponseDto {
     private Double weight;
     private Date born;
     private byte[] photo;
+    private byte[] thumbnail;
     private String ownerName;
 
     public PetResponseDto() {
     }
-    public PetResponseDto(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo) {
+
+    public PetResponseDto(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo, byte[] thumbnail, String ownerName) {
         this.id = id;
         this.name = name;
         this.race = race;
@@ -24,6 +26,8 @@ public class PetResponseDto {
         this.weight = weight;
         this.born = born;
         this.photo = photo;
+        this.thumbnail = thumbnail;
+        this.ownerName = ownerName;
     }
 
     public Long getId() {
@@ -94,5 +98,13 @@ public class PetResponseDto {
 
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
+    }
+
+    public byte[] getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(byte[] thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

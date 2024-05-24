@@ -5,10 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
-import com.mbarca.vete.domain.PaginatedResults;
-import com.mbarca.vete.domain.Pet;
-import com.mbarca.vete.domain.Product;
-import com.mbarca.vete.domain.User;
+import com.mbarca.vete.domain.*;
 import com.mbarca.vete.dto.request.PetRequestDto;
 import com.mbarca.vete.dto.request.UserRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
@@ -45,11 +42,12 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public String createPet(PetRequestDto petRequestDto, byte[] compressedImage, Long clientId) throws MissingDataException {
+    public String createPet(PetRequestDto petRequestDto, Images images, Long clientId) throws MissingDataException {
         if (Objects.equals(petRequestDto.getName(),"")) throw new MissingDataException("Faltan datos!");
 
         Pet pet = mapDtoToPet(petRequestDto);
-        pet.setPhoto(compressedImage);
+        pet.setPhoto(images.getFullImage());
+        pet.setThumbnail(images.getThumbnail());
         Integer response = petRepository.createPet(pet, clientId);
         if (response.equals(0)) {
             return "Error al crear la mascota!";
@@ -98,14 +96,17 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public String editPet(PetRequestDto petRequestDto, byte[] compressedImage) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException, PetNotFoundException {
+    public String editPet(PetRequestDto petRequestDto, Images images) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException, PetNotFoundException {
 
         if (petRequestDto.getName() == null || Objects.equals(petRequestDto.getName(), "")) {
             throw new MissingDataException("Faltan datos!");
         }
 
         Pet pet = mapDtoToPet(petRequestDto);
-        if(compressedImage != null) pet.setPhoto(compressedImage);
+        if(images.getFullImage() != null) {
+            pet.setPhoto(images.getFullImage());
+            pet.setThumbnail(images.getThumbnail());
+        }
         Integer response = petRepository.editPet(pet);
 
         if (response.equals(0)) {
@@ -114,38 +115,7 @@ public class PetServiceImpl implements PetService {
         return "Mascota editada correctamente!";
     }
 
-    @Override
-    public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException, ImageProcessingException, MetadataException {
-        Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageData));
-        ExifIFD0Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageData));
-        if (orientation != 1) {
-            AffineTransform transform = new AffineTransform();
-            switch (orientation) {
-                case 6:
-                    transform.translate(originalImage.getHeight(), 0);
-                    transform.rotate(Math.toRadians(90));
-                    break;
-                case 3:
-                    transform.translate(originalImage.getWidth(), originalImage.getHeight());
-                    transform.rotate(Math.toRadians(180));
-                    break;
-                case 8:
-                    transform.translate(0, originalImage.getWidth());
-                    transform.rotate(Math.toRadians(270));
-                    break;
-            }
-            originalImage = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
-                    .filter(originalImage, null);
-        }
-        BufferedImage outputImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-        outputImage.createGraphics().drawImage(originalImage, 0, 0, Color.WHITE, null);
 
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(outputImage, "jpg", outputStream);
-        return outputStream.toByteArray();
-    }
 
     private Pet mapDtoToPet(PetRequestDto petRequestDto) {
         Pet pet = new Pet();
@@ -170,6 +140,7 @@ public class PetServiceImpl implements PetService {
         petResponseDto.setWeight(pet.getWeight());
         petResponseDto.setBorn(pet.getBorn());
         petResponseDto.setPhoto(pet.getPhoto());
+        petResponseDto.setThumbnail(pet.getThumbnail());
         petResponseDto.setOwnerName(pet.getOwnerName());
         return petResponseDto;
     }

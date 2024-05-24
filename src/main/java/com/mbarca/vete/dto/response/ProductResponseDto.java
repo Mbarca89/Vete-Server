@@ -13,11 +13,12 @@ public class ProductResponseDto {
     private Boolean stockAlert;
     private Boolean published;
     private byte[] image;
+    private byte[] thumbnail;
 
     public ProductResponseDto() {
     }
 
-    public ProductResponseDto(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, Boolean stockAlert, Boolean published, byte[] image) {
+    public ProductResponseDto(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, Boolean stockAlert, Boolean published, byte[] image, byte[] thumbnail) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -30,6 +31,7 @@ public class ProductResponseDto {
         this.stockAlert = stockAlert;
         this.published = published;
         this.image = image;
+        this.thumbnail = thumbnail;
     }
 
     public String getName() {
@@ -126,6 +128,13 @@ public class ProductResponseDto {
 
     public void setPublished(Boolean published) {
         this.published = published;
+    }
+    public byte[] getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(byte[] thumbnail) {
+        this.thumbnail = thumbnail;
     }
     @Override
     public String toString() {

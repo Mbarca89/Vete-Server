@@ -4,6 +4,7 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.mbarca.vete.domain.Images;
 import org.imgscalr.Scalr;
 
 import javax.imageio.ImageIO;
@@ -11,10 +12,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.Buffer;
 
 public class ImageCompressor {
 
-    public static byte[] compressImage(byte[] imageData) throws Exception {
+    public static Images compressImage(byte[] imageData) throws Exception {
         BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageData));
 
         // Rotate the image based on EXIF orientation
@@ -22,10 +24,12 @@ public class ImageCompressor {
 
         // Resize the rotated image to 1280x720 or 720x1280
         BufferedImage resizedImage = resizeImage(rotatedImage, 1280, 720);
-
+        BufferedImage resizedThumbnail = resizeImage(rotatedImage, 320, 184);
         // Convert resized image to WebP
 
-        return convertToWebP(resizedImage);
+        byte [] fullImage = convertToWebP(resizedImage);
+        byte [] thumbnail = convertToWebP(resizedThumbnail);
+        return new Images(fullImage, thumbnail);
     }
 
     private static BufferedImage rotateImage(BufferedImage originalImage, byte[] imageData) throws Exception {

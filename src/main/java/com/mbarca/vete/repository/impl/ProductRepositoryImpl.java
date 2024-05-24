@@ -19,7 +19,7 @@ import java.util.Objects;
 @Repository
 public class ProductRepositoryImpl implements ProductRepository {
 
-    private final String CREATE_PRODUCT = "INSERT INTO products (name, bar_code, description, cost, price, stock, category_name, image, provider_name) VALUES (?,?,?,?,?,?,?,?,?)";
+    private final String CREATE_PRODUCT = "INSERT INTO products (name, bar_code, description, cost, price, stock, category_name, image, thumbnail, provider_name) VALUES (?,?,?,?,?,?,?,?,?,?)";
     private final String GET_PRODUCT_BY_ID = "SELECT * FROM products WHERE id= ?";
     private final JdbcTemplate jdbcTemplate;
 
@@ -53,7 +53,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             assert category != null;
             ps.setString(7, category.getName());
             ps.setBytes(8, product.getImage());
-            ps.setString(9, product.getProviderName());
+            ps.setBytes(9, product.getThumbnail());
+            ps.setString(10, product.getProviderName());
             return ps;
         }, keyHolder);
         Long productId = Objects.requireNonNull(keyHolder.getKey()).longValue();
@@ -106,7 +107,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
 
         Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
-        List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(true));
+        List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(false));
 
         return new PaginatedResults<Product>(products, totalCount != null ? totalCount:0);
     }
@@ -121,7 +122,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
 
         Product editProduct = getEditProduct(newProduct, currentProduct);
-        String EDIT_PRODUCT = "UPDATE products SET name = ?, bar_code = ?, description = ?, cost = ?, price = ?, stock = ?, category_name = ?, image = ?, provider_name = ?, stock_alert = ?, published = ? WHERE id = ?";
+        String EDIT_PRODUCT = "UPDATE products SET name = ?, bar_code = ?, description = ?, cost = ?, price = ?, stock = ?, category_name = ?, image = ?, thumbnail = ?, provider_name = ?, stock_alert = ?, published = ? WHERE id = ?";
         return jdbcTemplate.update(EDIT_PRODUCT,
                 editProduct.getName(),
                 editProduct.getBarCode(),
@@ -131,6 +132,7 @@ public class ProductRepositoryImpl implements ProductRepository {
                 editProduct.getStock(),
                 editProduct.getCategoryName(),
                 editProduct.getImage(),
+                editProduct.getThumbnail(),
                 editProduct.getProviderName(),
                 editProduct.getStockAlert(),
                 editProduct.getPublished(),
@@ -151,11 +153,11 @@ public class ProductRepositoryImpl implements ProductRepository {
         try {
             double barCode = Double.parseDouble(searchTerm);
             String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
-            return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new ProductRowMapper(true));
+            return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new ProductRowMapper(false));
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
             String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
-            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[] {searchTermOk}, new ProductRowMapper(true));
+            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[] {searchTermOk}, new ProductRowMapper(false));
         }
     }
 
@@ -197,6 +199,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         editProduct.setCategoryName(!Objects.equals(newProduct.getCategoryName(), "") ? newProduct.getCategoryName() : currentProduct.getCategoryName());
         editProduct.setProviderName(!Objects.equals(newProduct.getProviderName(), "") ? newProduct.getProviderName() : currentProduct.getProviderName());
         editProduct.setImage(newProduct.getImage() != null ? newProduct.getImage() : currentProduct.getImage());
+        editProduct.setThumbnail(newProduct.getThumbnail() != null ? newProduct.getThumbnail() : currentProduct.getThumbnail());
         editProduct.setStockAlert(newProduct.getStockAlert());
         editProduct.setPublished(newProduct.getPublished());
         return editProduct;
@@ -244,6 +247,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setStockAlert(rs.getBoolean("stock_alert"));
             product.setPublished(rs.getBoolean("published"));
             if(includeImage) product.setImage(rs.getBytes("image"));
+            product.setThumbnail(rs.getBytes("thumbnail"));
             return product;
         }
     }

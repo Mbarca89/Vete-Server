@@ -16,11 +16,13 @@ public class Product {
     private Boolean published;
     @Lob
     private byte[] image;
+    @Lob
+    private byte[] thumbnail;
 
     public Product() {
     }
 
-    public Product(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, Boolean stockAlert, Boolean published, byte[] image) {
+    public Product(Long id, String name, String description, Double barCode, Double cost, Double price, Integer stock, String categoryName, String providerName, Boolean stockAlert, Boolean published, byte[] image, byte[] thumbnail) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -33,6 +35,7 @@ public class Product {
         this.stockAlert = stockAlert;
         this.published = published;
         this.image = image;
+        this.thumbnail = thumbnail;
     }
 
     public Long getId() {
@@ -130,6 +133,13 @@ public class Product {
     public void setPublished(Boolean published) {
         this.published = published;
     }
+    public byte[] getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(byte[] thumbnail) {
+        this.thumbnail = thumbnail;
+    }
     @Override
     public String toString() {
         return "Product{" +
@@ -143,6 +153,7 @@ public class Product {
                 ", categoryName='" + categoryName + '\'' +
                 ", provider='" + providerName + '\'' +
                 ", photo=" + Arrays.toString(image) +
+                ", thumbnail=" + Arrays.toString(thumbnail) +
                 '}';
     }
 

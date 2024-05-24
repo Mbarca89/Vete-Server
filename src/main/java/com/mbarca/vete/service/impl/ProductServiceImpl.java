@@ -5,6 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.mbarca.vete.domain.Images;
 import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.domain.StockAlert;
@@ -40,7 +41,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String createProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws MissingDataException {
+    public String createProduct(ProductRequestDto productRequestDto, Images images) throws MissingDataException {
         if (productRequestDto.getName() == null ||
                 productRequestDto.getCost() == null ||
                 productRequestDto.getPrice() == null ||
@@ -54,7 +55,8 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product product = mapDtoToProduct(productRequestDto);
-        product.setImage(compressedImage);
+        product.setImage(images.getFullImage());
+        product.setThumbnail(images.getThumbnail());
         Integer response = productRepository.createProduct(product);
         if (response.equals(0)) {
             return "Error al crear el producto!";
@@ -95,7 +97,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public String editProduct(ProductRequestDto productRequestDto, byte[] compressedImage) throws Exception {
+    public String editProduct(ProductRequestDto productRequestDto, Images images) throws Exception {
         if (Objects.equals(productRequestDto.getName(), "") ||
                 productRequestDto.getStock() == null ||
                 productRequestDto.getCost() == null ||
@@ -106,7 +108,10 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Product product = mapDtoToProduct(productRequestDto);
-        if (compressedImage != null) product.setImage(compressedImage);
+        if (images.getFullImage() != null) {
+            product.setImage(images.getFullImage());
+            product.setThumbnail(images.getThumbnail());
+        }
         Integer response = productRepository.editProduct(product);
 
         if (response.equals(0)) {
@@ -148,39 +153,6 @@ public class ProductServiceImpl implements ProductService {
         return stockAlerts.stream().map(this::mapStockAlertsToDto).collect(Collectors.toList());
     }
 
-    @Override
-    public byte[] compressImage(byte[] imageData) throws IOException, MaxUploadSizeExceededException, ImageProcessingException, MetadataException {
-        Metadata metadata = ImageMetadataReader.readMetadata(new ByteArrayInputStream(imageData));
-        ExifIFD0Directory exifDirectory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        int orientation = exifDirectory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
-        BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(imageData));
-        if (orientation != 1) {
-            AffineTransform transform = new AffineTransform();
-            switch (orientation) {
-                case 6:
-                    transform.translate(originalImage.getHeight(), 0);
-                    transform.rotate(Math.toRadians(90));
-                    break;
-                case 3:
-                    transform.translate(originalImage.getWidth(), originalImage.getHeight());
-                    transform.rotate(Math.toRadians(180));
-                    break;
-                case 8:
-                    transform.translate(0, originalImage.getWidth());
-                    transform.rotate(Math.toRadians(270));
-                    break;
-            }
-            originalImage = new AffineTransformOp(transform, AffineTransformOp.TYPE_BILINEAR)
-                    .filter(originalImage, null);
-        }
-        BufferedImage outputImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
-        outputImage.createGraphics().drawImage(originalImage, 0, 0, Color.WHITE, null);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ImageIO.write(outputImage, "jpg", outputStream);
-        return outputStream.toByteArray();
-    }
-
     private Product mapDtoToProduct(ProductRequestDto productRequestDto) {
         Product product = new Product();
         product.setId(productRequestDto.getId());
@@ -218,6 +190,7 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setProviderName(product.getProviderName());
         productResponseDto.setStockAlert(product.getStockAlert());
         productResponseDto.setPublished(product.getPublished());
+        productResponseDto.setThumbnail(product.getThumbnail());
         return productResponseDto;
     }
 

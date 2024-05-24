@@ -14,9 +14,14 @@ public class Pet {
     private String ownerName;
     @Lob
     private byte[] photo;
+    @Lob
+    private byte[] thumbnail;
     MedicalHistory medicalHistory;
 
-    public Pet(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo, MedicalHistory medicalHistory) {
+    public Pet() {
+    }
+
+    public Pet(Long id, String name, String race, String gender, String species, Double weight, Date born, String ownerName, byte[] photo, byte[] thumbnail, MedicalHistory medicalHistory) {
         this.id = id;
         this.name = name;
         this.race = race;
@@ -24,11 +29,10 @@ public class Pet {
         this.species = species;
         this.weight = weight;
         this.born = born;
+        this.ownerName = ownerName;
         this.photo = photo;
+        this.thumbnail = thumbnail;
         this.medicalHistory = medicalHistory;
-    }
-
-    public Pet() {
     }
 
     public Long getId() {
@@ -109,5 +113,13 @@ public class Pet {
 
     public void setOwnerName(String ownerName) {
         this.ownerName = ownerName;
+    }
+
+    public byte[] getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(byte[] thumbnail) {
+        this.thumbnail = thumbnail;
     }
 }

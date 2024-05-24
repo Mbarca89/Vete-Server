@@ -109,6 +109,13 @@
 					<executable>true</executable>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				<configuration>
+					<jvmArguments>-Duser.timezone=America/Argentina/San_Luis</jvmArguments>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 

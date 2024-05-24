@@ -3,6 +3,7 @@ package com.mbarca.vete.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mbarca.vete.domain.Images;
 import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.domain.Product;
 import com.mbarca.vete.dto.request.ProductRequestDto;
@@ -39,11 +40,11 @@ public class ProductController {
                                                        @RequestParam("product") String productJson) {
         try {
             ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
-            byte[] compressedImage = null;
+            Images images = new Images();
             if (file != null && !file.isEmpty()) {
-                compressedImage = ImageCompressor.compressImage(file.getBytes());
+                images = ImageCompressor.compressImage(file.getBytes());
             }
-            String response = productService.createProduct(productRequestDto, compressedImage);
+            String response = productService.createProduct(productRequestDto, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (MissingDataException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -127,11 +128,11 @@ public class ProductController {
                                                 @RequestParam("product") String productJson) {
         try {
             ProductRequestDto productRequestDto = new ObjectMapper().readValue(productJson, ProductRequestDto.class);
-            byte[] compressedImage = null;
+            Images images = new Images();
             if (file != null && !file.isEmpty()) {
-                compressedImage = productService.compressImage(file.getBytes());
+                images = ImageCompressor.compressImage(file.getBytes());
             }
-            String response = productService.editProduct(productRequestDto, compressedImage);
+            String response = productService.editProduct(productRequestDto, images);
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (MissingDataException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
