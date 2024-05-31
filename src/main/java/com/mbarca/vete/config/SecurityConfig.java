@@ -30,6 +30,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authRequest ->
                     authRequest
                             .requestMatchers("/auth/login").permitAll()
+                            .requestMatchers("/api/v1/products/public/getProductsPaginated").permitAll()
+                            .requestMatchers("/api/v1/products/public/searchProduct").permitAll()
+                            .requestMatchers("/api/v1/category/getCategoriesNames").permitAll()
                             .anyRequest().authenticated()
                         )
                 .sessionManagement(sessionManager ->

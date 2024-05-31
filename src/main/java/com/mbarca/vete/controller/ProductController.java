@@ -123,6 +123,18 @@ public class ProductController {
     }
 
     @CrossOrigin
+    @GetMapping("/public/getProductsPaginated")
+    public ResponseEntity<?> getProductsPaginateForWebdHandler(@RequestParam(defaultValue = "1") int page,
+                                                         @RequestParam(defaultValue = "12") int size) {
+        try {
+            PaginatedResults<ProductResponseDto> products = productService.getProductsPaginatedForWeb(page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @PostMapping("/edit")
     public ResponseEntity<?> editProductHandler(@RequestParam(value = "file", required = false) MultipartFile file,
                                                 @RequestParam("product") String productJson) {
@@ -165,6 +177,28 @@ public class ProductController {
     public ResponseEntity<?> searchProductHandler(@RequestParam String searchTerm) {
         try {
             List<ProductResponseDto> products = productService.searchProduct(searchTerm);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/searchProductForSale")
+    public ResponseEntity<?> searchProductForSaleHandler(@RequestParam String searchTerm) {
+        try {
+            List<ProductResponseDto> products = productService.searchProductForSale(searchTerm);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/public/searchProduct")
+    public ResponseEntity<?> searchProductForWebHandler(@RequestParam String searchTerm) {
+        try {
+            List<ProductResponseDto> products = productService.searchProductForWeb(searchTerm);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());

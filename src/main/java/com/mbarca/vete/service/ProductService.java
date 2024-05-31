@@ -20,9 +20,12 @@ public interface ProductService {
     Integer getProductCount ();
     Integer getCategoryCount (String categoryName);
     PaginatedResults<ProductResponseDto> getProductsPaginated(int page, int size);
+    PaginatedResults<ProductResponseDto> getProductsPaginatedForWeb(int page, int size);
     String editProduct(ProductRequestDto productRequestDto, Images images) throws Exception;
     String deleteProduct (Long productId) throws Exception;
     List<ProductResponseDto> searchProduct (String searchTerm);
+    List<ProductResponseDto> searchProductForSale (String searchTerm);
+    List<ProductResponseDto> searchProductForWeb (String searchTerm);
     List<ProductResponseDto> getProductsFromProvider (Long providerId);
     ProductResponseDto getProductById (Long productId) throws NotFoundException;
     List<StockAlertResponseDto> getStockAlerts ();

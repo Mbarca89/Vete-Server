@@ -95,6 +95,13 @@ public class ProductServiceImpl implements ProductService {
         List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
         return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
     }
+    @Override
+    public PaginatedResults<ProductResponseDto> getProductsPaginatedForWeb(int page, int size) {
+        int offset = (page - 1) * size;
+        PaginatedResults<Product> products = productRepository.getProductsPaginatedForWeb(size, offset);
+        List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
+        return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
+    }
 
     @Override
     public String editProduct(ProductRequestDto productRequestDto, Images images) throws Exception {
@@ -132,6 +139,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public List<ProductResponseDto> searchProduct(String searchTerm) {
         List<Product> products = productRepository.searchProduct(searchTerm);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+    @Override
+    public List<ProductResponseDto> searchProductForSale(String searchTerm) {
+        List<Product> products = productRepository.searchProductForSale(searchTerm);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+    @Override
+    public List<ProductResponseDto> searchProductForWeb(String searchTerm) {
+        List<Product> products = productRepository.searchProductForWeb(searchTerm);
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
     }
 
