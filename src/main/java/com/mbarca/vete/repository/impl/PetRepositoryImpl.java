@@ -84,10 +84,19 @@ public class PetRepositoryImpl implements PetRepository {
     }
 
     @Override
-    public List<Pet> getPetsByName(String name, int limit, int offset) {
+    public PaginatedResults<Pet> getPetsByName(String name, String species, int limit, int offset) {
+        String GET_PET_COUNT_WITH_SPECIES = "SELECT COUNT(*) FROM pets WHERE LOWER(name) LIKE LOWER(?) AND species = ?";
+        String GET_PET_COUNT = "SELECT COUNT(*) FROM pets WHERE LOWER(name) LIKE LOWER(?)";
+        Integer totalCount;
         String searchTerm = "%" + name + "%";
+        if(!Objects.equals(species, "")) totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT_WITH_SPECIES, new Object[]{searchTerm, species}, Integer.class);
+        else totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT, new Object[]{searchTerm}, Integer.class);
         String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?";
-        return jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false));
+        String GET_PET_BY_NAME_AND_SPECIES = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) AND species = ? LIMIT ? OFFSET ?";
+        List<Pet> pets;
+        if(!Objects.equals(species, "")) pets = jdbcTemplate.query(GET_PET_BY_NAME_AND_SPECIES, new Object[]{searchTerm, species, limit, offset}, new PetRowMapper(false, false));
+        else pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false));
+        return new PaginatedResults<Pet>(pets, totalCount != null ? totalCount:0);
     }
 
     @Override
@@ -128,7 +137,7 @@ public class PetRepositoryImpl implements PetRepository {
         if (newPet.getThumbnail() != null) editPet.setThumbnail(newPet.getThumbnail()); else editPet.setThumbnail(currentPet.getThumbnail());
 
         String EDIT_PET = "UPDATE pets SET name = ?, race = ?, gender = ?, species = ?, weight = ?, born = ?, photo = ?, thumbnail = ? WHERE id = ?";
-        return jdbcTemplate.update(EDIT_PET, editPet.getName(), editPet.getRace(), editPet.getGender(), editPet.getSpecies(), editPet.getWeight(), editPet.getBorn(), editPet.getPhoto(), newPet.getId());
+        return jdbcTemplate.update(EDIT_PET, editPet.getName(), editPet.getRace(), editPet.getGender(), editPet.getSpecies(), editPet.getWeight(), editPet.getBorn(), editPet.getPhoto(), editPet.getThumbnail(), newPet.getId());
     }
 
     static class PetRowMapper implements RowMapper<Pet> {

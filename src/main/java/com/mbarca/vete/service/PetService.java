@@ -20,7 +20,7 @@ public interface PetService {
     Integer getPetCount();
     PaginatedResults<PetResponseDto> getAllPets(int page, int size) throws Exception;
     List<PetResponseDto> getPetsFromClient(Long clientId);
-    List<PetResponseDto> getPetsByName(String name, int page, int size);
+    PaginatedResults<PetResponseDto> getPetsByName(String name, String species, int page, int size);
     PetResponseDto getPetById (Long petId);
     String deletePet (Long petId);
     String editPet (PetRequestDto petRequestDto, Images images) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException, PetNotFoundException;

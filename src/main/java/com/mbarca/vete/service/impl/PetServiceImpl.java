@@ -67,7 +67,6 @@ public class PetServiceImpl implements PetService {
         List<PetResponseDto> petsResponse = pets.getData().stream().map(this::mapPetToDto).toList();
         return new PaginatedResults<PetResponseDto>(petsResponse, pets.getTotalCount());
     }
-
     @Override
     public List<PetResponseDto> getPetsFromClient(Long clientId) {
         List<Pet> pets = petRepository.getPetsFromClient(clientId);
@@ -75,10 +74,11 @@ public class PetServiceImpl implements PetService {
     }
 
     @Override
-    public List<PetResponseDto> getPetsByName(String name, int page, int size) {
+    public PaginatedResults<PetResponseDto> getPetsByName(String name, String species, int page, int size) {
         int offset = (page - 1) * size;
-        List<Pet> pets = petRepository.getPetsByName(name, size, offset);
-        return pets.stream().map(this::mapPetToDto).collect(Collectors.toList());
+        PaginatedResults<Pet> pets = petRepository.getPetsByName(name, species, size, offset);
+        List<PetResponseDto> petsResponse = pets.getData().stream().map(this::mapPetToDto).toList();
+        return new PaginatedResults<PetResponseDto>(petsResponse, pets.getTotalCount());
     }
 
     @Override

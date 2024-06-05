@@ -12,7 +12,7 @@ public interface PetRepository {
     Integer getPetCount ();
     PaginatedResults<Pet> getAllPets (int limit, int offset) throws Exception;
     List<Pet> getPetsFromClient (Long clientId);
-    List<Pet> getPetsByName (String name, int limit, int offset);
+    PaginatedResults<Pet> getPetsByName (String name, String species, int limit, int offset);
     Pet getPetById (Long petId);
     Integer deletePet (Long petId);
     Integer editPet(Pet pet) throws PetNotFoundException;

@@ -32,7 +32,7 @@ public class PetController {
 
     @CrossOrigin
     @PostMapping("/create")
-    public ResponseEntity<String> createPetHandler(@RequestParam(value = "file", required = false) MultipartFile file ,
+    public ResponseEntity<String> createPetHandler(@RequestParam(value = "file", required = false) MultipartFile file,
                                                    @RequestParam("pet") String petJson,
                                                    @RequestParam("clientId") String clientId) {
         try {
@@ -84,10 +84,11 @@ public class PetController {
     @CrossOrigin
     @GetMapping("/getPetsByName")
     public ResponseEntity<?> getPetsByNameHandler(@RequestParam(defaultValue = "") String name,
+                                                  @RequestParam(defaultValue = "") String species,
                                                   @RequestParam(defaultValue = "1") int page,
                                                   @RequestParam(defaultValue = "12") int size) {
         try {
-            List<PetResponseDto> pets = petService.getPetsByName(name, page, size);
+            PaginatedResults<PetResponseDto> pets = petService.getPetsByName(name, species, page, size);
             return ResponseEntity.status(HttpStatus.OK).body(pets);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
@@ -131,9 +132,8 @@ public class PetController {
 
     @CrossOrigin
     @PostMapping("/edit")
-    public ResponseEntity<String> editUserHandler(@RequestParam(value = "file", required = false) MultipartFile file ,
-                                                  @RequestParam("pet") String petJson)
-                                                  {
+    public ResponseEntity<String> editUserHandler(@RequestParam(value = "file", required = false) MultipartFile file,
+                                                  @RequestParam("pet") String petJson) {
         try {
             PetRequestDto petRequestDto = new ObjectMapper().readValue(petJson, PetRequestDto.class);
             Images images = new Images();
@@ -148,7 +148,7 @@ public class PetController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No existe una mascota con ese nombre!");
         } catch (MaxUploadSizeExceededException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("La imagen es demasiado grande");
-        }catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Imagen no soportada");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Exception: " + e.getMessage());

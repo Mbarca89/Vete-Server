@@ -281,7 +281,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setStockAlert(rs.getBoolean("stock_alert"));
             product.setPublished(rs.getBoolean("published"));
             if(includeImage) product.setImage(rs.getBytes("image"));
-            if (includeThumbnail) product.setThumbnail(rs.getBytes("thumbnail"));
+            if(includeThumbnail) product.setThumbnail(rs.getBytes("thumbnail"));
             return product;
         }
     }
