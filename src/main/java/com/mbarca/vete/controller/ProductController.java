@@ -90,6 +90,19 @@ public class ProductController {
     }
 
     @CrossOrigin
+    @GetMapping("/public/getByCategoryForWeb")
+    public ResponseEntity<?> getByCategoryForWebHandler(@RequestParam String categoryName,
+                                                  @RequestParam(defaultValue = "1") int page,
+                                                  @RequestParam(defaultValue = "12") int size) {
+        try {
+            PaginatedResults<ProductResponseDto> products = productService.getByCategoryForWeb(categoryName, page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @GetMapping("/getProductCount")
     public ResponseEntity<?> getProductCountHandler() {
         try {

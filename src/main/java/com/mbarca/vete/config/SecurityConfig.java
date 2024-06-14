@@ -32,7 +32,8 @@ public class SecurityConfig {
                             .requestMatchers("/auth/login").permitAll()
                             .requestMatchers("/api/v1/products/public/getProductsPaginated").permitAll()
                             .requestMatchers("/api/v1/products/public/searchProduct").permitAll()
-                            .requestMatchers("/api/v1/category/getCategoriesNames").permitAll()
+                            .requestMatchers("/api/v1/category/public/getCategoriesNamesForWeb").permitAll()
+                            .requestMatchers("/api/v1/products/public/getByCategoryForWeb").permitAll()
                             .anyRequest().authenticated()
                         )
                 .sessionManagement(sessionManager ->

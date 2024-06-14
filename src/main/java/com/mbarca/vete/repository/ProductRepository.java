@@ -11,6 +11,7 @@ public interface ProductRepository {
     Integer createProduct (Product product);
     List<Product> getAllProducts ();
     PaginatedResults<Product> getByCategory (String categoryName, int limit, int offset);
+    PaginatedResults<Product> getByCategoryForWeb (String categoryName, int limit, int offset);
     Integer getProductCount ();
     Integer getCategoryCount (String categoryName);
     PaginatedResults<Product> getProductsPaginated (int limit, int offset);

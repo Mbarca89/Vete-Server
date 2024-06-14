@@ -79,6 +79,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public PaginatedResults<ProductResponseDto> getByCategoryForWeb(String categoryName, int page, int size) {
+        int offset = (page - 1) * size;
+        PaginatedResults<Product> products = productRepository.getByCategoryForWeb(categoryName, size, offset);
+        List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
+        return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
+    }
+
+    @Override
     public Integer getProductCount() {
         return productRepository.getProductCount();
     }

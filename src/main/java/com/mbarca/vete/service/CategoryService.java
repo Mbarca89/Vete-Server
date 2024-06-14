@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface CategoryService {
     List<String> getCategoriesNames ();
+    List<String> getCategoriesNamesForWeb ();
     String createCategory(CategoryRequestDto categoryRequestDto);
     String deleteCategory(CategoryRequestDto categoryRequestDto) throws CategoryNotEmptyException;
 }

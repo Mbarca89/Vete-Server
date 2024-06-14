@@ -5,11 +5,35 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
 
+import com.mbarca.vete.domain.WSAAAuthResponse;
 import com.mbarca.vete.utils.afip_wsaa_client;
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
+import org.springframework.scheduling.annotation.Scheduled;
+
 public class WSAAService {
-	public static void main(String [] args ) {
+	private static String token = null;
+	private static String sign = null;
+	private static String message = null;
+
+	@Scheduled(cron = "0 00 08 * * *")
+	public static void refreshTokenAndSign() {
+		WSAAAuthResponse authResponse = WSAAAuth();
+		if (authResponse.getToken() != null && authResponse.getSign() != null) {
+			token = authResponse.getToken();
+			sign = authResponse.getSign();
+			message = authResponse.getMessage();
+		}
+	}
+
+	public static WSAAAuthResponse getTokenAndSign() {
+		if (token == null || sign == null) {
+			refreshTokenAndSign();
+		}
+		return new WSAAAuthResponse(token, sign, "OK");
+	}
+
+	public static WSAAAuthResponse WSAAAuth() {
 
 		String LoginTicketResponse = null;
 	
@@ -66,9 +90,10 @@ public class WSAAService {
 			
 			System.out.println("TOKEN: " + token);
 			System.out.println("SIGN: " + sign);
+			return new WSAAAuthResponse(token, sign, "OK");
 		} catch (Exception e) {
 			System.out.println(e);
-		}		
-
+			return new WSAAAuthResponse("", "", "Fallo de auntenticacion: " + e.getMessage());
+		}
 	}
 }

@@ -37,7 +37,6 @@ public class ProductRepositoryImpl implements ProductRepository {
         Category category = jdbcTemplate.queryForObject(GET_CATEGORY, params, types, new CategoryRowMapper());
 
 
-
         jdbcTemplate.update(con -> {
             PreparedStatement ps = con.prepareStatement(CREATE_PRODUCT, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, product.getName());
@@ -59,7 +58,7 @@ public class ProductRepositoryImpl implements ProductRepository {
         }, keyHolder);
         Long productId = Objects.requireNonNull(keyHolder.getKey()).longValue();
 
-        if(!Objects.equals(product.getProviderName(), "Ninguno")) {
+        if (!Objects.equals(product.getProviderName(), "Ninguno")) {
             Object[] params2 = {product.getProviderName()};
             String GET_PROVIDER = "SELECT * FROM providers WHERE name = ?";
             Provider provider = jdbcTemplate.queryForObject(GET_PROVIDER, params2, types, new ProviderRepositoryImpl.ProviderRowMapper());
@@ -86,8 +85,18 @@ public class ProductRepositoryImpl implements ProductRepository {
         Integer totalCount = jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(false, true));
 
-        return new PaginatedResults<Product>(products, totalCount != null ? totalCount:0);
-          }
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount : 0);
+    }
+
+    @Override
+    public PaginatedResults<Product> getByCategoryForWeb(String categoryName, int limit, int offset) {
+        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ? AND published = true";
+        String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? AND published = true LIMIT ? OFFSET ?";
+        Integer totalCount = jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
+        List<Product> products = jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(false, true));
+
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount : 0);
+    }
 
     @Override
     public Integer getProductCount() {
@@ -109,8 +118,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(false, true));
 
-        return new PaginatedResults<Product>(products, totalCount != null ? totalCount:0);
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount : 0);
     }
+
     @Override
     public PaginatedResults<Product> getProductsPaginatedForWeb(int limit, int offset) {
         String GET_PRODUCTS_PAGINATED = "SELECT * FROM products WHERE published = true LIMIT ? OFFSET ?";
@@ -119,15 +129,15 @@ public class ProductRepositoryImpl implements ProductRepository {
         Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new WebProductRowMapper(false, true));
 
-        return new PaginatedResults<Product>(products, totalCount != null ? totalCount:0);
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount : 0);
     }
 
     @Override
     public Integer editProduct(Product newProduct) throws NotFoundException {
         Object[] params = {newProduct.getId()};
-        int [] types = {1};
+        int[] types = {1};
         Product currentProduct = jdbcTemplate.queryForObject(GET_PRODUCT_BY_ID, params, types, new ProductRowMapper(true, true));
-        if(currentProduct == null) {
+        if (currentProduct == null) {
             throw new NotFoundException("Producto no encontrado!");
         }
 
@@ -150,7 +160,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Integer deleteProduct (Long productId) {
+    public Integer deleteProduct(Long productId) {
         String DELETE_PRODUCT_CATEGORY = "DELETE FROM ProductCategories WHERE product_id = ?";
         jdbcTemplate.update(DELETE_PRODUCT_CATEGORY, productId);
         String DELETE_PRODUCT_PROVIDER = "DELETE FROM ProductProviders WHERE product_id = ?";
@@ -158,8 +168,9 @@ public class ProductRepositoryImpl implements ProductRepository {
         String DELETE_PRODUCT = "DELETE FROM products WHERE id = ?";
         return jdbcTemplate.update(DELETE_PRODUCT, productId);
     }
+
     @Override
-    public List<Product> searchProduct (String searchTerm) {
+    public List<Product> searchProduct(String searchTerm) {
         try {
             double barCode = Double.parseDouble(searchTerm);
             String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
@@ -167,11 +178,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
             String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
-            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[] {searchTermOk}, new ProductRowMapper(false, true));
+            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new ProductRowMapper(false, true));
         }
     }
+
     @Override
-    public List<Product> searchProductForSale (String searchTerm) {
+    public List<Product> searchProductForSale(String searchTerm) {
         try {
             double barCode = Double.parseDouble(searchTerm);
             String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
@@ -179,11 +191,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
             String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
-            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[] {searchTermOk}, new ProductRowMapper(false, false));
+            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new ProductRowMapper(false, false));
         }
     }
+
     @Override
-    public List<Product> searchProductForWeb (String searchTerm) {
+    public List<Product> searchProductForWeb(String searchTerm) {
         try {
             double barCode = Double.parseDouble(searchTerm);
             String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ? AND published = true";
@@ -191,12 +204,12 @@ public class ProductRepositoryImpl implements ProductRepository {
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
             String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND published = true";
-            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[] {searchTermOk}, new WebProductRowMapper(false, true));
+            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new WebProductRowMapper(false, true));
         }
     }
 
     @Override
-    public List<Product> getProductsFromProvider (Long providerId) {
+    public List<Product> getProductsFromProvider(Long providerId) {
         String GET_PRODUCTS_FROM_PROVIDERS = "SELECT p.id, p.name, p.description, p.category_name, p.provider_name, p.bar_code, p.cost, p.price, p.stock " +
                 "FROM Products p " +
                 "JOIN ProductProviders pp ON p.id = pp.product_id " +
@@ -205,11 +218,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public Product getProductById (Long productId) throws NotFoundException {
+    public Product getProductById(Long productId) throws NotFoundException {
         Object[] params = {productId};
-        int [] types = {1};
+        int[] types = {1};
         Product currentProduct = jdbcTemplate.queryForObject(GET_PRODUCT_BY_ID, params, types, new ProductRowMapper(true, false));
-        if(currentProduct == null) {
+        if (currentProduct == null) {
             throw new NotFoundException("Producto no encontrado!");
         } else {
             return currentProduct;
@@ -217,7 +230,7 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
-    public List<StockAlert> getStockAlerts () {
+    public List<StockAlert> getStockAlerts() {
         String GET_STOCK_ALERTS = "SELECT * FROM Products WHERE stock_alert = true AND stock <= 5";
         return jdbcTemplate.query(GET_STOCK_ALERTS, new StockAlertRowMapper());
     }
@@ -262,10 +275,12 @@ public class ProductRepositoryImpl implements ProductRepository {
     static class ProductRowMapper implements RowMapper<Product> {
         private final boolean includeImage;
         private final boolean includeThumbnail;
+
         public ProductRowMapper(boolean includeImage, boolean includeThumbnail) {
             this.includeImage = includeImage;
             this.includeThumbnail = includeThumbnail;
         }
+
         @Override
         public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
             Product product = new Product();
@@ -280,8 +295,8 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setProviderName(rs.getString("provider_name"));
             product.setStockAlert(rs.getBoolean("stock_alert"));
             product.setPublished(rs.getBoolean("published"));
-            if(includeImage) product.setImage(rs.getBytes("image"));
-            if(includeThumbnail) product.setThumbnail(rs.getBytes("thumbnail"));
+            if (includeImage) product.setImage(rs.getBytes("image"));
+            if (includeThumbnail) product.setThumbnail(rs.getBytes("thumbnail"));
             return product;
         }
     }
@@ -289,10 +304,12 @@ public class ProductRepositoryImpl implements ProductRepository {
     static class WebProductRowMapper implements RowMapper<Product> {
         private final boolean includeImage;
         private final boolean includeThumbnail;
+
         public WebProductRowMapper(boolean includeImage, boolean includeThumbnail) {
             this.includeImage = includeImage;
             this.includeThumbnail = includeThumbnail;
         }
+
         @Override
         public Product mapRow(ResultSet rs, int rowNum) throws SQLException {
             Product product = new Product();
@@ -302,12 +319,11 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setCategoryName(rs.getString("category_name"));
             product.setPrice(rs.getDouble("price"));
             product.setStock(rs.getInt("stock"));
-            if(includeImage) product.setImage(rs.getBytes("image"));
+            if (includeImage) product.setImage(rs.getBytes("image"));
             if (includeThumbnail) product.setThumbnail(rs.getBytes("thumbnail"));
             return product;
         }
     }
-
 
 
 }

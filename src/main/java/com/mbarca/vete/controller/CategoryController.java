@@ -28,6 +28,17 @@ public class CategoryController {
     }
 
     @CrossOrigin
+    @GetMapping("/public/getCategoriesNamesForWeb")
+    public ResponseEntity<?> getCategoriesNamesForWebHandler() {
+        try {
+            List<String> categories = categoryService.getCategoriesNamesForWeb();
+            return ResponseEntity.status(HttpStatus.OK).body(categories);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @PostMapping("/create")
     public ResponseEntity<?> creteCategoryHandler(@RequestBody CategoryRequestDto categoryRequestDto) {
         try {

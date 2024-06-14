@@ -17,6 +17,7 @@ public interface ProductService {
     String createProduct(ProductRequestDto productRequestDto, Images images) throws MissingDataException;
     List<ProductResponseDto> getAllProducts ();
     PaginatedResults<ProductResponseDto> getByCategory (String categoryName, int page, int size);
+    PaginatedResults<ProductResponseDto> getByCategoryForWeb (String categoryName, int page, int size);
     Integer getProductCount ();
     Integer getCategoryCount (String categoryName);
     PaginatedResults<ProductResponseDto> getProductsPaginated(int page, int size);

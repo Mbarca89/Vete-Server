@@ -19,6 +19,10 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<String> getCategoriesNamesForWeb() {
+        return categoryRepository.getCategoriesNamesForWeb();
+    }
+    @Override
     public String createCategory(CategoryRequestDto categoryRequestDto) {
         int response = categoryRepository.createCategory(categoryRequestDto.getName());
         if (response == 0) {

@@ -129,8 +129,8 @@ public class PetRepositoryImpl implements PetRepository {
 
         editPet.setName(newPet.getName());
         if (!newPet.getRace().isEmpty()) editPet.setRace(newPet.getRace()); else editPet.setRace(currentPet.getRace());
-        if (!newPet.getGender().isEmpty()) editPet.setGender(newPet.getGender()); else editPet.setGender(currentPet.getGender());
-        if (!newPet.getSpecies().isEmpty()) editPet.setSpecies(newPet.getSpecies()); else editPet.setSpecies(currentPet.getSpecies());
+        if (newPet.getGender() != null && !newPet.getGender().isEmpty()) editPet.setGender(newPet.getGender()); else editPet.setGender(currentPet.getGender());
+        if (newPet.getSpecies() != null && !newPet.getSpecies().isEmpty()) editPet.setSpecies(newPet.getSpecies()); else editPet.setSpecies(currentPet.getSpecies());
         if (newPet.getWeight() != 0) editPet.setWeight(newPet.getWeight()); else editPet.setWeight(currentPet.getWeight());
         if (newPet.getBorn() != null) editPet.setBorn(newPet.getBorn()); else editPet.setBorn(currentPet.getBorn());
         if (newPet.getPhoto() != null) editPet.setPhoto(newPet.getPhoto()); else editPet.setPhoto(currentPet.getPhoto());

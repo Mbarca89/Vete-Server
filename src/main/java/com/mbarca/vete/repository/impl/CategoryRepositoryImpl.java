@@ -11,6 +11,11 @@ import java.util.List;
 public class CategoryRepositoryImpl implements CategoryRepository {
 
     private final String GET_CATEGORIES_NAMES = "SELECT name FROM Category";
+    private final String GET_CATEGORIES_NAMES_FOR_WEB = "SELECT DISTINCT c.name " +
+            "FROM Category c " +
+            "JOIN ProductCategories pc ON c.id = pc.category_id " +
+            "JOIN Products p ON pc.product_id = p.id " +
+            "WHERE p.published = TRUE;";
     private final String CREATE_CATEGORY = "INSERT INTO Category (name) VALUES (?)";
     private final String DELETE_CATEGORY = "DELETE FROM Category WHERE name = ?";
 
@@ -25,6 +30,13 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     public List<String> getCategoriesNames() {
         {
             return jdbcTemplate.queryForList(GET_CATEGORIES_NAMES, String.class);
+        }
+    }
+
+    @Override
+    public List<String> getCategoriesNamesForWeb() {
+        {
+            return jdbcTemplate.queryForList(GET_CATEGORIES_NAMES_FOR_WEB, String.class);
         }
     }
 
