@@ -4,7 +4,8 @@ import java.io.FileInputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.Properties;
-
+import java.io.IOException;
+import java.io.InputStream;
 import com.mbarca.vete.domain.WSAAAuthResponse;
 import com.mbarca.vete.utils.afip_wsaa_client;
 import org.dom4j.Document;
@@ -47,12 +48,12 @@ public class WSAAService {
 				
 		// Read config from phile
 		Properties config = new Properties();
-		
-		try {
-			config.load(new FileInputStream("./wsaa_client.properties"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
+
+		try (InputStream input = WSAAService.class.getResourceAsStream("/wsaa_client.properties")) {
+			config.load(input);
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
 		
 		String endpoint = config.getProperty("endpoint","http://wsaahomo.afip.gov.ar/ws/services/LoginCms"); 
 		String service = config.getProperty("service","test");
