@@ -160,4 +160,37 @@ CREATE TABLE IF NOT EXISTS Payments (
     payed BOOLEAN DEFAULT FALSE,
     payment_method VARCHAR(50),
     payment_date DATE
-)
+);
+
+CREATE TABLE IF NOT EXISTS Bills (
+    id LONG PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    fecha DATE NOT NULL,
+    tipo VARCHAR(50) NOT NULL,
+    numero LONG NOT NULL,
+    tipo_documento INT NOT NULL,
+    documento LONG NOT NULL,
+    nombre VARCHAR(50) NOT NULL,
+    importe_total DECIMAL(10, 2) NOT NULL,
+    importe_no_gravado DECIMAL(10, 2) NOT NULL,
+    importe_gravado DECIMAL(10, 2) NOT NULL,
+    importe_iva DECIMAL(10, 2) NOT NULL,
+    estado VARCHAR(50) NOT NULL,
+    cae VARCHAR(50) NOT NULL,
+    cae_fch_vto VARCHAR(50) NOT NULL,
+    errors VARCHAR(255) ARRAY,
+    observations VARCHAR(255) ARRAY
+);
+
+CREATE TABLE IF NOT EXISTS BillsProducts (
+    bill_id LONG NOT NULL,
+    product_id LONG NOT NULL,
+    bar_code LONG NOT NULL,
+    description VARCHAR(255),
+    quantity INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    net_price DECIMAL(10,2) NOT NULL,
+    iva DECIMAL(10,2) NOT NULL,
+    PRIMARY KEY (bill_id, product_id),
+    FOREIGN KEY (bill_id) REFERENCES Bills(id),
+    FOREIGN KEY (product_id) REFERENCES Products(id)
+);

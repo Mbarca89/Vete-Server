@@ -1,18 +1,25 @@
 package com.mbarca.vete.service.impl;
 
+import com.mbarca.vete.domain.AfipResponse;
+import com.mbarca.vete.domain.AfipResponseObject;
 import com.mbarca.vete.domain.WSAAAuthResponse;
 import com.mbarca.vete.dto.request.BillRequestDto;
 import com.mbarca.vete.service.AfipService;
+import com.mbarca.vete.service.BillService;
 import com.mbarca.vete.service.WSAAService;
+import org.dom4j.*;
+import org.dom4j.io.SAXReader;
 import org.springframework.stereotype.Service;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class AfipServiceImpl implements AfipService {
@@ -21,31 +28,14 @@ public class AfipServiceImpl implements AfipService {
     String salePoint = "6";
     String token = null;
     String sign = null;
+    BillService billService;
 
-//    @Override
-//    public String consultarPuntosVenta() {
-//
-//        getAuth();
-//
-//        String request = "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:ser=\"http://impl.service.wsmtxca.afip.gov.ar/service/\">"
-//                + "<soapenv:Header/>"
-//                + "<soapenv:Body>"
-//                + "<ser:consultarPuntosVentaRequest>"
-//                + "<authRequest>"
-//                + "<token>" + token + "</token>"
-//                + "<sign>" + sign + "</sign>"
-//                + "<cuitRepresentada>" + cuit + "</cuitRepresentada>"
-//                + "</authRequest>"
-//                + "</ser:consultarPuntosVentaRequest>"
-//                + "</soapenv:Body>"
-//                + "</soapenv:Envelope>";
-//
-//        return makeRequest(request);
-//    }
+    public AfipServiceImpl(BillService billService) {
+        this.billService = billService;
+    }
 
     @Override
     public String consultarPuntosVenta() {
-
         getAuth();
 
         String request = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:ar=\"http://ar.gov.afip.dif.FEV1/\">" +
@@ -65,8 +55,49 @@ public class AfipServiceImpl implements AfipService {
     }
 
     @Override
-    public String generarComprobante(BillRequestDto billRequestDto) {
+    public String consultarUltimoComprobante(String type) {
         getAuth();
+
+        String request = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:ar=\"http://ar.gov.afip.dif.FEV1/\">" +
+                "<soap:Header/>" +
+                "<soap:Body>" +
+                "<ar:FECompUltimoAutorizado>" +
+                "<ar:Auth>" +
+                "<ar:Token>" + token + "</ar:Token>" +
+                "<ar:Sign>" + sign + "</ar:Sign>" +
+                "<ar:Cuit>" + cuit + "</ar:Cuit>" +
+                "</ar:Auth>" +
+                "<ar:PtoVta>6</ar:PtoVta>" +
+                "<ar:CbteTipo>" + type + "</ar:CbteTipo>" +
+                "</ar:FECompUltimoAutorizado>" +
+                "</soap:Body>" +
+                "</soap:Envelope>";
+
+        String response = makeRequest(request);
+
+        try {
+            Reader responseReader = new StringReader(response);
+            Document tokenDoc = new SAXReader(false).read(responseReader);
+
+            Namespace ns = new Namespace("ns", "http://ar.gov.afip.dif.FEV1/");
+            XPath xpath = DocumentHelper.createXPath("//ns:FECompUltimoAutorizadoResponse/ns:FECompUltimoAutorizadoResult/ns:CbteNro");
+            xpath.setNamespaceURIs(Collections.singletonMap("ns", "http://ar.gov.afip.dif.FEV1/"));
+
+            String number = xpath.valueOf(tokenDoc);
+            System.out.println("Numero: " + number);
+            return number;
+        } catch (Exception e) {
+            return "Error al obtener comprobante";
+        }
+    }
+
+    @Override
+    public AfipResponse generarComprobante(BillRequestDto billRequestDto) {
+        getAuth();
+        System.out.println(billRequestDto.getBillProducts());
+        if(billRequestDto.getBillProducts().isEmpty()) {
+            return new AfipResponse("R","La lista de productos esta vacía");
+        }
 
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
@@ -108,7 +139,7 @@ public class AfipServiceImpl implements AfipService {
                     "<ar:Iva>" +
                     "<ar:AlicIva>" +
                     "<ar:Id>5</ar:Id>" +
-                    "<ar:BaseImp>" + billRequestDto.getImporteNoGravado() + "</ar:BaseImp>" +
+                    "<ar:BaseImp>" + billRequestDto.getImporteGravado() + "</ar:BaseImp>" +
                     "<ar:Importe>" + billRequestDto.getImporteIva() + "</ar:Importe>" +
                     "</ar:AlicIva>" +
                     "</ar:Iva>";
@@ -120,8 +151,21 @@ public class AfipServiceImpl implements AfipService {
                 "</ar:FECAESolicitar>" +
                 "</soap:Body>" +
                 "</soap:Envelope>";
-        System.out.println(request);
-        return makeRequest(request);
+        String response = makeRequest(request);
+        System.out.println(response);
+        AfipResponse afipResponse = extractData(response);
+        String billResponse = billService.saveBill(billRequestDto,afipResponse);
+        afipResponse.setMessage(billResponse);
+        return afipResponse;
+    }
+
+    private void getAuth() {
+        WSAAAuthResponse authResponse = WSAAService.getTokenAndSign();
+
+        if (authResponse.getMessage().equals("OK")) {
+            token = authResponse.getToken();
+            sign = authResponse.getSign();
+        }
     }
 
     private String makeRequest(String request) {
@@ -161,12 +205,60 @@ public class AfipServiceImpl implements AfipService {
         }
     }
 
-    private void getAuth() {
-        WSAAAuthResponse authResponse = WSAAService.getTokenAndSign();
+    public static AfipResponse extractData(String response) {
+        List<AfipResponseObject> errorsList = new ArrayList<>();
+        List<AfipResponseObject> observationsList = new ArrayList<>();
+        String result = null;
+        try {
+            Reader responseReader = new StringReader(response);
+            Document document = new SAXReader(false).read(responseReader);
 
-        if (authResponse.getMessage().equals("OK")) {
-            token = authResponse.getToken();
-            sign = authResponse.getSign();
+            Map<String, String> namespaceMap = Collections.singletonMap("ns", "http://ar.gov.afip.dif.FEV1/");
+            Namespace ns = new Namespace("ns", "http://ar.gov.afip.dif.FEV1/");
+
+            XPath resultXpath = DocumentHelper.createXPath("//ns:FECAESolicitarResult/ns:FeCabResp/ns:Resultado");
+            resultXpath.setNamespaceURIs(namespaceMap);
+            result = resultXpath.valueOf(document);
+
+            String cae = null;
+            String caeFchVto = null;
+
+            XPath errorsXpath = DocumentHelper.createXPath("//ns:FECAESolicitarResult/ns:Errors/ns:Err");
+            errorsXpath.setNamespaceURIs(namespaceMap);
+            List<Node> errors = errorsXpath.selectNodes(document);
+
+            for (Node errorNode : errors) {
+                if (errorNode instanceof Element error) {
+                    String code = error.elementText("Code");
+                    String msg = error.elementText("Msg");
+                    errorsList.add(new AfipResponseObject(code, msg));
+                }
+            }
+
+            XPath observationsXpath = DocumentHelper.createXPath("//ns:FECAESolicitarResult/ns:FeDetResp/ns:FECAEDetResponse/ns:Observaciones/ns:Obs");
+            observationsXpath.setNamespaceURIs(namespaceMap);
+            List<Node> observations = observationsXpath.selectNodes(document);
+
+            for (Node observationNode : observations) {
+                if (observationNode instanceof Element) {
+                    Element observation = (Element) observationNode;
+                    String code = observation.elementText("Code");
+                    String msg = observation.elementText("Msg");
+                    observationsList.add(new AfipResponseObject(code, msg));
+                }
+            }
+            XPath caeXpath = DocumentHelper.createXPath("//ns:FECAESolicitarResult/ns:FeDetResp/ns:FECAEDetResponse/ns:CAE");
+            caeXpath.setNamespaceURIs(namespaceMap);
+            cae = caeXpath.valueOf(document);
+
+            XPath caeFchVtoXpath = DocumentHelper.createXPath("//ns:FECAESolicitarResult/ns:FeDetResp/ns:FECAEDetResponse/ns:CAEFchVto");
+            caeFchVtoXpath.setNamespaceURIs(namespaceMap);
+            caeFchVto = caeFchVtoXpath.valueOf(document);
+
+            return new AfipResponse(errorsList, observationsList, cae, caeFchVto, result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new AfipResponse(errorsList, observationsList, "", "", result);
         }
     }
 }
