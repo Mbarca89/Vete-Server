@@ -37,8 +37,8 @@ public class BillRepositoryImpl implements BillRepository {
             try {
                 // Insert Bill
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO Bills (fecha, tipo, numero, tipo_documento, documento, importe_total, importe_no_gravado, importe_gravado, importe_iva, estado, cae, cae_fch_vto, errors, observations) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO Bills (fecha, tipo, numero, tipo_documento, documento, nombre, importe_total, importe_no_gravado, importe_gravado, importe_iva, estado, cae, cae_fch_vto, errors, observations) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS);
 
                 ps.setDate(1, sqlDate);
@@ -46,17 +46,18 @@ public class BillRepositoryImpl implements BillRepository {
                 ps.setLong(3, bill.getNumero());
                 ps.setLong(4, bill.getTipoDocumento());
                 ps.setLong(5, bill.getDocumento());
-                ps.setDouble(6, bill.getImporteTotal());
-                ps.setDouble(7, bill.getImporteNoGravado());
-                ps.setDouble(8, bill.getImporteGravado());
-                ps.setDouble(9, bill.getImporteIva());
-                ps.setString(10, bill.getEstado());
-                ps.setString(11, bill.getCae());
-                ps.setString(12, bill.getCaeFchVto());
-                ps.setArray(13, connection.createArrayOf("VARCHAR", bill.getErrors().stream()
+                ps.setString(6, bill.getNombre());
+                ps.setDouble(7, bill.getImporteTotal());
+                ps.setDouble(8, bill.getImporteNoGravado());
+                ps.setDouble(9, bill.getImporteGravado());
+                ps.setDouble(10, bill.getImporteIva());
+                ps.setString(11, bill.getEstado());
+                ps.setString(12, bill.getCae());
+                ps.setString(13, bill.getCaeFchVto());
+                ps.setArray(14, connection.createArrayOf("VARCHAR", bill.getErrors().stream()
                         .map(error -> error.getCode() + ": " + error.getMsg())
                         .toArray(String[]::new)));
-                ps.setArray(14, connection.createArrayOf("VARCHAR", bill.getObservations().stream()
+                ps.setArray(15, connection.createArrayOf("VARCHAR", bill.getObservations().stream()
                         .map(observation -> observation.getCode() + ": " + observation.getMsg())
                         .toArray(String[]::new)));
 

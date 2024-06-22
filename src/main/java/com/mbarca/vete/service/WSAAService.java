@@ -32,7 +32,7 @@ public class WSAAService {
 	}
 
 	public static WSAAAuthResponse getTokenAndSign() {
-		if (token == null || sign == null) {
+		if (token == null || token.isEmpty() || sign == null || sign.isEmpty()) {
 			System.out.println("Obteniendo credenciales");
 			refreshTokenAndSign();
 		} else {
