@@ -23,7 +23,8 @@ import java.util.Map;
 
 @Service
 public class AfipServiceImpl implements AfipService {
-    String endpoint = "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL";
+//    String endpoint = "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL";
+    String endpoint = "https://servicios1.afip.gov.ar/wsfev1/service.asmx";
     String cuit = "20292322454";
     String salePoint = "6";
     String token = null;
