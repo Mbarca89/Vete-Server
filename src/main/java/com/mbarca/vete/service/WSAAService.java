@@ -14,7 +14,9 @@ import com.mbarca.vete.utils.afip_wsaa_client;
 import org.dom4j.Document;
 import org.dom4j.io.SAXReader;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
+@Component
 public class WSAAService {
 
 	private static String token = null;

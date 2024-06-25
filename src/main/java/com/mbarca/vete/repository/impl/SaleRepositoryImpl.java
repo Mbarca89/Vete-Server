@@ -22,7 +22,7 @@ public class SaleRepositoryImpl implements SaleRepository {
     private final String CREATE_SALE_PRODUCTS = "INSERT INTO SalesProducts (sale_id, product_id, quantity) VALUES (?,?,?)";
     private final String GET_SALE_AND_PRODUCTS = "SELECT s.id AS sale_id, s.sale_date, s.sale_amount, s.sale_cost, s.seller, " +
             "sp.product_id, sp.quantity, " +
-            "p.name AS product_name, p.description AS product_description, p.price AS product_price, p.cost AS product_cost " +
+            "p.name AS product_name, p.bar_code AS product_barcode, p.description AS product_description, p.price AS product_price, p.cost AS product_cost " +
             "FROM Sales s " +
             "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
             "INNER JOIN Products p ON sp.product_id = p.id " +
