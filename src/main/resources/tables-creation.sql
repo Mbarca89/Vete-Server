@@ -86,7 +86,9 @@ CREATE TABLE IF NOT EXISTS Sales (
     sale_date DATETIME NOT NULL,
     sale_amount DECIMAL(10, 2) NOT NULL,
     sale_cost DECIMAL(10, 2) NOT NULL,
-    seller VARCHAR(50) NOT NULL
+    seller VARCHAR(50) NOT NULL,
+    discount BOOLEAN DEFAULT false,
+    discount_amount DECIMAL(10, 2) DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS SalesProducts (

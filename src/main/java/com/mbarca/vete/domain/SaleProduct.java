@@ -4,15 +4,16 @@ public class SaleProduct {
     private Long saleId;
     private Long productId;
     private int quantity;
+    private Double barCode;
     private String productName;
     private String productDescription;
-    private String productPrice;
-    private String productCost;
+    private Double productPrice;
+    private Double productCost;
 
     public SaleProduct() {
     }
 
-    public SaleProduct(Long saleId, Long productId, int quantity, String productName, String productDescription, String productPrice, String productCost) {
+    public SaleProduct(Long saleId, Long productId, int quantity, String productName, String productDescription, Double productPrice, Double productCost) {
         this.saleId = saleId;
         this.productId = productId;
         this.quantity = quantity;
@@ -66,19 +67,27 @@ public class SaleProduct {
         this.productDescription = productDescription;
     }
 
-    public String getProductPrice() {
+    public Double getProductPrice() {
         return productPrice;
     }
 
-    public void setProductPrice(String productPrice) {
+    public void setProductPrice(Double productPrice) {
         this.productPrice = productPrice;
     }
 
-    public String getProductCost() {
+    public Double getProductCost() {
         return productCost;
     }
 
-    public void setProductCost(String productCost) {
+    public void setProductCost(Double productCost) {
         this.productCost = productCost;
+    }
+
+    public Double getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(Double barCode) {
+        this.barCode = barCode;
     }
 }

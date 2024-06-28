@@ -18,9 +18,9 @@ import java.util.Date;
 
 @Repository
 public class SaleRepositoryImpl implements SaleRepository {
-    private final String CREATE_SALE = "INSERT INTO Sales (sale_date, sale_amount, sale_cost, seller) VALUES (?,?,?,?)";
+    private final String CREATE_SALE = "INSERT INTO Sales (sale_date, sale_amount, sale_cost, seller, discount, discount_amount) VALUES (?,?,?,?,?,?)";
     private final String CREATE_SALE_PRODUCTS = "INSERT INTO SalesProducts (sale_id, product_id, quantity) VALUES (?,?,?)";
-    private final String GET_SALE_AND_PRODUCTS = "SELECT s.id AS sale_id, s.sale_date, s.sale_amount, s.sale_cost, s.seller, " +
+    private final String GET_SALE_AND_PRODUCTS = "SELECT s.id AS sale_id, s.sale_date, s.sale_amount, s.sale_cost, s.seller, s.discount, s.discount_amount, " +
             "sp.product_id, sp.quantity, " +
             "p.name AS product_name, p.bar_code AS product_barcode, p.description AS product_description, p.price AS product_price, p.cost AS product_cost " +
             "FROM Sales s " +
@@ -35,7 +35,7 @@ public class SaleRepositoryImpl implements SaleRepository {
             "FROM Sales s " +
             "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
             "INNER JOIN Products p ON sp.product_id = p.id " +
-            "WHERE p.category_name = ? AND "+
+            "WHERE p.category_name = ? AND " +
             "sale_date BETWEEN ? AND ?";
     JdbcTemplate jdbcTemplate;
 
@@ -53,6 +53,8 @@ public class SaleRepositoryImpl implements SaleRepository {
                 saleStatement.setBigDecimal(2, sale.getAmount());
                 saleStatement.setBigDecimal(3, sale.getCost());
                 saleStatement.setString(4, sale.getSeller());
+                saleStatement.setBoolean(5, sale.isDiscount());
+                saleStatement.setDouble(6, sale.getDiscountAmount());
                 saleStatement.executeUpdate();
 
                 ResultSet generatedKeys = saleStatement.getGeneratedKeys();
@@ -90,6 +92,7 @@ public class SaleRepositoryImpl implements SaleRepository {
 
         return res;
     }
+
     @Override
     public List<CategoryTotal> getSalesByCategory(Date dateStart, Date dateEnd) {
         Calendar calendar = Calendar.getInstance();
@@ -141,13 +144,13 @@ public class SaleRepositoryImpl implements SaleRepository {
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
         dateEnd = calendar.getTime();
-        Double paymentAmount = jdbcTemplate.queryForObject(GET_PAYMENTS,new Object[]{dateStart, dateEnd}, new RowMapper<Double>() {
+        Double paymentAmount = jdbcTemplate.queryForObject(GET_PAYMENTS, new Object[]{dateStart, dateEnd}, new RowMapper<Double>() {
             @Override
             public Double mapRow(ResultSet rs, int rowNum) throws SQLException {
                 return rs.getDouble("payment_amount");
             }
         });
-        MonthlyReport report =  jdbcTemplate.queryForObject(GET_SALES_BY_MONTH, new Object[]{dateStart, dateEnd}, new RowMapper<MonthlyReport>() {
+        MonthlyReport report = jdbcTemplate.queryForObject(GET_SALES_BY_MONTH, new Object[]{dateStart, dateEnd}, new RowMapper<MonthlyReport>() {
             @Override
             public MonthlyReport mapRow(ResultSet rs, int rowNum) throws SQLException {
                 double totalAmount = rs.getDouble("totalAmount");
@@ -175,6 +178,8 @@ public class SaleRepositoryImpl implements SaleRepository {
                     sale.setAmount(rs.getBigDecimal("sale_amount"));
                     sale.setCost(rs.getBigDecimal("sale_cost"));
                     sale.setSeller(rs.getString("seller"));
+                    sale.setDiscount(rs.getBoolean("discount"));
+                    sale.setDiscountAmount(rs.getDouble("discount_amount"));
                     sale.setSaleProducts(new ArrayList<>());
                 }
 
@@ -182,10 +187,16 @@ public class SaleRepositoryImpl implements SaleRepository {
                 saleProduct.setSaleId(saleId);
                 saleProduct.setProductId(rs.getLong("product_id"));
                 saleProduct.setQuantity(rs.getInt("quantity"));
+                saleProduct.setBarCode(rs.getDouble("product_barcode"));
                 saleProduct.setProductName(rs.getString("product_name"));
                 saleProduct.setProductDescription(rs.getString("product_description"));
-                saleProduct.setProductPrice(rs.getString("product_price"));
-                saleProduct.setProductCost(rs.getString("product_cost"));
+                Double productPrice = rs.getDouble("product_price");
+                if (sale.isDiscount()) {
+                    saleProduct.setProductPrice(productPrice * (1 - (sale.getDiscountAmount() / 100)));
+                } else {
+                    saleProduct.setProductPrice(productPrice);
+                }
+                saleProduct.setProductCost(rs.getDouble("product_cost"));
 
                 sale.getSaleProducts().add(saleProduct);
             }

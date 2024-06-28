@@ -60,6 +60,8 @@ public class SaleServiceImpl implements SaleService {
         sale.setAmount(saleRequestDto.getAmount());
         sale.setCost(saleRequestDto.getCost());
         sale.setSeller(saleRequestDto.getSeller());
+        sale.setDiscount(saleRequestDto.isDiscount());
+        sale.setDiscountAmount(saleRequestDto.getDiscountAmount());
         sale.setSaleProducts(saleRequestDto.getSaleProducts());
         return sale;
     }
@@ -75,6 +77,8 @@ public class SaleServiceImpl implements SaleService {
         saleResponseDto.setAmount(sale.getAmount());
         saleResponseDto.setCost(sale.getCost());
         saleResponseDto.setSeller(sale.getSeller());
+        saleResponseDto.setDiscount(sale.isDiscount());
+        saleResponseDto.setDiscountAmount(sale.getDiscountAmount());
         saleResponseDto.setSaleProducts(sale.getSaleProducts());
         return saleResponseDto;
     }

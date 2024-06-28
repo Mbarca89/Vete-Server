@@ -11,6 +11,8 @@ public class Sale {
     private BigDecimal cost;
     private Date date;
     private String seller;
+    private boolean discount;
+    private Double discountAmount;
     private List<SaleProduct> saleProducts;
     public Sale() {
     }
@@ -75,5 +77,21 @@ public class Sale {
 
     public void setCost(BigDecimal cost) {
         this.cost = cost;
+    }
+
+    public boolean isDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(boolean discount) {
+        this.discount = discount;
+    }
+
+    public Double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(Double discountAmount) {
+        this.discountAmount = discountAmount;
     }
 }
