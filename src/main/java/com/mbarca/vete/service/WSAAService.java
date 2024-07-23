@@ -23,7 +23,7 @@ public class WSAAService {
 	private static String sign = null;
 	private static String message = null;
 
-	@Scheduled(cron = "0 00 09 * * *")
+	@Scheduled(cron = "0 10 13 * * *")
 	public static void refreshTokenAndSign() {
 		WSAAAuthResponse authResponse = WSAAAuth();
 		if (authResponse.getToken() != null && authResponse.getSign() != null) {

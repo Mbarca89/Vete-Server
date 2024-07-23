@@ -23,7 +23,7 @@ import java.util.Map;
 
 @Service
 public class AfipServiceImpl implements AfipService {
-//    String endpoint = "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL";
+    //        String endpoint = "https://wswhomo.afip.gov.ar/wsfev1/service.asmx?WSDL";
     String endpoint = "https://servicios1.afip.gov.ar/wsfev1/service.asmx";
     String cuit = "20292322454";
     String salePoint = "6";
@@ -96,8 +96,8 @@ public class AfipServiceImpl implements AfipService {
     public AfipResponse generarComprobante(BillRequestDto billRequestDto) {
         getAuth();
         System.out.println(billRequestDto.getBillProducts());
-        if(billRequestDto.getBillProducts().isEmpty()) {
-            return new AfipResponse("R","La lista de productos esta vacía");
+        if (billRequestDto.getBillProducts().isEmpty()) {
+            return new AfipResponse("R", "La lista de productos esta vacía");
         }
 
         LocalDate currentDate = LocalDate.now();
@@ -134,17 +134,15 @@ public class AfipServiceImpl implements AfipService {
                 "<ar:ImpTrib>0</ar:ImpTrib>" +
                 "<ar:ImpIVA>" + billRequestDto.getImporteIva() + "</ar:ImpIVA>" +
                 "<ar:MonId>PES</ar:MonId>" +
-                "<ar:MonCotiz>1</ar:MonCotiz>";
-        if (billRequestDto.getTipo().equals("1")) {
-            request = request +
-                    "<ar:Iva>" +
-                    "<ar:AlicIva>" +
-                    "<ar:Id>5</ar:Id>" +
-                    "<ar:BaseImp>" + billRequestDto.getImporteGravado() + "</ar:BaseImp>" +
-                    "<ar:Importe>" + billRequestDto.getImporteIva() + "</ar:Importe>" +
-                    "</ar:AlicIva>" +
-                    "</ar:Iva>";
-        }
+                "<ar:MonCotiz>1</ar:MonCotiz>" +
+                "<ar:Iva>" +
+                "<ar:AlicIva>" +
+                "<ar:Id>5</ar:Id>" +
+                "<ar:BaseImp>" + billRequestDto.getImporteGravado() + "</ar:BaseImp>" +
+                "<ar:Importe>" + billRequestDto.getImporteIva() + "</ar:Importe>" +
+                "</ar:AlicIva>" +
+                "</ar:Iva>";
+
         request = request +
                 "</ar:FECAEDetRequest>" +
                 "</ar:FeDetReq>" +
@@ -155,18 +153,20 @@ public class AfipServiceImpl implements AfipService {
         String response = makeRequest(request);
         System.out.println(response);
         AfipResponse afipResponse = extractData(response);
-        String billResponse = billService.saveBill(billRequestDto,afipResponse);
+        String billResponse = billService.saveBill(billRequestDto, afipResponse);
         afipResponse.setMessage(billResponse);
         return afipResponse;
     }
 
     private void getAuth() {
+
         WSAAAuthResponse authResponse = WSAAService.getTokenAndSign();
 
         if (authResponse.getMessage().equals("OK")) {
             token = authResponse.getToken();
             sign = authResponse.getSign();
         }
+
     }
 
     private String makeRequest(String request) {
