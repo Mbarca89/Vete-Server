@@ -65,9 +65,15 @@ public class VaccineRepositoryImpl implements VaccineRepository {
     }
 
     @Override
+    public Integer deletePetVaccines(Long petId) {
+        String DELETE_VACCINE = "DELETE FROM vaccines WHERE pet_id = ?";
+        return jdbcTemplate.update(DELETE_VACCINE, petId);
+    }
+
+    @Override
     public List<Vaccine> getVaccinesByDate(Date date) {
         String GET_VACCINES_BY_DATE = "SELECT c.name AS client_name, c.phone AS client_phone, " +
-                "p.name AS pet_name, v.name AS vaccine_name, v.date AS reminder_date " +
+                "p.name AS pet_name, p.id AS pet_id, v.name AS vaccine_name, v.date AS reminder_date, v.id AS id " +
                 "FROM Vaccines v " +
                 "JOIN ClientPets cp ON v.pet_id = cp.pet_id " +
                 "JOIN Clients c ON cp.client_id = c.id " +
@@ -75,6 +81,14 @@ public class VaccineRepositoryImpl implements VaccineRepository {
                 "WHERE v.date = ?";
         return jdbcTemplate.query(GET_VACCINES_BY_DATE, new Object[]{date}, new VaccineReminderRowMapper(date));
     }
+
+    @Override
+    public Integer editVaccine (Vaccine vaccine) {
+        System.out.println(vaccine.getName());
+        String EDIT_VACCINE = "UPDATE vaccines SET name = ?, date = ?, notes = ? WHERE id = ?";
+        return jdbcTemplate.update(EDIT_VACCINE, vaccine.getName(), vaccine.getDate(), vaccine.getNotes(), vaccine.getId());
+    }
+
 
     static class VaccineReminderRowMapper implements RowMapper<Vaccine> {
         Date date;
@@ -88,6 +102,8 @@ public class VaccineRepositoryImpl implements VaccineRepository {
             Vaccine vaccine = new Vaccine();
             vaccine.setName(rs.getString("vaccine_name") + " para: " + rs.getString("pet_name") + ". Dueño: " + rs.getString("client_name") + ".");
             vaccine.setDate(rs.getDate("reminder_date"));
+            vaccine.setId(rs.getLong("id"));
+            vaccine.setPetId(rs.getLong("pet_id"));
             return vaccine;
         }
     }

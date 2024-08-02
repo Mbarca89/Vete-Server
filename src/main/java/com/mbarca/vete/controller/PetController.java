@@ -8,7 +8,9 @@ import com.mbarca.vete.domain.PaginatedResults;
 import com.mbarca.vete.dto.request.PetRequestDto;
 import com.mbarca.vete.dto.response.PetResponseDto;
 import com.mbarca.vete.exceptions.MissingDataException;
+import com.mbarca.vete.service.MedicalHistoryService;
 import com.mbarca.vete.service.PetService;
+import com.mbarca.vete.service.VaccineService;
 import com.mbarca.vete.utils.ImageCompressor;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -25,9 +27,13 @@ import java.util.List;
 @RequestMapping("/api/v1/pets")
 public class PetController {
     private final PetService petService;
+    private final VaccineService vaccineService;
+    private final MedicalHistoryService medicalHistoryService;
 
-    public PetController(PetService petService) {
+    public PetController(PetService petService, VaccineService vaccineService, MedicalHistoryService medicalHistoryService) {
         this.petService = petService;
+        this.vaccineService = vaccineService;
+        this.medicalHistoryService = medicalHistoryService;
     }
 
     @CrossOrigin
@@ -110,10 +116,12 @@ public class PetController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deletePetHandler(@RequestParam Long petId) {
         try {
+            medicalHistoryService.deleteMedicalHistory(petId);
+            vaccineService.deletePetVaccines(petId);
             String response = petService.deletePet(petId);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mascota no encontrada!");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mascota no encontrada!" + e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }

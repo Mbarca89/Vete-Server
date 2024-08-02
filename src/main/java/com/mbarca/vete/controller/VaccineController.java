@@ -71,4 +71,15 @@ public class VaccineController {
             return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @CrossOrigin
+    @PutMapping("/editVaccine")
+    public ResponseEntity<?> editVaccineHandler (@RequestBody VaccineRequestDto vaccineRequestDto) {
+        try {
+            String response = vaccineService.editVaccine(vaccineRequestDto);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

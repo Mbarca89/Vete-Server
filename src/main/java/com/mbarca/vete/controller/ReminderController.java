@@ -71,4 +71,15 @@ public class ReminderController {
             return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
+
+    @CrossOrigin
+    @PutMapping("/editReminder")
+    public ResponseEntity<?> editVaccineHandler (@RequestBody ReminderRequestDto reminderRequestDto) {
+        try {
+            String response = reminderService.editReminder(reminderRequestDto);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

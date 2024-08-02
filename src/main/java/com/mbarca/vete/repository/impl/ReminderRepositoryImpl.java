@@ -21,6 +21,7 @@ public class ReminderRepositoryImpl implements ReminderRepository {
     private final String GET_REMINDERS = "SELECT * FROM Reminders WHERE date = ?";
     private final String GET_REMINDER_BY_ID = "SELECT * FROM Reminders WHERE id = ?";
     private final String GET_TODAY_REMINDER = "SELECT * FROM Reminders WHERE date = ?";
+    private final String EDIT_REMINDER = "UPDATE reminders SET name = ?, date = ?, notes = ?, phone = ? WHERE id = ?";
     JdbcTemplate jdbcTemplate;
     public ReminderRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -55,6 +56,11 @@ public class ReminderRepositoryImpl implements ReminderRepository {
     public List<Reminder> getTodayReminder () {
         LocalDate currentDate = LocalDate.now();
         return jdbcTemplate.query(GET_TODAY_REMINDER, new Object[]{currentDate}, new ReminderRowMapper());
+    }
+
+    @Override
+    public Integer editReminder(Reminder reminder) {
+        return jdbcTemplate.update(EDIT_REMINDER, reminder.getName(), reminder.getDate(), reminder.getNotes(), reminder.getPhone(), reminder.getId());
     }
 
     static class ReminderRowMapper implements RowMapper<Reminder> {

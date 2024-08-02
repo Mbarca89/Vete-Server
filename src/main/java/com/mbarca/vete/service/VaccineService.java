@@ -14,4 +14,6 @@ public interface VaccineService {
     String deleteVaccine (Long id);
     List<VaccineResponseDto> getVaccinesById (Long petId);
     List<ReminderResponseDto> getVaccinesByDate (Date date);
+    String editVaccine (VaccineRequestDto vaccineRequestDto) throws NoSuchAlgorithmException;
+    void deletePetVaccines (Long petId);
 }

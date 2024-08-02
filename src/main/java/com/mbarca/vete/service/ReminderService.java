@@ -14,4 +14,5 @@ public interface ReminderService {
     String deleteReminder (Long reminderId);
     List<ReminderResponseDto> getReminders (Date date);
     ReminderResponseDto getReminderById (Long reminderId);
+    String editReminder (ReminderRequestDto reminderRequestDto) throws NoSuchAlgorithmException;
 }

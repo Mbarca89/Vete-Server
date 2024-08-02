@@ -7,6 +7,8 @@ public class ReminderResponseDto {
     private String name;
     private Date date;
     private String notes;
+    private Long petId;
+    private String phone;
 
     public ReminderResponseDto(Long id, String name, Date date, String notes) {
         this.id = id;
@@ -48,5 +50,21 @@ public class ReminderResponseDto {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Long getPetId() {
+        return petId;
+    }
+
+    public void setPetId(Long petId) {
+        this.petId = petId;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 }

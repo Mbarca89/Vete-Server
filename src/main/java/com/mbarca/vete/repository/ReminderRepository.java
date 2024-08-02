@@ -11,4 +11,5 @@ public interface ReminderRepository {
     List<Reminder> getReminders (Date date);
     Reminder getReminderById (Long reminderId);
     List<Reminder> getTodayReminder ();
+    Integer editReminder (Reminder reminder);
 }

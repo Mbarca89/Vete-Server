@@ -59,6 +59,15 @@ public class ReminderServiceImpl implements ReminderService {
         return mapReminderToDto(reminder);
     }
 
+    @Override
+    public String editReminder (ReminderRequestDto reminderRequestDto) throws NoSuchAlgorithmException {
+        Integer response = reminderRepository.editReminder(mapDtoToReminder(reminderRequestDto));
+        if (response.equals(0)) {
+            return "Error al editar el recordatorio!";
+        }
+        return "Recordatorio editado correctamente!";
+    }
+
     private Reminder mapDtoToReminder(ReminderRequestDto reminderRequestDto) throws NoSuchAlgorithmException {
         Reminder reminder = new Reminder();
         if (reminderRequestDto.getId() != null) reminder.setId(reminderRequestDto.getId());
@@ -75,6 +84,7 @@ public class ReminderServiceImpl implements ReminderService {
         reminderResponseDto.setName(reminder.getName());
         reminderResponseDto.setDate(reminder.getDate());
         reminderResponseDto.setNotes(reminder.getNotes());
+        reminderResponseDto.setPhone(reminder.getPhone());
         return reminderResponseDto;
     }
 }
