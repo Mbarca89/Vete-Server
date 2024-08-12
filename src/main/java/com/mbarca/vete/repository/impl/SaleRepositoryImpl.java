@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 import java.util.Date;
@@ -134,32 +135,61 @@ public class SaleRepositoryImpl implements SaleRepository {
 
     @Override
     public MonthlyReport getSalesReport(Date dateStart, Date dateEnd) {
-        final String GET_SALES_BY_MONTH = "SELECT SUM(sale_amount) AS totalAmount, SUM(sale_cost) AS totalCost " +
-                "FROM Sales " +
-                "WHERE sale_date BETWEEN ? AND ?";
-        final String GET_PAYMENTS = "SELECT SUM(amount) AS payment_amount FROM Payments WHERE date BETWEEN ? AND ? AND payed = true";
+        // Definir las consultas SQL
+        final String GET_SALES_BY_MONTH =
+                "SELECT SUM(sale_amount) AS totalAmount, SUM(sale_cost) AS totalCost " +
+                        "FROM Sales WHERE sale_date BETWEEN ? AND ?";
+        final String GET_PAYMENTS =
+                "SELECT SUM(amount) AS payment_amount " +
+                        "FROM Payments WHERE date BETWEEN ? AND ? AND payed = true";
+        final String GET_ORDERS_BY_MONTH =
+                "SELECT SUM(order_amount) AS totalOrderAmount " +
+                        "FROM Orders WHERE order_date BETWEEN ? AND ?";
+        final String GET_STOCK_REPORT =
+                "SELECT SUM(stock * cost) AS stockCost, SUM(stock * price) AS stockPotentialSales " +
+                        "FROM Products WHERE stock < 500";
+
+        // Ajustar la fecha de finalización
+        dateEnd = adjustEndDate(dateEnd);
+
+        // Obtener reporte de stock
+        Map<String, Object> stockResult = jdbcTemplate.queryForMap(GET_STOCK_REPORT);
+        double stockCost = ((BigDecimal) stockResult.get("stockCost")).doubleValue();
+        double stockPotentialSales = ((BigDecimal) stockResult.get("stockPotentialSales")).doubleValue();
+
+        // Obtener el monto total de pagos
+        Double paymentAmount = jdbcTemplate.queryForObject(GET_PAYMENTS, new Object[]{dateStart, dateEnd},
+                (rs, rowNum) -> rs.getDouble("payment_amount"));
+
+        // Obtener el reporte mensual de ventas
+        MonthlyReport report = jdbcTemplate.queryForObject(GET_SALES_BY_MONTH, new Object[]{dateStart, dateEnd},
+                (rs, rowNum) -> {
+                    double totalSaleAmount = rs.getDouble("totalAmount");
+                    double totalCost = rs.getDouble("totalCost");
+                    return new MonthlyReport(totalSaleAmount, totalCost);
+                });
+
+        // Obtener el monto total de órdenes
+        Double totalOrderAmount = jdbcTemplate.queryForObject(GET_ORDERS_BY_MONTH, new Object[]{dateStart, dateEnd},
+                (rs, rowNum) -> rs.getDouble("totalOrderAmount"));
+
+        // Asignar valores al reporte
+        assert report != null;
+        report.setPayments(paymentAmount);
+        report.setStockCost(stockCost);
+        report.setStockPotentialSales(stockPotentialSales);
+        report.setTotalOrderAmount(totalOrderAmount);
+
+        return report;
+    }
+
+    private Date adjustEndDate(Date dateEnd) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateEnd);
         calendar.set(Calendar.HOUR_OF_DAY, 23);
         calendar.set(Calendar.MINUTE, 59);
         calendar.set(Calendar.SECOND, 59);
-        dateEnd = calendar.getTime();
-        Double paymentAmount = jdbcTemplate.queryForObject(GET_PAYMENTS, new Object[]{dateStart, dateEnd}, new RowMapper<Double>() {
-            @Override
-            public Double mapRow(ResultSet rs, int rowNum) throws SQLException {
-                return rs.getDouble("payment_amount");
-            }
-        });
-        MonthlyReport report = jdbcTemplate.queryForObject(GET_SALES_BY_MONTH, new Object[]{dateStart, dateEnd}, new RowMapper<MonthlyReport>() {
-            @Override
-            public MonthlyReport mapRow(ResultSet rs, int rowNum) throws SQLException {
-                double totalAmount = rs.getDouble("totalAmount");
-                double totalCost = rs.getDouble("totalCost");
-                return new MonthlyReport(totalAmount, totalCost);
-            }
-        });
-        report.setPayments(paymentAmount);
-        return report;
+        return calendar.getTime();
     }
 
     static class SaleWithProductsResultSetExtractor implements ResultSetExtractor<Sale> {

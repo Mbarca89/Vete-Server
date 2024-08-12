@@ -25,7 +25,7 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
     }
 
     @Override
-    public String createMedicalHistory(MedicalHistoryRequestDto medicalHistoryRequestDto) throws MissingDataException {
+    public String createMedicalHistory(MedicalHistoryRequestDto medicalHistoryRequestDto, String filePath) throws MissingDataException {
         if (medicalHistoryRequestDto.getType() == null ||
                 Objects.equals(medicalHistoryRequestDto.getType(), "")
         ) {
@@ -33,6 +33,7 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         }
 
         MedicalHistory medicalHistory = mapDtoToMedicalHistory(medicalHistoryRequestDto);
+        medicalHistory.setFile(filePath);
         Integer response = medicalHistoryRepository.createMedicalHistory(medicalHistory);
         if (response.equals(0)) {
             return "Error al crear la Historia clínica!";
@@ -79,6 +80,7 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
         medicalHistoryResponseDto.setNotes(medicalHistory.getNotes());
         medicalHistoryResponseDto.setDescription(medicalHistory.getDescription());
         medicalHistoryResponseDto.setMedicine(medicalHistory.getMedicine());
+        medicalHistoryResponseDto.setFile(medicalHistory.getFile());
         return medicalHistoryResponseDto;
     }
 }

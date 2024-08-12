@@ -10,16 +10,27 @@ public class MedicalHistoryResponseDto {
     private String description;
     private String medicine;
 
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
+
+    private String file;
+
     public MedicalHistoryResponseDto() {
     }
 
-    public MedicalHistoryResponseDto(Long id, Date date, String type, String notes, String description, String medicine) {
+    public MedicalHistoryResponseDto(Long id, Date date, String type, String notes, String description, String medicine, String file) {
         this.id = id;
         this.date = date;
         this.type = type;
         this.notes = notes;
         this.description = description;
         this.medicine = medicine;
+        this.file = file;
     }
 
     public Long getId() {
