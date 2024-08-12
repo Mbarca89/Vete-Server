@@ -12,6 +12,16 @@ public class Pet {
     private Double weight;
     private Date born;
     private String ownerName;
+
+    public String getOwnerPhone() {
+        return ownerPhone;
+    }
+
+    public void setOwnerPhone(String ownerPhone) {
+        this.ownerPhone = ownerPhone;
+    }
+
+    private String ownerPhone;
     @Lob
     private byte[] photo;
     @Lob
@@ -21,7 +31,7 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(Long id, String name, String race, String gender, String species, Double weight, Date born, String ownerName, byte[] photo, byte[] thumbnail, MedicalHistory medicalHistory) {
+    public Pet(Long id, String name, String race, String gender, String species, Double weight, Date born, String ownerName, String ownerPhone, byte[] photo, byte[] thumbnail, MedicalHistory medicalHistory) {
         this.id = id;
         this.name = name;
         this.race = race;
@@ -30,6 +40,7 @@ public class Pet {
         this.weight = weight;
         this.born = born;
         this.ownerName = ownerName;
+        this.ownerPhone = ownerPhone;
         this.photo = photo;
         this.thumbnail = thumbnail;
         this.medicalHistory = medicalHistory;

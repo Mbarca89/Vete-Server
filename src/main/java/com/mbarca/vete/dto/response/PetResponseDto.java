@@ -14,10 +14,20 @@ public class PetResponseDto {
     private byte[] thumbnail;
     private String ownerName;
 
+    public String getOwnerPhone() {
+        return ownerPhone;
+    }
+
+    public void setOwnerPhone(String ownerPhone) {
+        this.ownerPhone = ownerPhone;
+    }
+
+    private String ownerPhone;
+
     public PetResponseDto() {
     }
 
-    public PetResponseDto(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo, byte[] thumbnail, String ownerName) {
+    public PetResponseDto(Long id, String name, String race, String gender, String species, Double weight, Date born, byte[] photo, byte[] thumbnail, String ownerName, String ownerPhone) {
         this.id = id;
         this.name = name;
         this.race = race;
@@ -28,6 +38,7 @@ public class PetResponseDto {
         this.photo = photo;
         this.thumbnail = thumbnail;
         this.ownerName = ownerName;
+        this.ownerPhone = ownerPhone;
     }
 
     public Long getId() {

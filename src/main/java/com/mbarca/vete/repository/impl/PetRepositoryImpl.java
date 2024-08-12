@@ -21,8 +21,11 @@ import java.util.Objects;
 public class PetRepositoryImpl implements PetRepository {
 
     private final String CREATE_PET = "INSERT INTO Pets (name, race, gender, species, weight, born, photo, thumbnail) VALUES (?,?,?,?,?,?,?,?)";
-    private final String GET_PET_BY_ID = "SELECT Pets.*, CONCAT(Clients.name, ' ', Clients.surname) AS owner_name FROM Pets JOIN ClientPets ON Pets.id = ClientPets.pet_id JOIN Clients ON ClientPets.client_id = Clients.id WHERE Pets.id = ?";
-
+    private final String GET_PET_BY_ID = "SELECT Pets.*, CONCAT(Clients.name, ' ', Clients.surname) AS owner_name, Clients.phone " +
+            "FROM Pets " +
+            "JOIN ClientPets ON Pets.id = ClientPets.pet_id " +
+            "JOIN Clients ON ClientPets.client_id = Clients.id " +
+            "WHERE Pets.id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -38,7 +41,7 @@ public class PetRepositoryImpl implements PetRepository {
             ps.setString(1, pet.getName());
             ps.setString(2, pet.getRace());
             ps.setString(3, pet.getGender());
-            ps.setString(4,pet.getSpecies());
+            ps.setString(4, pet.getSpecies());
             ps.setDouble(5, pet.getWeight());
             java.util.Date utilDate = pet.getBorn();
             java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
@@ -56,20 +59,21 @@ public class PetRepositoryImpl implements PetRepository {
 
     @Override
     public Integer getPetCount() {
-    return null;
+        return null;
     }
 
     @Override
     public PaginatedResults<Pet> getAllPets(int limit, int offset) throws Exception {
         String GET_PET_COUNT = "SELECT COUNT(*) FROM pets";
         Integer totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT, Integer.class);
-        String GET_ALL_PETS = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name " +
+        String GET_ALL_PETS = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name, c.phone " +
                 "FROM Pets p " +
                 "INNER JOIN ClientPets cp ON p.id = cp.pet_id " +
                 "INNER JOIN Clients c ON cp.client_id = c.id " +
                 "LIMIT ? OFFSET ?";
+
         List<Pet> pets = jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true, false));
-        return new PaginatedResults(pets, totalCount != null ? totalCount:0);
+        return new PaginatedResults(pets, totalCount != null ? totalCount : 0);
     }
 
     @Override
@@ -89,14 +93,17 @@ public class PetRepositoryImpl implements PetRepository {
         String GET_PET_COUNT = "SELECT COUNT(*) FROM pets WHERE LOWER(name) LIKE LOWER(?)";
         Integer totalCount;
         String searchTerm = "%" + name + "%";
-        if(!Objects.equals(species, "")) totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT_WITH_SPECIES, new Object[]{searchTerm, species}, Integer.class);
+        if (!Objects.equals(species, ""))
+            totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT_WITH_SPECIES, new Object[]{searchTerm, species}, Integer.class);
         else totalCount = jdbcTemplate.queryForObject(GET_PET_COUNT, new Object[]{searchTerm}, Integer.class);
         String GET_PET_BY_NAME = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) LIMIT ? OFFSET ?";
         String GET_PET_BY_NAME_AND_SPECIES = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) AND species = ? LIMIT ? OFFSET ?";
         List<Pet> pets;
-        if(!Objects.equals(species, "")) pets = jdbcTemplate.query(GET_PET_BY_NAME_AND_SPECIES, new Object[]{searchTerm, species, limit, offset}, new PetRowMapper(false, false));
-        else pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false));
-        return new PaginatedResults<Pet>(pets, totalCount != null ? totalCount:0);
+        if (!Objects.equals(species, ""))
+            pets = jdbcTemplate.query(GET_PET_BY_NAME_AND_SPECIES, new Object[]{searchTerm, species, limit, offset}, new PetRowMapper(false, false));
+        else
+            pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false));
+        return new PaginatedResults<Pet>(pets, totalCount != null ? totalCount : 0);
     }
 
     @Override
@@ -128,13 +135,20 @@ public class PetRepositoryImpl implements PetRepository {
         }
 
         editPet.setName(newPet.getName());
-        if (!newPet.getRace().isEmpty()) editPet.setRace(newPet.getRace()); else editPet.setRace(currentPet.getRace());
-        if (newPet.getGender() != null && !newPet.getGender().isEmpty()) editPet.setGender(newPet.getGender()); else editPet.setGender(currentPet.getGender());
-        if (newPet.getSpecies() != null && !newPet.getSpecies().isEmpty()) editPet.setSpecies(newPet.getSpecies()); else editPet.setSpecies(currentPet.getSpecies());
-        if (newPet.getWeight() != 0) editPet.setWeight(newPet.getWeight()); else editPet.setWeight(currentPet.getWeight());
-        if (newPet.getBorn() != null) editPet.setBorn(newPet.getBorn()); else editPet.setBorn(currentPet.getBorn());
-        if (newPet.getPhoto() != null) editPet.setPhoto(newPet.getPhoto()); else editPet.setPhoto(currentPet.getPhoto());
-        if (newPet.getThumbnail() != null) editPet.setThumbnail(newPet.getThumbnail()); else editPet.setThumbnail(currentPet.getThumbnail());
+        if (!newPet.getRace().isEmpty()) editPet.setRace(newPet.getRace());
+        else editPet.setRace(currentPet.getRace());
+        if (newPet.getGender() != null && !newPet.getGender().isEmpty()) editPet.setGender(newPet.getGender());
+        else editPet.setGender(currentPet.getGender());
+        if (newPet.getSpecies() != null && !newPet.getSpecies().isEmpty()) editPet.setSpecies(newPet.getSpecies());
+        else editPet.setSpecies(currentPet.getSpecies());
+        if (newPet.getWeight() != 0) editPet.setWeight(newPet.getWeight());
+        else editPet.setWeight(currentPet.getWeight());
+        if (newPet.getBorn() != null) editPet.setBorn(newPet.getBorn());
+        else editPet.setBorn(currentPet.getBorn());
+        if (newPet.getPhoto() != null) editPet.setPhoto(newPet.getPhoto());
+        else editPet.setPhoto(currentPet.getPhoto());
+        if (newPet.getThumbnail() != null) editPet.setThumbnail(newPet.getThumbnail());
+        else editPet.setThumbnail(currentPet.getThumbnail());
 
         String EDIT_PET = "UPDATE pets SET name = ?, race = ?, gender = ?, species = ?, weight = ?, born = ?, photo = ?, thumbnail = ? WHERE id = ?";
         return jdbcTemplate.update(EDIT_PET, editPet.getName(), editPet.getRace(), editPet.getGender(), editPet.getSpecies(), editPet.getWeight(), editPet.getBorn(), editPet.getPhoto(), editPet.getThumbnail(), newPet.getId());
@@ -160,9 +174,12 @@ public class PetRepositoryImpl implements PetRepository {
             pet.setSpecies(rs.getString("species"));
             pet.setWeight(rs.getDouble("weight"));
             pet.setBorn(rs.getDate("born"));
-            if(includePhoto) pet.setPhoto(rs.getBytes("photo"));
+            if (includePhoto) pet.setPhoto(rs.getBytes("photo"));
             pet.setThumbnail(rs.getBytes("thumbnail"));
-            if(includeOwner) pet.setOwnerName(rs.getString("owner_name"));
+            if (includeOwner) {
+                pet.setOwnerName(rs.getString("owner_name"));
+                pet.setOwnerPhone(rs.getString("phone"));
+            }
             return pet;
         }
     }
