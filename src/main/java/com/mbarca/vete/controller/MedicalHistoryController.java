@@ -34,15 +34,16 @@ public class MedicalHistoryController {
                                                             @RequestParam(value = "file", required = false) MultipartFile[] file) {
         try {
             MedicalHistoryRequestDto medicalHistoryRequestDto = new ObjectMapper().readValue(medicalHistoryJson, MedicalHistoryRequestDto.class);
-            List<String> filePath = new ArrayList<>();
+            String filePath = "";
             if(file != null) {
-                filePath = fileStorageService.store(file, "");
+                filePath = fileStorageService.store(file, "").getFirst();
             }
-            String response = medicalHistoryService.createMedicalHistory(medicalHistoryRequestDto, filePath.getFirst());
+            String response = medicalHistoryService.createMedicalHistory(medicalHistoryRequestDto, filePath);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (MissingDataException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error" + e.getMessage());
         }
     }
