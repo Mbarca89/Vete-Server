@@ -79,7 +79,7 @@ public class PetRepositoryImpl implements PetRepository {
     @Override
     public List<Pet> getPetsFromClient(Long clientId) {
         Object[] params = {clientId};
-        String GET_PETS_FROM_CLIENT = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name " +
+        String GET_PETS_FROM_CLIENT = "SELECT p.*, CONCAT(c.name, ' ', c.surname) AS owner_name, c.phone " +
                 "FROM Pets p " +
                 "JOIN ClientPets cp ON p.id = cp.pet_id " +
                 "JOIN Clients c ON cp.client_id = c.id " +
