@@ -5,7 +5,9 @@ import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.domain.Sale;
 import com.mbarca.vete.dto.request.SaleRequestDto;
 import com.mbarca.vete.dto.response.CategoryTotalResponseDto;
+import com.mbarca.vete.dto.response.CombinedReport;
 import com.mbarca.vete.dto.response.SaleResponseDto;
+import com.mbarca.vete.dto.response.SimplifiedReport;
 import com.mbarca.vete.repository.SaleRepository;
 import com.mbarca.vete.service.SaleService;
 import org.springframework.stereotype.Service;
@@ -52,6 +54,16 @@ public class SaleServiceImpl implements SaleService {
     @Override
     public MonthlyReport getSalesReport(Date dateStart, Date dateEnd) {
         return saleRepository.getSalesReport(dateStart, dateEnd);
+    }
+
+    @Override
+    public CombinedReport getCombinedReport(Date dateStart, Date dateEnd) {
+        return saleRepository.getCombinedReport(dateStart, dateEnd);
+    }
+
+    @Override
+    public SimplifiedReport getSimplifiedReport(Date dateStart, Date dateEnd) {
+        return saleRepository.getSimplifiedReport(dateStart, dateEnd);
     }
 
     private Sale mapDtoToSale(SaleRequestDto saleRequestDto) {

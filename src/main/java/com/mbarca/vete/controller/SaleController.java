@@ -3,7 +3,9 @@ package com.mbarca.vete.controller;
 import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.dto.request.SaleRequestDto;
 import com.mbarca.vete.dto.response.CategoryTotalResponseDto;
+import com.mbarca.vete.dto.response.CombinedReport;
 import com.mbarca.vete.dto.response.SaleResponseDto;
+import com.mbarca.vete.dto.response.SimplifiedReport;
 import com.mbarca.vete.service.SaleService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -64,6 +66,32 @@ public class SaleController {
             @RequestParam("dateEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateEnd){
         try {
             MonthlyReport response = saleService.getSalesReport(dateStart, dateEnd);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getCombinedByMonth")
+    public ResponseEntity<?> getCombinedByMonthHandler (
+            @RequestParam("dateStart") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateStart,
+            @RequestParam("dateEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateEnd){
+        try {
+            CombinedReport response = saleService.getCombinedReport(dateStart, dateEnd);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getSimplifiedReport")
+    public ResponseEntity<?> getSimplifiedReportHandler (
+            @RequestParam("dateStart") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateStart,
+            @RequestParam("dateEnd") @DateTimeFormat(pattern = "yyyy-MM-dd") Date dateEnd){
+        try {
+            SimplifiedReport response = saleService.getSimplifiedReport(dateStart, dateEnd);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());

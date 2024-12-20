@@ -4,6 +4,8 @@ import com.mbarca.vete.domain.CategoryTotal;
 import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.domain.Sale;
 import com.mbarca.vete.domain.SaleProduct;
+import com.mbarca.vete.dto.response.CombinedReport;
+import com.mbarca.vete.dto.response.SimplifiedReport;
 import com.mbarca.vete.repository.SaleRepository;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ConnectionCallback;
@@ -182,6 +184,81 @@ public class SaleRepositoryImpl implements SaleRepository {
 
         return report;
     }
+
+    @Override
+    public CombinedReport getCombinedReport(Date dateStart, Date dateEnd) {
+        // Queries
+        final String GET_SALES = "SELECT sale_date, sale_amount, sale_cost FROM Sales WHERE sale_date BETWEEN ? AND ?";
+        final String GET_ORDERS = "SELECT order_date, order_amount FROM Orders WHERE order_date BETWEEN ? AND ?";
+        final String GET_BILLS = "SELECT fecha AS bill_date, importe_total AS total_amount FROM Bills WHERE fecha BETWEEN ? AND ?";
+        final String GET_PAYMENTS = "SELECT payment_date, amount FROM Payments WHERE payment_date BETWEEN ? AND ? AND payed = true";
+
+        // Fetch data from Sales
+        List<CombinedReport.Sale> sales = jdbcTemplate.query(GET_SALES, new Object[]{dateStart, dateEnd}, (rs, rowNum) ->
+                new CombinedReport.Sale(
+                        rs.getDate("sale_date"),
+                        rs.getDouble("sale_amount"),
+                        rs.getDouble("sale_cost")
+                )
+        );
+
+        // Fetch data from Orders
+        List<CombinedReport.Order> orders = jdbcTemplate.query(GET_ORDERS, new Object[]{dateStart, dateEnd}, (rs, rowNum) ->
+                new CombinedReport.Order(
+                        rs.getDate("order_date"),
+                        rs.getDouble("order_amount")
+                )
+        );
+
+        // Fetch data from Bills
+        List<CombinedReport.Bill> bills = jdbcTemplate.query(GET_BILLS, new Object[]{dateStart, dateEnd}, (rs, rowNum) ->
+                new CombinedReport.Bill(
+                        rs.getDate("bill_date"),
+                        rs.getDouble("total_amount")
+                )
+        );
+
+        // Fetch data from Payments
+        List<CombinedReport.Payment> payments = jdbcTemplate.query(GET_PAYMENTS, new Object[]{dateStart, dateEnd}, (rs, rowNum) ->
+                new CombinedReport.Payment(
+                        rs.getDate("payment_date"),
+                        rs.getDouble("amount")
+                )
+        );
+
+        // Create and return CombinedReport
+        return new CombinedReport(sales, orders, bills, payments);
+    }
+
+    @Override
+    public SimplifiedReport getSimplifiedReport(Date dateStart, Date dateEnd) {
+        // Consultas para obtener la suma de los valores
+        final String GET_SALES_SUM_AMOUNT = "SELECT SUM(sale_amount) AS total_sale_amount FROM Sales WHERE sale_date BETWEEN ? AND ?";
+        final String GET_SALES_SUM_COST = "SELECT SUM(sale_cost) AS total_sale_cost FROM Sales WHERE sale_date BETWEEN ? AND ?";
+        final String GET_ORDERS_SUM = "SELECT SUM(order_amount) AS total_order_amount FROM Orders WHERE order_date BETWEEN ? AND ?";
+        final String GET_BILLS_SUM = "SELECT SUM(importe_total) AS total_amount FROM Bills WHERE fecha BETWEEN ? AND ?";
+        final String GET_PAYMENTS_SUM = "SELECT SUM(amount) AS total_amount FROM Payments WHERE payment_date BETWEEN ? AND ? AND payed = true";
+
+        // Ejecutar la consulta para el total de ventas (sale_amount)
+        Double totalSaleAmount = jdbcTemplate.queryForObject(GET_SALES_SUM_AMOUNT, new Object[]{dateStart, dateEnd}, Double.class);
+
+        // Ejecutar la consulta para el total de costos (sale_cost)
+        Double totalSaleCost = jdbcTemplate.queryForObject(GET_SALES_SUM_COST, new Object[]{dateStart, dateEnd}, Double.class);
+
+        // Ejecutar la consulta para los pedidos
+        Double totalOrderAmount = jdbcTemplate.queryForObject(GET_ORDERS_SUM, new Object[]{dateStart, dateEnd}, Double.class);
+
+        // Ejecutar la consulta para las facturas
+        Double totalBillAmount = jdbcTemplate.queryForObject(GET_BILLS_SUM, new Object[]{dateStart, dateEnd}, Double.class);
+
+        // Ejecutar la consulta para los pagos
+        Double totalPaymentAmount = jdbcTemplate.queryForObject(GET_PAYMENTS_SUM, new Object[]{dateStart, dateEnd}, Double.class);
+
+        // Crear el reporte combinado con los totales
+        return new SimplifiedReport(totalSaleAmount, totalSaleCost, totalOrderAmount, totalBillAmount, totalPaymentAmount);
+    }
+
+
 
     private Date adjustEndDate(Date dateEnd) {
         Calendar calendar = Calendar.getInstance();

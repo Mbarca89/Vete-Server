@@ -4,7 +4,9 @@ import com.mbarca.vete.domain.MonthlyReport;
 import com.mbarca.vete.domain.Sale;
 import com.mbarca.vete.dto.request.SaleRequestDto;
 import com.mbarca.vete.dto.response.CategoryTotalResponseDto;
+import com.mbarca.vete.dto.response.CombinedReport;
 import com.mbarca.vete.dto.response.SaleResponseDto;
+import com.mbarca.vete.dto.response.SimplifiedReport;
 
 import java.util.Date;
 import java.util.List;
@@ -15,4 +17,6 @@ public interface SaleService {
     List<SaleResponseDto> getSalesByDate (Date dateStart, Date dateEnd);
     List<CategoryTotalResponseDto> getSalesByCategory (Date dateStart, Date dateEnd);
     MonthlyReport getSalesReport(Date dateStart, Date dateEnd);
+    CombinedReport getCombinedReport (Date dateStart, Date dateEnd);
+    SimplifiedReport getSimplifiedReport (Date dateStart, Date dateEnd);
 }
