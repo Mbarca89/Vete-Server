@@ -16,10 +16,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
 
 @Service
 public class AfipServiceImpl implements AfipService {
@@ -30,6 +28,25 @@ public class AfipServiceImpl implements AfipService {
     String token = null;
     String sign = null;
     BillService billService;
+
+    private static final Map<Integer, String> CONDICION_IVA_MAP = new HashMap<>();
+
+    static {
+        CONDICION_IVA_MAP.put(1, "IVA Responsable Inscripto");
+        CONDICION_IVA_MAP.put(2, "IVA Responsable No Inscripto");
+        CONDICION_IVA_MAP.put(3, "IVA Sujeto Exento");
+        CONDICION_IVA_MAP.put(4, "IVA No Responsable");
+        CONDICION_IVA_MAP.put(5, "Consumidor Final");
+        CONDICION_IVA_MAP.put(6, "Monotributista");
+        CONDICION_IVA_MAP.put(7, "Sujeto no Categorizado");
+        CONDICION_IVA_MAP.put(8, "Proveedor del Exterior");
+        CONDICION_IVA_MAP.put(9, "Cliente del Exterior");
+        CONDICION_IVA_MAP.put(10, "IVA Liberado – Ley Nº 19.640");
+        CONDICION_IVA_MAP.put(11, "IVA Responsable Inscripto – Agente de Percepción");
+        CONDICION_IVA_MAP.put(12, "Pequeño Contribuyente Eventual");
+        CONDICION_IVA_MAP.put(13, "Monotributista Social");
+        CONDICION_IVA_MAP.put(14, "Pequeño Contribuyente Eventual Social");
+    }
 
     public AfipServiceImpl(BillService billService) {
         this.billService = billService;
@@ -135,6 +152,9 @@ public class AfipServiceImpl implements AfipService {
                 "<ar:ImpIVA>" + billRequestDto.getImporteIva() + "</ar:ImpIVA>" +
                 "<ar:MonId>PES</ar:MonId>" +
                 "<ar:MonCotiz>1</ar:MonCotiz>" +
+                (billRequestDto.getCondicionIvaReceptorId() != null && billRequestDto.getCondicionIvaReceptorId() != 0
+                        ? "<ar:CondicionIVAReceptorId>" + billRequestDto.getCondicionIvaReceptorId() + "</ar:CondicionIVAReceptorId>"
+                        : "") +
                 "<ar:Iva>" +
                 "<ar:AlicIva>" +
                 "<ar:Id>5</ar:Id>" +
@@ -153,6 +173,10 @@ public class AfipServiceImpl implements AfipService {
         String response = makeRequest(request);
         System.out.println(response);
         AfipResponse afipResponse = extractData(response);
+        if (billRequestDto.getCondicionIvaReceptorId() != null) {
+            String descripcionIVA = CONDICION_IVA_MAP.get(billRequestDto.getCondicionIvaReceptorId());
+            afipResponse.setCondicionIvaDescripcion(descripcionIVA);
+        }
         String billResponse = billService.saveBill(billRequestDto, afipResponse);
         afipResponse.setMessage(billResponse);
         return afipResponse;
@@ -263,3 +287,4 @@ public class AfipServiceImpl implements AfipService {
         }
     }
 }
+

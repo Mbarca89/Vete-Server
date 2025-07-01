@@ -10,6 +10,7 @@ public class AfipResponse {
     private String caeFchVto;
     private String status;
     private String message;
+    private String condicionIvaDescripcion; // ✅ Nuevo campo
 
     public AfipResponse(List<AfipResponseObject> errors, List<AfipResponseObject> observations, String cae, String caeFchVto, String status) {
         this.errors = errors != null ? errors : new ArrayList<>();
@@ -70,5 +71,13 @@ public class AfipResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getCondicionIvaDescripcion() {
+        return condicionIvaDescripcion;
+    }
+
+    public void setCondicionIvaDescripcion(String condicionIvaDescripcion) {
+        this.condicionIvaDescripcion = condicionIvaDescripcion;
     }
 }

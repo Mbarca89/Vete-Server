@@ -9,21 +9,13 @@ public class BillRequestDto {
     public Long numero;
     public Integer tipoDocumento;
     public Long documento;
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
-
     public String nombre;
     public Double importeTotal;
     public Double importeNoGravado;
     public Double importeGravado;
     public Double importeIva;
     public List<BillProduct> billProducts;
+    public Integer condicionIvaReceptorId; // ✅ NUEVO CAMPO
 
     public String getTipo() {
         return tipo;
@@ -31,14 +23,6 @@ public class BillRequestDto {
 
     public void setTipo(String tipo) {
         this.tipo = tipo;
-    }
-
-    public Double getImporteTotal() {
-        return importeTotal;
-    }
-
-    public void setImporteTotal(Double importeTotal) {
-        this.importeTotal = importeTotal;
     }
 
     public Long getNumero() {
@@ -65,20 +49,28 @@ public class BillRequestDto {
         this.documento = documento;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public Double getImporteTotal() {
+        return importeTotal;
+    }
+
+    public void setImporteTotal(Double importeTotal) {
+        this.importeTotal = importeTotal;
+    }
+
     public Double getImporteNoGravado() {
         return importeNoGravado;
     }
 
     public void setImporteNoGravado(Double importeNoGravado) {
         this.importeNoGravado = importeNoGravado;
-    }
-
-    public Double getImporteIva() {
-        return importeIva;
-    }
-
-    public void setImporteIva(Double importeIva) {
-        this.importeIva = importeIva;
     }
 
     public Double getImporteGravado() {
@@ -89,11 +81,27 @@ public class BillRequestDto {
         this.importeGravado = importeGravado;
     }
 
+    public Double getImporteIva() {
+        return importeIva;
+    }
+
+    public void setImporteIva(Double importeIva) {
+        this.importeIva = importeIva;
+    }
+
     public List<BillProduct> getBillProducts() {
         return billProducts;
     }
 
     public void setBillProducts(List<BillProduct> billProducts) {
         this.billProducts = billProducts;
+    }
+
+    public Integer getCondicionIvaReceptorId() {
+        return condicionIvaReceptorId;
+    }
+
+    public void setCondicionIvaReceptorId(Integer condicionIvaReceptorId) {
+        this.condicionIvaReceptorId = condicionIvaReceptorId;
     }
 }

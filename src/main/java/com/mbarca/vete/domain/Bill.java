@@ -30,6 +30,15 @@ public class Bill {
     List<AfipResponseObject> errors;
     List<AfipResponseObject> observations;
     List<BillProduct> billProducts;
+    String condicionIvaDescripcion;
+
+    public String getCondicionIvaDescripcion() {
+        return condicionIvaDescripcion;
+    }
+
+    public void setCondicionIvaDescripcion(String condicionIvaDescripcion) {
+        this.condicionIvaDescripcion = condicionIvaDescripcion;
+    }
 
     public Long getId() {
         return id;

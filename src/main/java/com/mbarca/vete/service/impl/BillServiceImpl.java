@@ -58,6 +58,7 @@ public class BillServiceImpl implements BillService {
         bill.setErrors(afipResponse.getErrors());
         bill.setObservations(afipResponse.getObservations());
         bill.setBillProducts(billRequestDto.getBillProducts());
+        bill.setCondicionIvaDescripcion(afipResponse.getCondicionIvaDescripcion());
         return bill;
     }
 }
