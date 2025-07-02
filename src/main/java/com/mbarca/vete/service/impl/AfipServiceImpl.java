@@ -112,7 +112,6 @@ public class AfipServiceImpl implements AfipService {
     @Override
     public AfipResponse generarComprobante(BillRequestDto billRequestDto) {
         getAuth();
-        System.out.println(billRequestDto.getBillProducts());
         if (billRequestDto.getBillProducts().isEmpty()) {
             return new AfipResponse("R", "La lista de productos esta vacía");
         }
@@ -171,7 +170,6 @@ public class AfipServiceImpl implements AfipService {
                 "</soap:Body>" +
                 "</soap:Envelope>";
         String response = makeRequest(request);
-        System.out.println(response);
         AfipResponse afipResponse = extractData(response);
         if (billRequestDto.getCondicionIvaReceptorId() != null) {
             String descripcionIVA = CONDICION_IVA_MAP.get(billRequestDto.getCondicionIvaReceptorId());
