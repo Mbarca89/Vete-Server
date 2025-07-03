@@ -37,7 +37,7 @@ public class BillRepositoryImpl implements BillRepository {
             try {
                 // Insert Bill
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO Bills (fecha, tipo, numero, tipo_documento, documento, nombre, importe_total, importe_no_gravado, importe_gravado, importe_iva, estado, cae, cae_fch_vto, errors, observations, condicion_frente_iva) " +
+                        "INSERT INTO Bills (fecha, tipo, numero, tipo_documento, documento, nombre, importe_total, importe_no_gravado, importe_gravado, importe_iva, estado, cae, cae_fch_vto, errors, observations, condicion_iva_descripcion) " +
                                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS);
 
