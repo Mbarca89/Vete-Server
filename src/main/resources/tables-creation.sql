@@ -180,8 +180,10 @@ CREATE TABLE IF NOT EXISTS Bills (
     cae VARCHAR(50) NOT NULL,
     cae_fch_vto VARCHAR(50) NOT NULL,
     errors VARCHAR(255) ARRAY,
-    observations VARCHAR(255) ARRAY
+    observations VARCHAR(255) ARRAY,
+    condicion_iva_descripcion VARCHAR(255) -- 👈 nuevo campo
 );
+
 
 CREATE TABLE IF NOT EXISTS BillsProducts (
     bill_id LONG NOT NULL,

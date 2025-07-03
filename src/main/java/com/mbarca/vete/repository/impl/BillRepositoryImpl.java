@@ -37,9 +37,11 @@ public class BillRepositoryImpl implements BillRepository {
             try {
                 // Insert Bill
                 PreparedStatement ps = connection.prepareStatement(
-                        "INSERT INTO Bills (fecha, tipo, numero, tipo_documento, documento, nombre, importe_total, importe_no_gravado, importe_gravado, importe_iva, estado, cae, cae_fch_vto, errors, observations) " +
-                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO Bills (fecha, tipo, numero, tipo_documento, documento, nombre, importe_total, importe_no_gravado, importe_gravado, importe_iva, estado, cae, cae_fch_vto, errors, observations, condicion_frente_iva) " +
+                                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS);
+
+
 
                 ps.setDate(1, sqlDate);
                 ps.setString(2, bill.getTipo());
@@ -58,8 +60,9 @@ public class BillRepositoryImpl implements BillRepository {
                         .map(error -> error.getCode() + ": " + error.getMsg())
                         .toArray(String[]::new)));
                 ps.setArray(15, connection.createArrayOf("VARCHAR", bill.getObservations().stream()
-                        .map(observation -> observation.getCode() + ": " + observation.getMsg())
+                        .map(obs -> obs.getCode() + ": " + obs.getMsg())
                         .toArray(String[]::new)));
+                ps.setString(16, bill.getCondicionIvaDescripcion());
 
                 ps.executeUpdate();
 
@@ -140,6 +143,7 @@ public class BillRepositoryImpl implements BillRepository {
             bill.setEstado(rs.getString("estado"));
             bill.setCae(rs.getString("cae"));
             bill.setCaeFchVto(rs.getString("cae_fch_vto"));
+            bill.setCondicionIvaDescripcion(rs.getString("condicion_iva_descripcion"));
 
             bill.setErrors(parseAfipResponseObjectArray(rs.getArray("errors")));
             bill.setObservations(parseAfipResponseObjectArray(rs.getArray("observations")));
