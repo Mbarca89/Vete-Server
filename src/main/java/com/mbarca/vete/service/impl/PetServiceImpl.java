@@ -13,10 +13,13 @@ import com.mbarca.vete.exceptions.MissingDataException;
 import com.mbarca.vete.exceptions.PetNotFoundException;
 import com.mbarca.vete.exceptions.UserNotFoundException;
 import com.mbarca.vete.repository.PetRepository;
+import com.mbarca.vete.service.MedicalHistoryService;
 import com.mbarca.vete.service.PetService;
+import com.mbarca.vete.service.VaccineService;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import javax.imageio.ImageIO;
@@ -36,8 +39,14 @@ import java.util.stream.Collectors;
 public class PetServiceImpl implements PetService {
 
     private final PetRepository petRepository;
+    private final MedicalHistoryService medicalHistoryService;
+    private final VaccineService vaccineService;
 
-    public PetServiceImpl(PetRepository petRepository) {
+    public PetServiceImpl(MedicalHistoryService medicalHistoryService,
+                      VaccineService vaccineService,
+                      PetRepository petRepository) {
+        this.medicalHistoryService = medicalHistoryService;
+        this.vaccineService = vaccineService;
         this.petRepository = petRepository;
     }
 
@@ -91,6 +100,20 @@ public class PetServiceImpl implements PetService {
         Integer response = petRepository.deletePet(petId);
         if (response.equals(0)) {
             throw new EmptyResultDataAccessException(1);
+        }
+        return "Mascota eliminada correctamente";
+    }
+
+    @Transactional
+    public String deletePetCascade(Long petId) {
+        // hijos: si no hay filas, no tiran error
+        medicalHistoryService.deleteMedicalHistory(petId);
+        vaccineService.deletePetVaccines(petId);
+
+        // padre: si no existía, acá sí tiramos 404/EmptyResult
+        Integer affected = petRepository.deletePet(petId);
+        if (affected == 0) {
+            throw new org.springframework.dao.EmptyResultDataAccessException(1);
         }
         return "Mascota eliminada correctamente";
     }

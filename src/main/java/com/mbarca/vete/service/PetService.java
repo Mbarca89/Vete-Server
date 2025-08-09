@@ -23,6 +23,7 @@ public interface PetService {
     PaginatedResults<PetResponseDto> getPetsByName(String name, String species, int page, int size);
     PetResponseDto getPetById (Long petId);
     String deletePet (Long petId);
+    String deletePetCascade(Long petId);
     String editPet (PetRequestDto petRequestDto, Images images) throws MissingDataException, NoSuchAlgorithmException, UserNotFoundException, PetNotFoundException;
 
 }
