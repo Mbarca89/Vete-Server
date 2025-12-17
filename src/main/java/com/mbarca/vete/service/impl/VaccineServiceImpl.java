@@ -74,10 +74,7 @@ public class VaccineServiceImpl implements VaccineService {
 
     @Override
     public void deletePetVaccines(Long petId) {
-        Integer response = vaccineRepository.deletePetVaccines(petId);
-        if (response.equals(0)) {
-            throw new EmptyResultDataAccessException(1);
-        }
+        vaccineRepository.deletePetVaccines(petId);
     }
 
     private Vaccine mapDtoToVaccine(VaccineRequestDto vaccineRequestDto) throws NoSuchAlgorithmException {

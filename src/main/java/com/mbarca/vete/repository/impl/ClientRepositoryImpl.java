@@ -48,7 +48,7 @@ public class ClientRepositoryImpl implements ClientRepository {
 
     @Override
     public List<Client> getClients() {
-        String GET_ALL_CLIENTS = "SELECT * FROM Clients";
+        String GET_ALL_CLIENTS = "SELECT * FROM Clients ORDER BY id DESC";
         return jdbcTemplate.query(GET_ALL_CLIENTS, new ClientRowMapper());
     }
 

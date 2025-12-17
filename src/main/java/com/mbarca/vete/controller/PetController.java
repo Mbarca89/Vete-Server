@@ -116,14 +116,12 @@ public class PetController {
     @DeleteMapping("/delete")
     public ResponseEntity<String> deletePetHandler(@RequestParam Long petId) {
         try {
-            medicalHistoryService.deleteMedicalHistory(petId);
-            vaccineService.deletePetVaccines(petId);
-            String response = petService.deletePet(petId);
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+            String response = petService.deletePetCascade(petId);
+            return ResponseEntity.ok(response);
         } catch (EmptyResultDataAccessException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Mascota no encontrada!" + e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Mascota no encontrada!");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

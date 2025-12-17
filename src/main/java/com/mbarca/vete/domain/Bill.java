@@ -11,13 +11,6 @@ public class Bill {
     Integer tipoDocumento;
     Long documento;
 
-    public String getNombre() {
-        return nombre;
-    }
-
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
-    }
 
     String nombre;
     Double importeTotal;
@@ -32,6 +25,13 @@ public class Bill {
     List<BillProduct> billProducts;
     String condicionIvaDescripcion;
 
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
     public String getCondicionIvaDescripcion() {
         return condicionIvaDescripcion;
     }

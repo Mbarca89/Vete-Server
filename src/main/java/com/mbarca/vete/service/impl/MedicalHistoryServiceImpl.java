@@ -54,7 +54,7 @@ public class MedicalHistoryServiceImpl implements MedicalHistoryService {
 
     @Override
     public String deleteMedicalHistory(Long petId) {
-        Integer response = medicalHistoryRepository.deleteMedicalHistory(petId);
+        medicalHistoryRepository.deleteMedicalHistory(petId);
         return "Historia clínica eliminada correctamente";
     }
 
