@@ -34,6 +34,8 @@ public class SecurityConfig {
                             .requestMatchers("/api/v1/products/public/searchProduct").permitAll()
                             .requestMatchers("/api/v1/category/public/getCategoriesNamesForWeb").permitAll()
                             .requestMatchers("/api/v1/products/public/getByCategoryForWeb").permitAll()
+                            .requestMatchers("/api/v1/mercadopago/public/**").permitAll()
+                            .requestMatchers("/api/v1/mercadopago/webhook").permitAll()
                             .anyRequest().authenticated()
                         )
                 .sessionManagement(sessionManager ->

@@ -196,3 +196,35 @@ CREATE TABLE IF NOT EXISTS BillsProducts (
     FOREIGN KEY (bill_id) REFERENCES Bills(id),
     FOREIGN KEY (product_id) REFERENCES Products(id)
 );
+
+CREATE TABLE IF NOT EXISTS web_orders (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    customer_name VARCHAR(255) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(100) NOT NULL,
+
+    total_amount DECIMAL(10,2) NOT NULL,
+
+    status VARCHAR(50) NOT NULL, -- PENDING, APPROVED, REJECTED
+
+    preference_id VARCHAR(255),
+    payment_id VARCHAR(255),
+
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS web_order_items (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+
+    web_order_id BIGINT NOT NULL,
+    product_id BIGINT NOT NULL,
+    product_name VARCHAR(255) NOT NULL,
+
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10,2) NOT NULL,
+
+    CONSTRAINT fk_web_order_items_order
+        FOREIGN KEY (web_order_id) REFERENCES web_orders(id)
+        ON DELETE CASCADE
+);

@@ -24,4 +24,8 @@ public interface ProductRepository {
     List<Product> getProductsFromProvider (Long providerId);
     Product getProductById (Long productId) throws NotFoundException;
     List<StockAlert> getStockAlerts ();
+    Integer getStock(Long productId);
+    void updateStock(Long productId, Integer newStock);
+    void increaseStock(Long productId, Integer qty);
+
 }

@@ -325,5 +325,27 @@ public class ProductRepositoryImpl implements ProductRepository {
         }
     }
 
+    @Override
+    public Integer getStock(Long productId) {
+        return jdbcTemplate.queryForObject(
+                "SELECT stock FROM products WHERE id = ?",
+                Integer.class,
+                productId
+        );
+    }
+
+    @Override
+    public void updateStock(Long productId, Integer newStock) {
+        jdbcTemplate.update(
+                "UPDATE products SET stock = ? WHERE id = ?",
+                newStock, productId
+        );
+    }
+
+    public void increaseStock(Long productId, Integer qty) {
+        jdbcTemplate.update("""
+        UPDATE products SET stock = stock + ? WHERE id = ?
+    """, qty, productId);
+    }
 
 }
