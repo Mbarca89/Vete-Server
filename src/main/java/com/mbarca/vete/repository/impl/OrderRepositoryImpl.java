@@ -20,15 +20,22 @@ import java.util.Date;
 public class OrderRepositoryImpl implements OrderRepository {
     private final String CREATE_ORDER = "INSERT INTO Orders (order_date, order_amount) VALUES (?,?)";
     private final String UPDATE_PRODUCT = "UPDATE Products SET stock = stock + ?, cost = ?, price = ? WHERE id = ?";
-    private final String CREATE_SALE_PRODUCTS = "INSERT INTO OrdersProducts (order_id, product_id, quantity) VALUES (?,?,?)";
+    private final String CREATE_ORDER_PRODUCTS =
+            "INSERT INTO OrdersProducts (" +
+                    "order_id, product_id, quantity, " +
+                    "product_name, product_description, " +
+                    "product_price, product_cost" +
+                    ") VALUES (?,?,?,?,?,?,?)";
+
     private final String GET_ORDERS_BY_DATE = "SELECT * FROM Orders WHERE order_date >= ? AND order_date <= ?";
-    private final String GET_ORDER_AND_PRODUCTS = "SELECT o.id AS order_id, o.order_date, o.order_amount, " +
-            "op.product_id, op.quantity, " +
-            "p.name AS product_name, p.description AS product_description, p.price AS product_price, p.cost AS product_cost " +
-            "FROM Orders o " +
-            "INNER JOIN OrdersProducts op ON o.id = op.order_id " +
-            "INNER JOIN Products p ON op.product_id = p.id " +
-            "WHERE o.id = ?";
+    private final String GET_ORDER_AND_PRODUCTS =
+            "SELECT o.id AS order_id, o.order_date, o.order_amount, " +
+                    "op.product_id, op.quantity, " +
+                    "op.product_name, op.product_description, op.product_price, op.product_cost, " +
+                    "op.product_bar_code " +
+                    "FROM Orders o " +
+                    "INNER JOIN OrdersProducts op ON o.id = op.order_id " +
+                    "WHERE o.id = ?";
 
     JdbcTemplate jdbcTemplate;
 
@@ -62,11 +69,16 @@ public class OrderRepositoryImpl implements OrderRepository {
                     stockStatement.setLong(4, orderProduct.getProductId());
                     stockStatement.executeUpdate();
 
-                    PreparedStatement saleProductStatement = connection.prepareStatement(CREATE_SALE_PRODUCTS);
-                    saleProductStatement.setLong(1, orderId);
-                    saleProductStatement.setLong(2, orderProduct.getProductId());
-                    saleProductStatement.setInt(3, orderProduct.getQuantity());
-                    saleProductStatement.executeUpdate();
+                    PreparedStatement orderProductStatement = connection.prepareStatement(CREATE_ORDER_PRODUCTS);
+                    orderProductStatement.setLong(1, orderId);
+                    orderProductStatement.setLong(2, orderProduct.getProductId());
+                    orderProductStatement.setInt(3, orderProduct.getQuantity());
+                    orderProductStatement.setString(4, orderProduct.getProductName());
+                    orderProductStatement.setString(5, orderProduct.getProductDescription());
+                    orderProductStatement.setString(6, orderProduct.getProductPrice());
+                    orderProductStatement.setString(7, orderProduct.getProductCost());
+
+                    orderProductStatement.executeUpdate();
                 }
 
                 connection.commit();

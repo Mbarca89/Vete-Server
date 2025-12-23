@@ -7,16 +7,24 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+
 @Repository
 public class CategoryRepositoryImpl implements CategoryRepository {
 
     private final String GET_CATEGORIES_NAMES = "SELECT name FROM Category";
-    private final String GET_CATEGORIES_NAMES_FOR_WEB = "SELECT DISTINCT c.name " +
-            "FROM Category c " +
-            "JOIN ProductCategories pc ON c.id = pc.category_id " +
-            "JOIN Products p ON pc.product_id = p.id " +
-            "WHERE p.published = TRUE;";
+    private final String GET_CATEGORIES_NAMES_FOR_WEB =
+            "SELECT DISTINCT c.name " +
+                    "FROM Category c " +
+                    "JOIN ProductCategories pc ON c.id = pc.category_id " +
+                    "JOIN Products p ON pc.product_id = p.id " +
+                    "WHERE p.published = TRUE AND p.active = TRUE";
     private final String CREATE_CATEGORY = "INSERT INTO Category (name) VALUES (?)";
+    private final String COUNT_PRODUCTS_BY_CATEGORY =
+            "SELECT COUNT(*) " +
+                    "FROM Category c " +
+                    "JOIN ProductCategories pc ON pc.category_id = c.id " +
+                    "JOIN Products p ON p.id = pc.product_id " +
+                    "WHERE c.name = ?";
     private final String DELETE_CATEGORY = "DELETE FROM Category WHERE name = ?";
 
     private final JdbcTemplate jdbcTemplate;
@@ -26,6 +34,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         this.jdbcTemplate = jdbcTemplate;
         this.productRepository = productRepository;
     }
+
     @Override
     public List<String> getCategoriesNames() {
         {
@@ -45,7 +54,10 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     }
 
     public Integer deleteCategory(String name) throws CategoryNotEmptyException {
-        int count = productRepository.getCategoryCount(name);
-        if(count > 0) throw new CategoryNotEmptyException("La categoria contiene productos asociados");
-        return jdbcTemplate.update(DELETE_CATEGORY, name);}
+        Integer count = jdbcTemplate.queryForObject(COUNT_PRODUCTS_BY_CATEGORY, Integer.class, name);
+        if (count != null && count > 0) {
+            throw new CategoryNotEmptyException("La categoria contiene productos asociados");
+        }
+        return jdbcTemplate.update(DELETE_CATEGORY, name);
+    }
 }

@@ -18,6 +18,7 @@ public class Product {
     private byte[] image;
     @Lob
     private byte[] thumbnail;
+    private boolean active;
 
     public Product() {
     }
@@ -133,6 +134,11 @@ public class Product {
     public void setPublished(Boolean published) {
         this.published = published;
     }
+
+    public Boolean isActive() {return active;}
+
+    public void setActive(Boolean active) {this.active = active;}
+
     public byte[] getThumbnail() {
         return thumbnail;
     }

@@ -74,14 +74,15 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public List<Product> getAllProducts() {
-        String GET_ALL_PRODUCTS = "SELECT * FROM Products";
+        String GET_ALL_PRODUCTS = "SELECT * FROM Products WHERE active = true";
         return jdbcTemplate.query(GET_ALL_PRODUCTS, new ProductRowMapper(true, true));
     }
 
+
     @Override
     public PaginatedResults<Product> getByCategory(String categoryName, int limit, int offset) {
-        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ?";
-        String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? LIMIT ? OFFSET ?";
+        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ? AND active = true";
+        String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? AND active = true LIMIT ? OFFSET ?";
         Integer totalCount = jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(false, true));
 
@@ -90,8 +91,8 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public PaginatedResults<Product> getByCategoryForWeb(String categoryName, int limit, int offset) {
-        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ? AND published = true";
-        String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? AND published = true LIMIT ? OFFSET ?";
+        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ? AND published = true AND active = true";
+        String GET_PRODUCTS_BY_CATEGORY = "SELECT * FROM products WHERE category_name = ? AND published = true AND active = true LIMIT ? OFFSET ?";
         Integer totalCount = jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_BY_CATEGORY, new Object[]{categoryName, limit, offset}, new ProductRowMapper(false, true));
 
@@ -100,21 +101,20 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public Integer getProductCount() {
-        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
+        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products WHERE active = true";
         return jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
     }
 
     @Override
     public Integer getCategoryCount(String categoryName) {
-        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ?";
+        String GET_CATEGORY_COUNT = "SELECT COUNT(*) FROM products WHERE category_name = ? AND active = true";
         return jdbcTemplate.queryForObject(GET_CATEGORY_COUNT, new Object[]{categoryName}, Integer.class);
     }
 
     @Override
     public PaginatedResults<Product> getProductsPaginated(int limit, int offset) {
-        String GET_PRODUCTS_PAGINATED = "SELECT * FROM products LIMIT ? OFFSET ?";
-        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products";
-
+        String GET_PRODUCTS_PAGINATED = "SELECT * FROM products WHERE active = true LIMIT ? OFFSET ?";
+        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products WHERE active = true";
         Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(false, true));
 
@@ -123,8 +123,8 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public PaginatedResults<Product> getProductsPaginatedForWeb(int limit, int offset) {
-        String GET_PRODUCTS_PAGINATED = "SELECT * FROM products WHERE published = true LIMIT ? OFFSET ?";
-        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products WHERE published = true";
+        String GET_PRODUCTS_PAGINATED = "SELECT * FROM products WHERE published = true AND active = true LIMIT ? OFFSET ?";
+        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products WHERE published = true AND active = true";
 
         Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
         List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new WebProductRowMapper(false, true));
@@ -170,14 +170,26 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public Integer deactivateProduct(Long productId) {
+        String SOFT_DELETE = "UPDATE products SET active = false WHERE id = ?";
+        return jdbcTemplate.update(SOFT_DELETE, productId);
+    }
+
+    @Override
+    public Integer restoreProduct(Long productId) {
+        return jdbcTemplate.update("UPDATE products SET active = true WHERE id = ?", productId);
+    }
+
+
+    @Override
     public List<Product> searchProduct(String searchTerm) {
         try {
             double barCode = Double.parseDouble(searchTerm);
-            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
+            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ? AND active = true";
             return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new ProductRowMapper(false, true));
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
-            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
+            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND active = true";
             return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new ProductRowMapper(false, true));
         }
     }
@@ -186,11 +198,11 @@ public class ProductRepositoryImpl implements ProductRepository {
     public List<Product> searchProductForSale(String searchTerm) {
         try {
             double barCode = Double.parseDouble(searchTerm);
-            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ?";
+            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ? AND active = true";
             return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new ProductRowMapper(false, false));
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
-            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?)";
+            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND active = true";
             return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new ProductRowMapper(false, false));
         }
     }
@@ -199,21 +211,23 @@ public class ProductRepositoryImpl implements ProductRepository {
     public List<Product> searchProductForWeb(String searchTerm) {
         try {
             double barCode = Double.parseDouble(searchTerm);
-            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ? AND published = true";
+            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ? AND published = true AND active = true";
             return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new WebProductRowMapper(false, true));
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
-            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND published = true";
+            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND published = true AND active = true";
             return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new WebProductRowMapper(false, true));
         }
     }
 
     @Override
     public List<Product> getProductsFromProvider(Long providerId) {
-        String GET_PRODUCTS_FROM_PROVIDERS = "SELECT p.id, p.name, p.description, p.category_name, p.provider_name, p.bar_code, p.cost, p.price, p.stock " +
-                "FROM Products p " +
-                "JOIN ProductProviders pp ON p.id = pp.product_id " +
-                "WHERE pp.provider_id = ?";
+        String GET_PRODUCTS_FROM_PROVIDERS = """
+    SELECT p.id, p.name, p.description, p.category_name, p.provider_name, p.bar_code, p.cost, p.price, p.stock
+    FROM Products p
+    JOIN ProductProviders pp ON p.id = pp.product_id
+    WHERE pp.provider_id = ? AND p.active = true
+""";
         return jdbcTemplate.query(GET_PRODUCTS_FROM_PROVIDERS, new Object[]{providerId}, new ProductRowMapper(false, false));
     }
 
@@ -231,7 +245,7 @@ public class ProductRepositoryImpl implements ProductRepository {
 
     @Override
     public List<StockAlert> getStockAlerts() {
-        String GET_STOCK_ALERTS = "SELECT * FROM Products WHERE stock_alert = true AND stock <= 5";
+        String GET_STOCK_ALERTS = "SELECT * FROM Products WHERE stock_alert = true AND stock <= 5 AND active = true";
         return jdbcTemplate.query(GET_STOCK_ALERTS, new StockAlertRowMapper());
     }
 
@@ -295,6 +309,7 @@ public class ProductRepositoryImpl implements ProductRepository {
             product.setProviderName(rs.getString("provider_name"));
             product.setStockAlert(rs.getBoolean("stock_alert"));
             product.setPublished(rs.getBoolean("published"));
+            product.setActive(rs.getBoolean("active"));
             if (includeImage) product.setImage(rs.getBytes("image"));
             if (includeThumbnail) product.setThumbnail(rs.getBytes("thumbnail"));
             return product;

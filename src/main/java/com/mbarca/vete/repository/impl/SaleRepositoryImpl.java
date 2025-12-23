@@ -22,24 +22,30 @@ import java.util.Date;
 @Repository
 public class SaleRepositoryImpl implements SaleRepository {
     private final String CREATE_SALE = "INSERT INTO Sales (sale_date, sale_amount, sale_cost, seller, discount, discount_amount) VALUES (?,?,?,?,?,?)";
-    private final String CREATE_SALE_PRODUCTS = "INSERT INTO SalesProducts (sale_id, product_id, quantity) VALUES (?,?,?)";
-    private final String GET_SALE_AND_PRODUCTS = "SELECT s.id AS sale_id, s.sale_date, s.sale_amount, s.sale_cost, s.seller, s.discount, s.discount_amount, " +
-            "sp.product_id, sp.quantity, " +
-            "p.name AS product_name, p.bar_code AS product_barcode, p.description AS product_description, p.price AS product_price, p.cost AS product_cost " +
-            "FROM Sales s " +
-            "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
-            "INNER JOIN Products p ON sp.product_id = p.id " +
-            "WHERE s.id = ?";
+    private final String CREATE_SALE_PRODUCTS =
+            "INSERT INTO SalesProducts (" +
+                    "sale_id, product_id, quantity, " +
+                    "product_name, product_bar_code, product_description, " +
+                    "product_price, product_cost" +
+                    ") VALUES (?,?,?,?,?,?,?,?)";
+    private final String GET_SALE_AND_PRODUCTS =
+            "SELECT s.id AS sale_id, s.sale_date, s.sale_amount, s.sale_cost, s.seller, s.discount, s.discount_amount, " +
+                    "sp.product_id, sp.quantity, " +
+                    "sp.product_name, sp.product_bar_code, sp.product_description, sp.product_price, sp.product_cost, " +
+                    "sp.product_category_name, sp.product_provider_name " +
+                    "FROM Sales s " +
+                    "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
+                    "WHERE s.id = ?";
 
-    private final String UPDATE_STOCK = "UPDATE Products SET stock = stock - ? WHERE id = ?";
+    private final String UPDATE_STOCK = "UPDATE Products SET stock = stock - ? WHERE id = ? AND active = TRUE";
     private final String GET_SALES_BY_DATE = "SELECT * FROM Sales WHERE sale_date >= ? AND sale_date <= ?";
     private final String GET_CATEGORY_NAMES = "SELECT DISTINCT name FROM Category";
-    private final String GET_SALES_BY_CATEGORY = "SELECT SUM(p.price * sp.quantity) AS total_amount " +
-            "FROM Sales s " +
-            "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
-            "INNER JOIN Products p ON sp.product_id = p.id " +
-            "WHERE p.category_name = ? AND " +
-            "sale_date BETWEEN ? AND ?";
+    private final String GET_SALES_BY_CATEGORY =
+            "SELECT SUM(sp.product_price * sp.quantity) AS total_amount " +
+                    "FROM Sales s " +
+                    "INNER JOIN SalesProducts sp ON s.id = sp.sale_id " +
+                    "WHERE sp.product_category_name = ? " +
+                    "AND s.sale_date BETWEEN ? AND ?";
     JdbcTemplate jdbcTemplate;
 
     public SaleRepositoryImpl(JdbcTemplate jdbcTemplate) {
@@ -79,7 +85,14 @@ public class SaleRepositoryImpl implements SaleRepository {
                     saleProductStatement.setLong(1, saleId);
                     saleProductStatement.setLong(2, saleProduct.getProductId());
                     saleProductStatement.setInt(3, saleProduct.getQuantity());
+                    saleProductStatement.setString(4, saleProduct.getProductName());
+                    saleProductStatement.setObject(5, saleProduct.getBarCode() == null ? null : saleProduct.getBarCode());
+                    saleProductStatement.setString(6, saleProduct.getProductDescription());
+                    saleProductStatement.setDouble(7, saleProduct.getProductPrice());
+                    saleProductStatement.setDouble(8, saleProduct.getProductCost());
+
                     saleProductStatement.executeUpdate();
+
                 }
 
                 connection.commit();
@@ -143,7 +156,7 @@ public class SaleRepositoryImpl implements SaleRepository {
                         "FROM Sales WHERE sale_date BETWEEN ? AND ?";
         final String GET_PAYMENTS =
                 "SELECT SUM(amount) AS payment_amount " +
-                        "FROM Payments WHERE date BETWEEN ? AND ? AND payed = true";
+                        "FROM Payments WHERE payment_date BETWEEN ? AND ? AND payed = true";
         final String GET_ORDERS_BY_MONTH =
                 "SELECT SUM(order_amount) AS totalOrderAmount " +
                         "FROM Orders WHERE order_date BETWEEN ? AND ?";
@@ -294,15 +307,10 @@ public class SaleRepositoryImpl implements SaleRepository {
                 saleProduct.setSaleId(saleId);
                 saleProduct.setProductId(rs.getLong("product_id"));
                 saleProduct.setQuantity(rs.getInt("quantity"));
-                saleProduct.setBarCode(rs.getDouble("product_barcode"));
+                saleProduct.setBarCode(rs.getDouble("product_bar_code"));
                 saleProduct.setProductName(rs.getString("product_name"));
                 saleProduct.setProductDescription(rs.getString("product_description"));
-                Double productPrice = rs.getDouble("product_price");
-                if (sale.isDiscount()) {
-                    saleProduct.setProductPrice(productPrice * (1 - (sale.getDiscountAmount() / 100)));
-                } else {
-                    saleProduct.setProductPrice(productPrice);
-                }
+                saleProduct.setProductPrice(rs.getDouble("product_price"));
                 saleProduct.setProductCost(rs.getDouble("product_cost"));
 
                 sale.getSaleProducts().add(saleProduct);
@@ -321,6 +329,8 @@ public class SaleRepositoryImpl implements SaleRepository {
             sale.setAmount(rs.getBigDecimal("sale_amount"));
             sale.setCost(rs.getBigDecimal("sale_cost"));
             sale.setSeller(rs.getString("seller"));
+            sale.setDiscount(rs.getBoolean("discount"));
+            sale.setDiscountAmount(rs.getDouble("discount_amount"));
 
             return sale;
         }

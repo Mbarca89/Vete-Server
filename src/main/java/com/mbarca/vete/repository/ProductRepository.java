@@ -18,6 +18,8 @@ public interface ProductRepository {
     PaginatedResults<Product> getProductsPaginatedForWeb (int limit, int offset);
     Integer editProduct (Product newProduct) throws NotFoundException;
     Integer deleteProduct (Long productId);
+    Integer deactivateProduct(Long productId);
+    Integer restoreProduct(Long productId);
     List<Product> searchProduct (String searchTerm);
     List<Product> searchProductForSale (String searchTerm);
     List<Product> searchProductForWeb (String searchTerm);
