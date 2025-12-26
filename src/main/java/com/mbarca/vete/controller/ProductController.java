@@ -123,12 +123,25 @@ public class ProductController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
         }
     }
+
     @CrossOrigin
     @GetMapping("/getProductsPaginated")
     public ResponseEntity<?> getProductsPaginatedHandler(@RequestParam(defaultValue = "1") int page,
                                                          @RequestParam(defaultValue = "12") int size) {
         try {
             PaginatedResults<ProductResponseDto> products = productService.getProductsPaginated(page, size);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/getDeactivatedProductsPaginated")
+    public ResponseEntity<?> getDeactivatedProductsPaginatedHandler(@RequestParam(defaultValue = "1") int page,
+                                                         @RequestParam(defaultValue = "12") int size) {
+        try {
+            PaginatedResults<ProductResponseDto> products = productService.getDeactivatedProductsPaginated(page, size);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
@@ -175,6 +188,28 @@ public class ProductController {
     }
 
     @CrossOrigin
+    @PutMapping("/deactivate")
+    public ResponseEntity<?> deactivateProductHandler(@RequestParam Long productId) {
+        try {
+            String response = productService.deactivateProduct(productId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @PutMapping("/restore")
+    public ResponseEntity<?> restoreProductHandler(@RequestParam Long productId) {
+        try {
+            String response = productService.restoreProduct(productId);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteProductHandler(@RequestParam Long productId) {
         try {
@@ -190,6 +225,17 @@ public class ProductController {
     public ResponseEntity<?> searchProductHandler(@RequestParam String searchTerm) {
         try {
             List<ProductResponseDto> products = productService.searchProduct(searchTerm);
+            return ResponseEntity.status(HttpStatus.OK).body(products);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());
+        }
+    }
+
+    @CrossOrigin
+    @GetMapping("/searchDeactivatedProduct")
+    public ResponseEntity<?> searchDeactivatedProductHandler(@RequestParam String searchTerm) {
+        try {
+            List<ProductResponseDto> products = productService.searchDeactivatedProduct(searchTerm);
             return ResponseEntity.status(HttpStatus.OK).body(products);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("error:" + e.getMessage());

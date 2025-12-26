@@ -122,6 +122,16 @@ public class ProductRepositoryImpl implements ProductRepository {
     }
 
     @Override
+    public PaginatedResults<Product> getDeactivatedProductsPaginated(int limit, int offset) {
+        String GET_PRODUCTS_PAGINATED = "SELECT * FROM products WHERE active = false LIMIT ? OFFSET ?";
+        String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products WHERE active = false";
+        Integer totalCount = jdbcTemplate.queryForObject(GET_PRODUCT_COUNT, Integer.class);
+        List<Product> products = jdbcTemplate.query(GET_PRODUCTS_PAGINATED, new Object[]{limit, offset}, new ProductRowMapper(false, true));
+
+        return new PaginatedResults<Product>(products, totalCount != null ? totalCount : 0);
+    }
+
+    @Override
     public PaginatedResults<Product> getProductsPaginatedForWeb(int limit, int offset) {
         String GET_PRODUCTS_PAGINATED = "SELECT * FROM products WHERE published = true AND active = true LIMIT ? OFFSET ?";
         String GET_PRODUCT_COUNT = "SELECT COUNT(*) FROM products WHERE published = true AND active = true";
@@ -190,6 +200,19 @@ public class ProductRepositoryImpl implements ProductRepository {
         } catch (NumberFormatException e) {
             String searchTermOk = "%" + searchTerm + "%";
             String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND active = true";
+            return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new ProductRowMapper(false, true));
+        }
+    }
+
+    @Override
+    public List<Product> searchDeactivatedProduct(String searchTerm) {
+        try {
+            double barCode = Double.parseDouble(searchTerm);
+            String GET_PRODUCT_BY_BARCODE = "SELECT * FROM Products WHERE bar_code = ? AND active = false";
+            return jdbcTemplate.query(GET_PRODUCT_BY_BARCODE, new Object[]{barCode}, new ProductRowMapper(false, true));
+        } catch (NumberFormatException e) {
+            String searchTermOk = "%" + searchTerm + "%";
+            String GET_PRODUCT_BY_NAME = "SELECT * FROM Products WHERE LOWER(name) LIKE LOWER(?) AND active = false";
             return jdbcTemplate.query(GET_PRODUCT_BY_NAME, new Object[]{searchTermOk}, new ProductRowMapper(false, true));
         }
     }

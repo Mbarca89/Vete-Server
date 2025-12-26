@@ -2,6 +2,8 @@ package com.mbarca.vete.service;
 
 import com.mbarca.vete.domain.Reminder;
 import com.mbarca.vete.domain.VaccineNotification;
+import com.mbarca.vete.domain.WebOrder;
+import com.mbarca.vete.domain.WebOrderItem;
 import com.mbarca.vete.repository.MessagesRepository;
 import com.mbarca.vete.repository.ReminderRepository;
 import com.mbarca.vete.repository.VaccineRepository;
@@ -75,6 +77,54 @@ public class NotificationsScheduler {
                     throw new Exception(e.getMessage());
                 }
             }
+        }
+    }
+
+    public void sendOrderConfirmation(WebOrder order, List<WebOrderItem> items) {
+
+        StringBuilder message = new StringBuilder();
+        message.append("Hola ").append(order.getCustomerName()).append(" 👋\n\n")
+                .append("✅ *Pago aprobado*\n")
+                .append("Gracias por tu compra en *Veterinaria del Parque* 🐾\n\n")
+                .append("🧾 *Detalle del pedido:*\n");
+
+        for (WebOrderItem item : items) {
+            message.append("- ")
+                    .append(item.getProductName())
+                    .append(" x")
+                    .append(item.getQuantity())
+                    .append("\n");
+        }
+
+        message.append("\n💰 *Total:* $")
+                .append(order.getTotalAmount())
+                .append("\n\n")
+                .append("📍 En breve nos comunicamos para coordinar la entrega.\n")
+                .append("¡Gracias por confiar en nosotros! ❤️");
+
+        sendWhatsapp(order.getCustomerPhone(), message.toString());
+    }
+
+    private void sendWhatsapp(String phone, String message) {
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://localhost:3001/ws/send"))
+                    .header("Content-Type", "application/json")
+                    .POST(HttpRequest.BodyPublishers.ofString(
+                            "{\"number\":\"" + phone + "\",\"message\":\"" + message + "\"}"
+                    ))
+                    .build();
+
+            try (HttpClient client = HttpClient.newHttpClient()) {
+                HttpResponse<String> response =
+                        client.send(request, HttpResponse.BodyHandlers.ofString());
+
+                if (response.statusCode() != 200) {
+                   // log.warn("Error enviando WhatsApp: {}", response.body());
+                }
+            }
+        } catch (Exception e) {
+            //log.error("Error enviando WhatsApp", e);
         }
     }
 }

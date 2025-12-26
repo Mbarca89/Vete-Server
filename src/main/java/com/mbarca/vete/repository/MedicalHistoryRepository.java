@@ -3,6 +3,7 @@ package com.mbarca.vete.repository;
 import com.mbarca.vete.domain.MedicalHistory;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface MedicalHistoryRepository {
 Integer createMedicalHistory (MedicalHistory medicalHistory);

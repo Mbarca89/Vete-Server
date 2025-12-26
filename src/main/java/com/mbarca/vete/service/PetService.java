@@ -14,6 +14,7 @@ import com.mbarca.vete.exceptions.UserNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.UUID;
 
 public interface PetService {
     String createPet (PetRequestDto petRequestDto, Images images, Long clientId) throws MissingDataException;

@@ -15,12 +15,14 @@ public interface ProductRepository {
     Integer getProductCount ();
     Integer getCategoryCount (String categoryName);
     PaginatedResults<Product> getProductsPaginated (int limit, int offset);
+    PaginatedResults<Product> getDeactivatedProductsPaginated (int limit, int offset);
     PaginatedResults<Product> getProductsPaginatedForWeb (int limit, int offset);
     Integer editProduct (Product newProduct) throws NotFoundException;
     Integer deleteProduct (Long productId);
     Integer deactivateProduct(Long productId);
     Integer restoreProduct(Long productId);
     List<Product> searchProduct (String searchTerm);
+    List<Product> searchDeactivatedProduct (String searchTerm);
     List<Product> searchProductForSale (String searchTerm);
     List<Product> searchProductForWeb (String searchTerm);
     List<Product> getProductsFromProvider (Long providerId);

@@ -5,6 +5,7 @@ import com.mbarca.vete.domain.VaccineNotification;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 public interface VaccineRepository {
     Integer createVaccine(Vaccine vaccine);

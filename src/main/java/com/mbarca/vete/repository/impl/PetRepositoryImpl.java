@@ -16,6 +16,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
+
+import static java.sql.Types.OTHER;
 
 @Repository
 public class PetRepositoryImpl implements PetRepository {
@@ -26,6 +29,12 @@ public class PetRepositoryImpl implements PetRepository {
             "JOIN ClientPets ON Pets.id = ClientPets.pet_id " +
             "JOIN Clients ON ClientPets.client_id = Clients.id " +
             "WHERE Pets.id = ?";
+
+    private final String GET_PET_BY_PUBLIC_ID = "SELECT Pets.*, CONCAT(Clients.name, ' ', Clients.surname) AS owner_name, Clients.phone " +
+            "FROM Pets " +
+            "JOIN ClientPets ON Pets.id = ClientPets.pet_id " +
+            "JOIN Clients ON ClientPets.client_id = Clients.id " +
+            "WHERE Pets.public_id = ?";
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -111,6 +120,13 @@ public class PetRepositoryImpl implements PetRepository {
         Object[] params = {petId};
         int[] types = {1};
         return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(true, true));
+    }
+
+    @Override
+    public Pet getPetByPublicId(UUID petId) {
+        Object[] params = {petId};
+        int[] types = {OTHER};
+        return jdbcTemplate.queryForObject(GET_PET_BY_PUBLIC_ID, params, types, new PetRowMapper(true, true));
     }
 
     @Override

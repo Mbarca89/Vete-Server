@@ -65,6 +65,24 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public String deactivateProduct (long productId) throws Exception {
+        int response = productRepository.deactivateProduct(productId);
+        if (response == 0) {
+            throw new Exception("Error al dar de baja el producto");
+        }
+        return "Producto dado de baja correctamente";
+    }
+
+    @Override
+    public String restoreProduct (long productId) throws Exception {
+        int response = productRepository.restoreProduct(productId);
+        if (response == 0) {
+            throw new Exception("Error al restablecer el producto");
+        }
+        return "Producto restablecido correctamente";
+    }
+
+    @Override
     public List<ProductResponseDto> getAllProducts() {
         List<Product> products = productRepository.getAllProducts();
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
@@ -103,6 +121,15 @@ public class ProductServiceImpl implements ProductService {
         List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
         return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
     }
+
+    @Override
+    public PaginatedResults<ProductResponseDto> getDeactivatedProductsPaginated(int page, int size) {
+        int offset = (page - 1) * size;
+        PaginatedResults<Product> products = productRepository.getDeactivatedProductsPaginated(size, offset);
+        List<ProductResponseDto> productResponseDtos = products.getData().stream().map(this::mapProductToDto).toList();
+        return new PaginatedResults<ProductResponseDto>(productResponseDtos, products.getTotalCount());
+    }
+
     @Override
     public PaginatedResults<ProductResponseDto> getProductsPaginatedForWeb(int page, int size) {
         int offset = (page - 1) * size;
@@ -149,6 +176,13 @@ public class ProductServiceImpl implements ProductService {
         List<Product> products = productRepository.searchProduct(searchTerm);
         return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
     }
+
+    @Override
+    public List<ProductResponseDto> searchDeactivatedProduct(String searchTerm) {
+        List<Product> products = productRepository.searchDeactivatedProduct(searchTerm);
+        return products.stream().map(this::mapProductToDto).collect(Collectors.toList());
+    }
+
     @Override
     public List<ProductResponseDto> searchProductForSale(String searchTerm) {
         List<Product> products = productRepository.searchProductForSale(searchTerm);
@@ -214,6 +248,7 @@ public class ProductServiceImpl implements ProductService {
         productResponseDto.setImage(product.getImage());
         productResponseDto.setProviderName(product.getProviderName());
         productResponseDto.setStockAlert(product.getStockAlert());
+        productResponseDto.setActive(product.isActive());
         productResponseDto.setPublished(product.getPublished());
         productResponseDto.setThumbnail(product.getThumbnail());
         return productResponseDto;

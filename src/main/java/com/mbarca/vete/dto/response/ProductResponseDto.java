@@ -12,6 +12,7 @@ public class ProductResponseDto {
     private String providerName;
     private Boolean stockAlert;
     private Boolean published;
+    private Boolean active;
     private byte[] image;
     private byte[] thumbnail;
 
@@ -131,6 +132,14 @@ public class ProductResponseDto {
     }
     public byte[] getThumbnail() {
         return thumbnail;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public void setActive(Boolean active) {
+        this.active = active;
     }
 
     public void setThumbnail(byte[] thumbnail) {

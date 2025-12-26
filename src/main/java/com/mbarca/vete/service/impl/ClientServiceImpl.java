@@ -58,6 +58,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public List<ClientResponseDto> getClientsByPhone(String searchTerm) {
+        List<Client> clients = clientRepository.getClientsByPhone(searchTerm);
+        return clients.stream().map(this::mapClientToDto).collect(Collectors.toList());
+    }
+
+    @Override
     public ClientResponseDto getClientById(Long clientId) {
         return mapClientToDto(clientRepository.getClientById(clientId));
     }

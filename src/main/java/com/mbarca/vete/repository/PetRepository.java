@@ -6,6 +6,7 @@ import com.mbarca.vete.domain.User;
 import com.mbarca.vete.exceptions.PetNotFoundException;
 
 import java.util.List;
+import java.util.UUID;
 
 public interface PetRepository {
     Integer createPet (Pet pet, Long clientId);
@@ -14,6 +15,7 @@ public interface PetRepository {
     List<Pet> getPetsFromClient (Long clientId);
     PaginatedResults<Pet> getPetsByName (String name, String species, int limit, int offset);
     Pet getPetById (Long petId);
+    Pet getPetByPublicId (UUID publicPetId);
     Integer deletePet (Long petId);
     Integer editPet(Pet pet) throws PetNotFoundException;
 }

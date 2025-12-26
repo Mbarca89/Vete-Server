@@ -71,6 +71,17 @@ public class ClientController {
     }
 
     @CrossOrigin
+    @GetMapping("/getClientsByPhone")
+    public ResponseEntity<?> getClientsByPhoneHandler (@RequestParam String searchTerm) {
+        try {
+            List<ClientResponseDto> response = clientService.getClientsByPhone(searchTerm);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+        } catch (Exception e) {
+            return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    @CrossOrigin
     @GetMapping("/getClientById")
     public ResponseEntity<?> getClientByIdHandler (@RequestParam Long clientId) {
         try {

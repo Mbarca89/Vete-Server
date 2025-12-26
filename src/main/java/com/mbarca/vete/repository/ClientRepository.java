@@ -10,6 +10,7 @@ public interface ClientRepository {
     Integer deleteClient(Long id);
     List<Client> getClients();
     List<Client> getClientsByName(String searchTerm);
+    List<Client> getClientsByPhone(String searchTerm);
     Client getClientById(Long clientId);
     Integer editClient(Client client) throws ClientNotFoundException;
 }

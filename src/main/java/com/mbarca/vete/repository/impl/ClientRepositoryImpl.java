@@ -89,6 +89,13 @@ public class ClientRepositoryImpl implements ClientRepository {
         return jdbcTemplate.query(GET_CLIENTS_NY_NAME, params, new ClientRowMapper());
     }
 
+    @Override
+    public List<Client> getClientsByPhone(String searchTerm) {
+        Object[] params = {"%" + searchTerm + "%"};
+        String GET_CLIENTS_NY_NAME = "SELECT * FROM Clients WHERE LOWER(phone) LIKE LOWER(?)";
+        return jdbcTemplate.query(GET_CLIENTS_NY_NAME, params, new ClientRowMapper());
+    }
+
     static class ClientRowMapper implements RowMapper<Client> {
         @Override
         public Client mapRow(ResultSet rs, int rowNum) throws SQLException {

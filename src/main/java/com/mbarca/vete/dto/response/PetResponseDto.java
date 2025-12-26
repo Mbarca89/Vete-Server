@@ -1,9 +1,11 @@
 package com.mbarca.vete.dto.response;
 
 import java.util.Date;
+import java.util.UUID;
 
 public class PetResponseDto {
     private Long id;
+    private UUID publicId;
     private String name;
     private String race;
     private String gender;
@@ -47,6 +49,14 @@ public class PetResponseDto {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public UUID getPublicId() {
+        return publicId;
+    }
+
+    public void setPublicId(UUID publicId) {
+        this.publicId = publicId;
     }
 
     public String getName() {
