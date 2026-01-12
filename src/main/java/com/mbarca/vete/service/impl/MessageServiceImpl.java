@@ -4,7 +4,7 @@ import com.mbarca.vete.domain.VaccineNotification;
 import com.mbarca.vete.dto.response.MessageResponseDto;
 import com.mbarca.vete.repository.MessagesRepository;
 import com.mbarca.vete.service.MessageService;
-import com.mbarca.vete.service.NotificationsScheduler;
+import com.mbarca.vete.scheduler.NotificationsScheduler;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 

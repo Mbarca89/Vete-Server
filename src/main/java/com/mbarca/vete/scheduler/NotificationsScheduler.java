@@ -1,4 +1,4 @@
-package com.mbarca.vete.service;
+package com.mbarca.vete.scheduler;
 
 import com.mbarca.vete.domain.Reminder;
 import com.mbarca.vete.domain.VaccineNotification;
@@ -7,6 +7,7 @@ import com.mbarca.vete.domain.WebOrderItem;
 import com.mbarca.vete.repository.MessagesRepository;
 import com.mbarca.vete.repository.ReminderRepository;
 import com.mbarca.vete.repository.VaccineRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.util.List;
 
 @Component
+@Slf4j
 public class NotificationsScheduler {
 
     VaccineRepository vaccineRepository;
@@ -120,11 +122,11 @@ public class NotificationsScheduler {
                         client.send(request, HttpResponse.BodyHandlers.ofString());
 
                 if (response.statusCode() != 200) {
-                   // log.warn("Error enviando WhatsApp: {}", response.body());
+                   log.warn("Error enviando WhatsApp: {}", response.body());
                 }
             }
         } catch (Exception e) {
-            //log.error("Error enviando WhatsApp", e);
+            log.error("Error enviando WhatsApp", e);
         }
     }
 }

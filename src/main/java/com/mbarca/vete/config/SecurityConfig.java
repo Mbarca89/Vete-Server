@@ -37,6 +37,7 @@ public class SecurityConfig {
                             .requestMatchers("/api/v1/public/pet").permitAll()
                             .requestMatchers("/api/v1/mercadopago/public/**").permitAll()
                             .requestMatchers("/api/v1/mercadopago/webhook").permitAll()
+                            .requestMatchers("/api/v1/web-orders/public/**").permitAll()
                             .anyRequest().authenticated()
                         )
                 .sessionManagement(sessionManager ->

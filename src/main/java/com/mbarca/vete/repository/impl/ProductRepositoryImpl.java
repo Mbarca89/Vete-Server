@@ -380,10 +380,15 @@ public class ProductRepositoryImpl implements ProductRepository {
         );
     }
 
-    public void increaseStock(Long productId, Integer qty) {
-        jdbcTemplate.update("""
-        UPDATE products SET stock = stock + ? WHERE id = ?
-    """, qty, productId);
+    private static final String INC_STOCK = """
+        UPDATE products
+        SET stock = stock + ?
+        WHERE id = ?
+    """;
+
+    @Override
+    public int increaseStock(Long productId, int qty) {
+        return jdbcTemplate.update(INC_STOCK, qty, productId);
     }
 
 }

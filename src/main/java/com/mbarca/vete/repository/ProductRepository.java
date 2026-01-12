@@ -30,6 +30,6 @@ public interface ProductRepository {
     List<StockAlert> getStockAlerts ();
     Integer getStock(Long productId);
     void updateStock(Long productId, Integer newStock);
-    void increaseStock(Long productId, Integer qty);
+    int increaseStock(Long productId, int qty);
 
 }

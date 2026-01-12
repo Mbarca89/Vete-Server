@@ -13,6 +13,7 @@ import com.mercadopago.exceptions.MPApiException;
 import com.mercadopago.exceptions.MPException;
 import com.mercadopago.resources.preference.Preference;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +23,17 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class MercadoPagoServiceImpl implements MercadoPagoService{
 
     @Value("${mercadopago.access-token}")
     private String accessToken;
+
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
+
+    @Value("${mercadopago.webhook-url}")
+    private String webhookUrl;
 
     private final WebOrderRepository webOrderRepository;
     private final WebOrderItemRepository webOrderItemRepository;
@@ -78,6 +86,7 @@ public class MercadoPagoServiceImpl implements MercadoPagoService{
             );
         }
 
+
         // 4️⃣ preference MP
         List<PreferenceItemRequest> mpItems = request.getItems().stream()
                 .map(i -> PreferenceItemRequest.builder()
@@ -96,12 +105,12 @@ public class MercadoPagoServiceImpl implements MercadoPagoService{
                         .email(request.getCustomer().getEmail())
                         .build())
                 .backUrls(PreferenceBackUrlsRequest.builder()
-                        .success("https://veterinariadelparque.com.ar/checkout/success")
-                        .failure("https://veterinariadelparque.com.ar/checkout/failure")
-                        .pending("https://veterinariadelparque.com.ar/checkout/pending")
+                        .success(frontendBaseUrl + "/checkout/success")
+                        .failure(frontendBaseUrl + "/checkout/failure")
+                        .pending(frontendBaseUrl + "/checkout/pending")
                         .build())
-                .notificationUrl("https://api.veterinariadelparque.com.ar/api/v1/mercadopago/webhook")
-                .autoReturn("approved")
+                .notificationUrl(webhookUrl + "/api/v1/mercadopago/webhook")
+                .autoReturn("all")
                 .build();
 
 
@@ -109,7 +118,11 @@ public class MercadoPagoServiceImpl implements MercadoPagoService{
         try {
             preference = new PreferenceClient().create(pref);
         } catch (MPApiException e) {
-            // Error devuelto por Mercado Pago (400, 401, etc.)
+            log.error("MPApiException status={} content={}",
+                    e.getApiResponse() != null ? e.getApiResponse().getStatusCode() : null,
+                    e.getApiResponse() != null ? e.getApiResponse().getContent() : null,
+                    e
+            );
             throw new RuntimeException(
                     "Error API Mercado Pago: " + e.getApiResponse().getContent(),
                     e
