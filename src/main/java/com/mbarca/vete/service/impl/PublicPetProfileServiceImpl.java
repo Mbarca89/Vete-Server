@@ -7,6 +7,7 @@ import com.mbarca.vete.dto.response.PublicPetProfileResponseDto;
 import com.mbarca.vete.repository.MedicalHistoryRepository;
 import com.mbarca.vete.repository.PetRepository;
 import com.mbarca.vete.repository.VaccineRepository;
+import com.mbarca.vete.scheduler.NotificationsScheduler;
 import com.mbarca.vete.service.PublicPetProfileService;
 import org.springframework.stereotype.Service;
 
@@ -19,11 +20,13 @@ public class PublicPetProfileServiceImpl implements PublicPetProfileService {
     private final PetRepository petRepository;
     private final MedicalHistoryRepository medicalHistoryRepository;
     private final VaccineRepository vaccineRepository;
+    private final NotificationsScheduler notificationsScheduler;
 
-    public PublicPetProfileServiceImpl(PetRepository petRepository, MedicalHistoryRepository medicalHistoryRepository, VaccineRepository vaccineRepository) {
+    public PublicPetProfileServiceImpl(PetRepository petRepository, MedicalHistoryRepository medicalHistoryRepository, VaccineRepository vaccineRepository, NotificationsScheduler notificationsScheduler) {
         this.petRepository = petRepository;
         this.medicalHistoryRepository = medicalHistoryRepository;
         this.vaccineRepository = vaccineRepository;
+        this.notificationsScheduler = notificationsScheduler;
     }
 
     @Override
@@ -33,5 +36,12 @@ public class PublicPetProfileServiceImpl implements PublicPetProfileService {
         List<Vaccine> vaccineList = vaccineRepository.getVaccinesById(pet.getId());
 
         return new PublicPetProfileResponseDto(pet, medicalHistoryList, vaccineList);
+    }
+
+    @Override
+    public String sendPublicProfile(UUID publicId) {
+        Pet pet = petRepository.getPetByPublicId(publicId);
+        boolean sent = notificationsScheduler.sendPetPublicProfile(pet.getName(), pet.getOwnerName(), pet.getOwnerPhone(), pet.getPublicId());
+        return sent ? "Mensaje enviado correctamente" : "Error al enviar el mensaje";
     }
 }

@@ -14,15 +14,6 @@ public class Pet {
     private Double weight;
     private Date born;
     private String ownerName;
-
-    public String getOwnerPhone() {
-        return ownerPhone;
-    }
-
-    public void setOwnerPhone(String ownerPhone) {
-        this.ownerPhone = ownerPhone;
-    }
-
     private String ownerPhone;
     @Lob
     private byte[] photo;
@@ -136,6 +127,12 @@ public class Pet {
         this.ownerName = ownerName;
     }
 
+    public String getOwnerPhone() {
+        return ownerPhone;
+    }
+    public void setOwnerPhone(String ownerPhone) {
+        this.ownerPhone = ownerPhone;
+    }
     public byte[] getThumbnail() {
         return thumbnail;
     }

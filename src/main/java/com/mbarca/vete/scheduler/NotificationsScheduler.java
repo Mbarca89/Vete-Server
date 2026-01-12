@@ -8,6 +8,7 @@ import com.mbarca.vete.repository.MessagesRepository;
 import com.mbarca.vete.repository.ReminderRepository;
 import com.mbarca.vete.repository.VaccineRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +19,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -32,6 +34,9 @@ public class NotificationsScheduler {
         this.reminderRepository = reminderRepository;
         this.messagesRepository = messagesRepository;
     }
+
+    @Value("${frontend.base-url}")
+    private String frontendBaseUrl;
 
 
     @Scheduled(cron = "0 00 10 * * *")
@@ -107,27 +112,63 @@ public class NotificationsScheduler {
         sendWhatsapp(order.getCustomerPhone(), message.toString());
     }
 
-    private void sendWhatsapp(String phone, String message) {
+    public boolean sendPetPublicProfile(
+            String petName,
+            String ownerName,
+            String ownerPhone,
+            UUID publicId
+    ) {
+
+        final String publicProfileUrl = frontendBaseUrl + "/mascotas/" + publicId;
+
+        StringBuilder message = new StringBuilder();
+
+        message.append("Hola ").append(ownerName).append(" 👋\n\n")
+                .append("🐾 *Perfil público de ").append(petName).append("*\n\n")
+                .append("Ya podés acceder a la información de tu mascota desde el siguiente enlace:\n\n")
+                .append("🔗 ").append(publicProfileUrl).append("\n\n")
+                .append("📋 Ahi vas a encontrar datos importantes como:\n")
+                .append("• Información general\n")
+                .append("• Historial médico\n")
+                .append("• Vacunas y controles\n\n")
+                .append("Gracias por confiar en *Veterinaria del Parque* ❤️");
+
+        return sendWhatsapp(ownerPhone, message.toString());
+    }
+
+
+    private boolean sendWhatsapp(String phone, String message) {
         try {
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(new URI("http://localhost:3001/ws/send"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(
-                            "{\"number\":\"" + phone + "\",\"message\":\"" + message + "\"}"
+                            "{\"number\":\"" + phone + "\",\"message\":\"" + escapeJson(message) + "\"}"
                     ))
                     .build();
 
-            try (HttpClient client = HttpClient.newHttpClient()) {
-                HttpResponse<String> response =
-                        client.send(request, HttpResponse.BodyHandlers.ofString());
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-                if (response.statusCode() != 200) {
-                   log.warn("Error enviando WhatsApp: {}", response.body());
-                }
+            if (response.statusCode() == 200) {
+                return true;
             }
+
+            log.warn("Error enviando WhatsApp. Status={} Body={}", response.statusCode(), response.body());
+            return false;
+
         } catch (Exception e) {
             log.error("Error enviando WhatsApp", e);
+            return false;
         }
+    }
+
+    private String escapeJson(String s) {
+        if (s == null) return "";
+        return s.replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\r", "\\r")
+                .replace("\n", "\\n");
     }
 }
 
