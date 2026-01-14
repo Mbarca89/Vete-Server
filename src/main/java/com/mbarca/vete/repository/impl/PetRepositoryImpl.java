@@ -23,7 +23,7 @@ import static java.sql.Types.OTHER;
 @Repository
 public class PetRepositoryImpl implements PetRepository {
 
-    private final String CREATE_PET = "INSERT INTO Pets (name, race, gender, species, weight, born, photo, thumbnail) VALUES (?,?,?,?,?,?,?,?)";
+    private final String CREATE_PET = "INSERT INTO Pets (name, race, gender, species, weight, born, photo, thumbnail, public_id) VALUES (?,?,?,?,?,?,?,?,?)";
     private final String GET_PET_BY_ID = "SELECT Pets.*, CONCAT(Clients.name, ' ', Clients.surname) AS owner_name, Clients.phone " +
             "FROM Pets " +
             "JOIN ClientPets ON Pets.id = ClientPets.pet_id " +
@@ -45,8 +45,9 @@ public class PetRepositoryImpl implements PetRepository {
     @Override
     public Integer createPet(Pet pet, Long clientId) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
+        UUID publicId = UUID.randomUUID();
         jdbcTemplate.update(con -> {
-            PreparedStatement ps = con.prepareStatement(CREATE_PET, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = con.prepareStatement(CREATE_PET, new String[] { "ID" });
             ps.setString(1, pet.getName());
             ps.setString(2, pet.getRace());
             ps.setString(3, pet.getGender());
@@ -57,6 +58,7 @@ public class PetRepositoryImpl implements PetRepository {
             ps.setDate(6, sqlDate);
             ps.setBytes(7, pet.getPhoto());
             ps.setBytes(8, pet.getThumbnail());
+            ps.setObject(9,publicId);
             return ps;
         }, keyHolder);
 
