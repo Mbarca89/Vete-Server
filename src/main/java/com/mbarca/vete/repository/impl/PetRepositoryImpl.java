@@ -81,7 +81,7 @@ public class PetRepositoryImpl implements PetRepository {
                 "INNER JOIN Clients c ON cp.client_id = c.id " +
                 "LIMIT ? OFFSET ?";
 
-        List<Pet> pets = jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true, false));
+        List<Pet> pets = jdbcTemplate.query(GET_ALL_PETS, new Object[]{limit, offset}, new PetRowMapper(true, false, false));
         return new PaginatedResults(pets, totalCount != null ? totalCount : 0);
     }
 
@@ -93,7 +93,7 @@ public class PetRepositoryImpl implements PetRepository {
                 "JOIN ClientPets cp ON p.id = cp.pet_id " +
                 "JOIN Clients c ON cp.client_id = c.id " +
                 "WHERE cp.client_id = ?";
-        return jdbcTemplate.query(GET_PETS_FROM_CLIENT, params, new PetRowMapper(true, false));
+        return jdbcTemplate.query(GET_PETS_FROM_CLIENT, params, new PetRowMapper(true, false, false));
     }
 
     @Override
@@ -109,9 +109,9 @@ public class PetRepositoryImpl implements PetRepository {
         String GET_PET_BY_NAME_AND_SPECIES = "SELECT * FROM Pets WHERE LOWER(name) LIKE LOWER(?) AND species = ? LIMIT ? OFFSET ?";
         List<Pet> pets;
         if (!Objects.equals(species, ""))
-            pets = jdbcTemplate.query(GET_PET_BY_NAME_AND_SPECIES, new Object[]{searchTerm, species, limit, offset}, new PetRowMapper(false, false));
+            pets = jdbcTemplate.query(GET_PET_BY_NAME_AND_SPECIES, new Object[]{searchTerm, species, limit, offset}, new PetRowMapper(false, false, false));
         else
-            pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false));
+            pets = jdbcTemplate.query(GET_PET_BY_NAME, new Object[]{searchTerm, limit, offset}, new PetRowMapper(false, false, false));
         return new PaginatedResults<Pet>(pets, totalCount != null ? totalCount : 0);
     }
 
@@ -119,14 +119,14 @@ public class PetRepositoryImpl implements PetRepository {
     public Pet getPetById(Long petId) {
         Object[] params = {petId};
         int[] types = {1};
-        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(true, true));
+        return jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(true, true, true));
     }
 
     @Override
     public Pet getPetByPublicId(UUID petId) {
         Object[] params = {petId};
         int[] types = {OTHER};
-        return jdbcTemplate.queryForObject(GET_PET_BY_PUBLIC_ID, params, types, new PetRowMapper(true, true));
+        return jdbcTemplate.queryForObject(GET_PET_BY_PUBLIC_ID, params, types, new PetRowMapper(true, true, true));
     }
 
     @Override
@@ -144,7 +144,7 @@ public class PetRepositoryImpl implements PetRepository {
 
         Object[] params = {petId};
         int[] types = {1};
-        Pet currentPet = jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false, true));
+        Pet currentPet = jdbcTemplate.queryForObject(GET_PET_BY_ID, params, types, new PetRowMapper(false, true, false));
 
         if (currentPet == null) {
             throw new PetNotFoundException("Mascota no encontrada!");
@@ -173,10 +173,12 @@ public class PetRepositoryImpl implements PetRepository {
     static class PetRowMapper implements RowMapper<Pet> {
         boolean includeOwner;
         boolean includePhoto;
+        boolean includeUUID;
 
-        public PetRowMapper(boolean includeOwner, boolean includePhoto) {
+        public PetRowMapper(boolean includeOwner, boolean includePhoto, boolean includeUUID) {
             this.includeOwner = includeOwner;
             this.includePhoto = includePhoto;
+            this.includeUUID = includeUUID;
         }
 
 
@@ -184,6 +186,7 @@ public class PetRepositoryImpl implements PetRepository {
         public Pet mapRow(ResultSet rs, int rowNum) throws SQLException {
             Pet pet = new Pet();
             pet.setId(rs.getLong("id"));
+            if(includeUUID) pet.setPublicId(rs.getObject("public_id", UUID.class));
             pet.setName(rs.getString("name"));
             pet.setRace(rs.getString("race"));
             pet.setGender(rs.getString("gender"));

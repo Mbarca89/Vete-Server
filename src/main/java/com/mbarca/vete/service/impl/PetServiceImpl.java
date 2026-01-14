@@ -157,6 +157,7 @@ public class PetServiceImpl implements PetService {
     private PetResponseDto mapPetToDto (Pet pet) {
         PetResponseDto petResponseDto = new PetResponseDto();
         petResponseDto.setId(pet.getId());
+        petResponseDto.setPublicId(pet.getPublicId());
         petResponseDto.setName(pet.getName());
         petResponseDto.setRace(pet.getRace());
         petResponseDto.setGender(pet.getGender());

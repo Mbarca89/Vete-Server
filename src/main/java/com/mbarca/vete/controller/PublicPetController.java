@@ -36,7 +36,7 @@ public class PublicPetController {
     @PostMapping("send")
     public ResponseEntity<?> sendPublicProfileHandler(@RequestParam("publicId") UUID publicPetId) {
         try {
-            PublicPetProfileResponseDto response = publicPetProfileService.getPetProfile(publicPetId);
+            String response = publicPetProfileService.sendPublicProfile(publicPetId);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
