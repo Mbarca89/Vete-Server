@@ -125,7 +125,7 @@ public class NotificationsScheduler {
         StringBuilder message = new StringBuilder();
 
         message.append("Hola ").append(ownerName).append(" 👋\n\n")
-                .append("🐾 *Perfil público de ").append(petName).append("*\n\n")
+                .append("🐾 *Ficha médica de ").append(petName).append("*\n\n")
                 .append("Ya podés acceder a la información de tu mascota desde el siguiente enlace:\n\n")
                 .append("🔗 ").append(publicProfileUrl).append("\n\n")
                 .append("📋 Ahi vas a encontrar datos importantes como:\n")
