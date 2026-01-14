@@ -1,8 +1,11 @@
 package com.mbarca.vete.repository.impl;
 
 import com.mbarca.vete.domain.WebOrder;
+import com.mbarca.vete.domain.WebOrderItem;
+import com.mbarca.vete.domain.WebOrderWithItems;
 import com.mbarca.vete.repository.WebOrderRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -65,7 +69,7 @@ public class WebOrderRepositoryImpl implements WebOrderRepository {
 
     @Override
     public List<WebOrder> findByDate(Date dateStart, Date dateEnd){
-        String GET_ORDERS_BY_DATE = "SELECT * FROM web_orders WHERE created_at >= ? AND created_at <= ?";
+        String GET_ORDERS_BY_DATE = "SELECT * FROM web_orders WHERE created_at >= ? AND created_at <= ? ORDER BY created_at DESC";
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateEnd);
         calendar.set(Calendar.HOUR_OF_DAY, 23);
@@ -114,20 +118,29 @@ public class WebOrderRepositoryImpl implements WebOrderRepository {
           AND (payment_id IS NULL OR payment_id = '')
     """;
 
-    private final RowMapper<WebOrder> mapper = (rs, rowNum) -> {
-        WebOrder o = new WebOrder();
-        o.setId(rs.getLong("id"));
-        o.setCustomerName(rs.getString("customer_name"));
-        o.setCustomerEmail(rs.getString("customer_email"));
-        o.setCustomerPhone(rs.getString("customer_phone"));
-        o.setTotalAmount(rs.getBigDecimal("total_amount"));
-        o.setStatus(rs.getString("status"));
-        o.setPreferenceId(rs.getString("preference_id"));
-        o.setPaymentId(rs.getString("payment_id"));
-        o.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-        o.setShipped(rs.getBoolean("shipped"));
-        return o;
-    };
+    private static final String GET_ORDER_WITH_ITEMS = """
+        SELECT
+            o.id AS order_id,
+            o.customer_name,
+            o.customer_email,
+            o.customer_phone,
+            o.total_amount,
+            o.status,
+            o.preference_id,
+            o.payment_id,
+            o.created_at,
+            o.shipped,
+
+            i.id AS item_id,
+            i.product_id,
+            i.product_name,
+            i.quantity,
+            i.unit_price
+        FROM web_orders o
+        LEFT JOIN web_order_items i
+            ON i.web_order_id = o.id
+        WHERE o.id = ?
+    """;
 
     @Override
     public List<WebOrder> findPendingOlderThanMinutes(int minutes) {
@@ -148,5 +161,70 @@ public class WebOrderRepositoryImpl implements WebOrderRepository {
     public int updatePaymentIdIfNull(Long orderId, String paymentId) {
         return jdbcTemplate.update(UPDATE_PAYMENT_IF_NULL, paymentId, orderId);
     }
+
+    @Override
+    public WebOrderWithItems findOrderById(Long orderId) {
+
+        return jdbcTemplate.query(
+                GET_ORDER_WITH_ITEMS,
+                new Object[]{orderId},
+                rs -> {
+
+                    WebOrderWithItems order = null;
+                    List<WebOrderItem> items = new ArrayList<>();
+
+                    while (rs.next()) {
+
+                        if (order == null) {
+                            order = new WebOrderWithItems();
+                            order.setId(rs.getLong("order_id"));
+                            order.setCustomerName(rs.getString("customer_name"));
+                            order.setCustomerEmail(rs.getString("customer_email"));
+                            order.setCustomerPhone(rs.getString("customer_phone"));
+                            order.setTotalAmount(rs.getBigDecimal("total_amount"));
+                            order.setStatus(rs.getString("status"));
+                            order.setPreferenceId(rs.getString("preference_id"));
+                            order.setPaymentId(rs.getString("payment_id"));
+                            order.setShipped(rs.getBoolean("shipped"));
+                            order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                        }
+
+                        Long itemId = rs.getLong("item_id");
+                        if (!rs.wasNull()) {
+                            WebOrderItem item = new WebOrderItem();
+                            item.setId(itemId);
+                            item.setWebOrderId(orderId);
+                            item.setProductId(rs.getLong("product_id"));
+                            item.setProductName(rs.getString("product_name"));
+                            item.setQuantity(rs.getInt("quantity"));
+                            item.setUnitPrice(rs.getBigDecimal("unit_price"));
+                            items.add(item);
+                        }
+                    }
+
+                    if (order == null) {
+                        throw new EmptyResultDataAccessException(1);
+                    }
+
+                    order.setItems(items);
+                    return order;
+                }
+        );
+    }
+
+    private final RowMapper<WebOrder> mapper = (rs, rowNum) -> {
+        WebOrder o = new WebOrder();
+        o.setId(rs.getLong("id"));
+        o.setCustomerName(rs.getString("customer_name"));
+        o.setCustomerEmail(rs.getString("customer_email"));
+        o.setCustomerPhone(rs.getString("customer_phone"));
+        o.setTotalAmount(rs.getBigDecimal("total_amount"));
+        o.setStatus(rs.getString("status"));
+        o.setPreferenceId(rs.getString("preference_id"));
+        o.setPaymentId(rs.getString("payment_id"));
+        o.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        o.setShipped(rs.getBoolean("shipped"));
+        return o;
+    };
 
 }

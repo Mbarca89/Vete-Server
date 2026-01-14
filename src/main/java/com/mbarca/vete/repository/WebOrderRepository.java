@@ -1,6 +1,7 @@
 package com.mbarca.vete.repository;
 
 import com.mbarca.vete.domain.WebOrder;
+import com.mbarca.vete.domain.WebOrderWithItems;
 
 import java.util.Date;
 import java.util.List;
@@ -15,7 +16,7 @@ public interface WebOrderRepository {
     int updateStatusAndPaymentIfPending(Long orderId, String status, String paymentId);
     int updateStatusIfPending(Long orderId, String status);
     int updatePaymentIdIfNull(Long orderId, String paymentId);
-
+    WebOrderWithItems findOrderById(Long orderId);
     int shipOrder(Long orderId);
 
 }
