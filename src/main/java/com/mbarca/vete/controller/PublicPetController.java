@@ -3,10 +3,12 @@ package com.mbarca.vete.controller;
 import com.mbarca.vete.dto.response.OrderResponseDto;
 import com.mbarca.vete.dto.response.PublicPetProfileResponseDto;
 import com.mbarca.vete.service.PublicPetProfileService;
+import jakarta.annotation.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Date;
 import java.util.List;
@@ -41,5 +43,14 @@ public class PublicPetController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
+    }
+
+    @CrossOrigin
+    @GetMapping("/{publicId}/medical-history/{medicalHistoryId}/file")
+    public ResponseEntity<Resource> downloadMedicalHistoryFile(
+            @PathVariable UUID publicId,
+            @PathVariable Long medicalHistoryId
+    ) {
+        return publicPetProfileService.downloadMedicalHistoryFile(publicId, medicalHistoryId);
     }
 }

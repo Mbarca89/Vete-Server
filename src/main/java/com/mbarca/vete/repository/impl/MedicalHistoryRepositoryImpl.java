@@ -3,12 +3,14 @@ package com.mbarca.vete.repository.impl;
 import com.mbarca.vete.domain.MedicalHistory;
 import com.mbarca.vete.domain.Pet;
 import com.mbarca.vete.repository.MedicalHistoryRepository;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.List;
 import java.util.UUID;
 
@@ -37,6 +39,25 @@ public class MedicalHistoryRepositoryImpl implements MedicalHistoryRepository {
                 medicalHistory.getPetId(),
                 medicalHistory.getFile()
         );
+    }
+
+    public MedicalHistory getMedicalHistoryByIdAndPetId(Long medicalHistoryId, Long petId) {
+        String sql = """
+            SELECT id, date, type, notes, description, medicine, file
+            FROM MedicalHistory
+            WHERE id = ? AND patient_id = ?
+        """;
+
+        try {
+            return jdbcTemplate.queryForObject(
+                    sql,
+                    new Object[]{medicalHistoryId, petId},
+                    new int[]{Types.BIGINT, Types.BIGINT},
+                    new MedicalHistoryRowMapper() // el mapper que ya uses
+            );
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     @Override
