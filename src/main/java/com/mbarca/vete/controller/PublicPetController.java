@@ -1,17 +1,13 @@
 package com.mbarca.vete.controller;
 
-import com.mbarca.vete.dto.response.OrderResponseDto;
+
 import com.mbarca.vete.dto.response.PublicPetProfileResponseDto;
 import com.mbarca.vete.service.PublicPetProfileService;
-import jakarta.annotation.Resource;
-import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Date;
-import java.util.List;
 import java.util.UUID;
 
 @RestController
