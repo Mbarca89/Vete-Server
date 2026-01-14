@@ -1,5 +1,6 @@
 package com.mbarca.vete.scheduler;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mbarca.vete.domain.Reminder;
 import com.mbarca.vete.domain.VaccineNotification;
 import com.mbarca.vete.domain.WebOrder;
@@ -137,25 +138,35 @@ public class NotificationsScheduler {
     }
 
 
+    record WsSendReq(String number, String message) {}
+
+    private String normalizePhone(String phone) {
+        if (phone == null) return "";
+        return phone.replaceAll("[^0-9]", "");
+    }
+
     private boolean sendWhatsapp(String phone, String message) {
         try {
+            String number = normalizePhone(phone);
+
+            ObjectMapper om = new ObjectMapper();
+            String json = om.writeValueAsString(new WsSendReq(number, message));
+
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(new URI("http://localhost:3001/ws/send"))
+                    .uri(URI.create("http://127.0.0.1:3001/ws/send"))
                     .header("Content-Type", "application/json")
-                    .POST(HttpRequest.BodyPublishers.ofString(
-                            "{\"number\":\"" + phone + "\",\"message\":\"" + escapeJson(message) + "\"}"
-                    ))
+                    .version(HttpClient.Version.HTTP_1_1)
+                    .POST(HttpRequest.BodyPublishers.ofString(json))
                     .build();
 
             HttpClient client = HttpClient.newHttpClient();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-            if (response.statusCode() == 200) {
-                return true;
-            }
+            log.info("WS status={} body={}", response.statusCode(), response.body());
+            log.info("WS payload -> number='{}' len(message)={} url={}",
+                    phone, message != null ? message.length() : 0, "http://127.0.0.1:3001/ws/send");
 
-            log.warn("Error enviando WhatsApp. Status={} Body={}", response.statusCode(), response.body());
-            return false;
+            return response.statusCode() == 200;
 
         } catch (Exception e) {
             log.error("Error enviando WhatsApp", e);
@@ -163,12 +174,5 @@ public class NotificationsScheduler {
         }
     }
 
-    private String escapeJson(String s) {
-        if (s == null) return "";
-        return s.replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\r", "\\r")
-                .replace("\n", "\\n");
-    }
 }
 
