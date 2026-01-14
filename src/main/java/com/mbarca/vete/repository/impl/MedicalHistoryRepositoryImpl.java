@@ -43,17 +43,17 @@ public class MedicalHistoryRepositoryImpl implements MedicalHistoryRepository {
 
     public MedicalHistory getMedicalHistoryByIdAndPetId(Long medicalHistoryId, Long petId) {
         String sql = """
-            SELECT id, date, type, notes, description, medicine, file
-            FROM MedicalHistory
-            WHERE id = ? AND patient_id = ?
-        """;
+        SELECT id, date, type, notes, description, medicine, file
+        FROM medical_history
+        WHERE id = ? AND pet_id = ?
+    """;
 
         try {
             return jdbcTemplate.queryForObject(
                     sql,
                     new Object[]{medicalHistoryId, petId},
                     new int[]{Types.BIGINT, Types.BIGINT},
-                    new MedicalHistoryRowMapper() // el mapper que ya uses
+                    new MedicalHistoryRowMapper() // el mapper que ya usás
             );
         } catch (EmptyResultDataAccessException e) {
             return null;
