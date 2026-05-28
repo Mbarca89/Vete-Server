@@ -43,10 +43,15 @@ public class UserRepositoryImpl implements UserRepository {
         return jdbcTemplate.update(DELETE_USER, userName);
     }
 
-    public User findUserByName(String userName) {
+    public User findUserByName(String userName) throws UserNotFoundException {
         Object[] params = {userName};
         int[] types = {1};
-        return jdbcTemplate.queryForObject(FIND_USER_BY_NAME, params, types, new UserRowMapper());
+        try {
+        User user = jdbcTemplate.queryForObject(FIND_USER_BY_NAME, params, types, new UserRowMapper());
+        return  user;
+        } catch (Exception e)  {
+            throw new UserNotFoundException("Usuario no encontrado!");
+        }
     }
     @Override
     public List<User> getUsers() {
