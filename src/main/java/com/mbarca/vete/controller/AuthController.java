@@ -8,8 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.PreparedStatement;
-
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -28,7 +26,7 @@ public class AuthController {
             response = authService.login(request);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (UserNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
         }
     }
 }

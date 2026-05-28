@@ -16,8 +16,8 @@ import java.util.Objects;
 public class UserRepositoryImpl implements UserRepository {
 
     private final String CREATE_USER = "INSERT INTO Users (name, surname, user_name, password, role) VALUES (?, ?, ?, ?, ?)";
-    private final String DELETE_USER = "DELETE FROM Users WHERE user_name = ?";
-    final String FIND_USER_BY_NAME= "SELECT * FROM Users WHERE user_name = ?";
+    private final String DELETE_USER = "DELETE FROM Users WHERE LOWER(user_name) = LOWER(?)";
+    final String FIND_USER_BY_NAME= "SELECT * FROM Users WHERE LOWER(user_name) = LOWER(?)";
     final String FIND_USER_BY_ID= "SELECT * FROM Users WHERE id = ?";
     private final String GET_ALL_USERS = "SELECT * FROM Users";
     private final String EDIT_USER = "UPDATE users SET name = ?, surname = ?, password = ?, role = ? WHERE id = ?";
@@ -33,7 +33,7 @@ public class UserRepositoryImpl implements UserRepository {
         return jdbcTemplate.update(CREATE_USER,
                 user.getName(),
                 user.getSurname(),
-                user.getUserName(),
+                user.getUserName().toLowerCase(),
                 user.getPassword(),
                 user.getRole());
     }
@@ -44,10 +44,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     public User findUserByName(String userName) {
-        Object[] params = {userName};
-        int[] types = {1};
-        User user = jdbcTemplate.queryForObject(FIND_USER_BY_NAME, params, types, new UserRowMapper());
-        return  user;
+        List<User> users = jdbcTemplate.query(FIND_USER_BY_NAME, new UserRowMapper(), userName);
+        return users.stream().findFirst().orElse(null);
     }
     @Override
     public List<User> getUsers() {
@@ -58,9 +56,8 @@ public class UserRepositoryImpl implements UserRepository {
     public Integer editUser(User newUser) throws UserNotFoundException {
         User edituser = new User();
 
-        Object[] params = {newUser.getId()};
-        int[] types = {1};
-        User currentUser = jdbcTemplate.queryForObject(FIND_USER_BY_ID, params, types, new UserRowMapper());
+        List<User> users = jdbcTemplate.query(FIND_USER_BY_ID, new UserRowMapper(), newUser.getId());
+        User currentUser = users.stream().findFirst().orElse(null);
 
         if (currentUser == null) {
             throw new UserNotFoundException("Usuario no encontrado!");
@@ -69,7 +66,7 @@ public class UserRepositoryImpl implements UserRepository {
         edituser.setName(currentUser.getUserName());
         if (!newUser.getName().isEmpty()) edituser.setName(newUser.getName()); else edituser.setName(currentUser.getName());
         if (!newUser.getSurname().isEmpty()) edituser.setSurname(newUser.getSurname()); else edituser.setSurname(currentUser.getSurname());
-        if (!newUser.getUserName().isEmpty()) edituser.setUserName(newUser.getUserName()); else edituser.setUserName(currentUser.getUserName());
+        if (!newUser.getUserName().isEmpty()) edituser.setUserName(newUser.getUserName().toLowerCase()); else edituser.setUserName(currentUser.getUserName());
         if (!newUser.getPassword().isEmpty()) edituser.setPassword(newUser.getPassword()); else edituser.setPassword(currentUser.getPassword());
         if (!newUser.getRole().isEmpty()) edituser.setRole(newUser.getRole()); else edituser.setRole(currentUser.getRole());
 
