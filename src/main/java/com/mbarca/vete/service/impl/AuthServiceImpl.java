@@ -9,11 +9,9 @@ import com.mbarca.vete.service.AuthService;
 import com.mbarca.vete.service.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -29,8 +27,15 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponseDto login(LoginRequestDto request) throws UserNotFoundException {
-        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getUserName(), request.getPassword()));
-        User user = userRepository.findUserByName(request.getUserName());
+        String normalizedUserName = request.getUserName().toLowerCase();
+        try {
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(normalizedUserName, request.getPassword()));
+        } catch (BadCredentialsException e) {
+            throw new UserNotFoundException("Usuario o contraseña inválidos");
+        } catch (AuthenticationException e) {
+            throw new UserNotFoundException("No se pudo autenticar el usuario");
+        }
+        User user = userRepository.findUserByName(normalizedUserName);
 
         if (user == null) {
             throw new UserNotFoundException("Usuario no encontrado!");
