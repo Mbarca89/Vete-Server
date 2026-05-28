@@ -8,7 +8,7 @@ import java.util.List;
 public interface UserRepository {
     Integer createUser(User user);
     Integer deleteUser(String userName);
-    User findUserByName(String userName) throws UserNotFoundException;
+    User findUserByName(String userName);
     List<User> getUsers();
     Integer editUser(User user) throws UserNotFoundException;
 
