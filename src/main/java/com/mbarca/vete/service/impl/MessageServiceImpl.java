@@ -40,22 +40,14 @@ public class MessageServiceImpl implements MessageService {
 
     @Override
     public String forceMessage() {
-        try {
         notificationsScheduler.checkVaccineRecords();
-        return "Mensajes enviados!";
-        } catch (Exception e) {
-           return "Error al enviar mensajes: " + e.getMessage() ;
-        }
+        return "Mensajes pendientes/fallidos procesados!";
     }
 
     @Override
     public String forceReminders() {
-        try {
-            notificationsScheduler.checkReminders();
-            return "Recordatorios enviados!";
-        } catch (Exception e) {
-            return "Error al enviar recordatorios: " + e.getMessage() ;
-        }
+        notificationsScheduler.checkReminders();
+        return "Recordatorios pendientes/fallidos procesados!";
     }
 
     private MessageResponseDto mapMessageToDto(VaccineNotification message) {
@@ -65,6 +57,7 @@ public class MessageServiceImpl implements MessageService {
         messageResponseDto.setPetName(message.getPetName());
         messageResponseDto.setVaccineName(message.getVaccineName());
         messageResponseDto.setSent(message.getSent());
+        messageResponseDto.setFailureReason(message.getFailureReason());
         return messageResponseDto;
     }
 }

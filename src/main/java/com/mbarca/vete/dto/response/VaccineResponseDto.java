@@ -8,6 +8,8 @@ public class VaccineResponseDto {
     private Date date;
     private String name;
     private String notes;
+    private boolean sent;
+    private String failureReason;
 
     public VaccineResponseDto() {
     }
@@ -58,5 +60,21 @@ public class VaccineResponseDto {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isSent() {
+        return sent;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent = sent;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 }

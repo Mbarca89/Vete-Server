@@ -6,16 +6,18 @@ public class MessageResponseDto {
     private String petName;
     private String vaccineName;
     private Boolean sent;
+    private String failureReason;
 
     public MessageResponseDto() {
     }
 
-    public MessageResponseDto(String clientName, String clientPhone, String petName, String vaccineName, Boolean sent) {
+    public MessageResponseDto(String clientName, String clientPhone, String petName, String vaccineName, Boolean sent, String failureReason) {
         this.clientName = clientName;
         this.clientPhone = clientPhone;
         this.petName = petName;
         this.vaccineName = vaccineName;
         this.sent = sent;
+        this.failureReason = failureReason;
     }
 
     public String getClientName() {
@@ -56,5 +58,13 @@ public class MessageResponseDto {
 
     public void setSent(Boolean sent) {
         this.sent = sent;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 }

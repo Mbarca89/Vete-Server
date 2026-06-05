@@ -8,6 +8,8 @@ public class Vaccine {
     private Date date;
     private String notes;
     private Long petId;
+    private boolean sent;
+    private String failureReason;
 
     public Vaccine() {
     }
@@ -58,5 +60,21 @@ public class Vaccine {
 
     public void setPetId(Long petId) {
         this.petId = petId;
+    }
+
+    public boolean isSent() {
+        return sent;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent = sent;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 }

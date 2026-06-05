@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 public class MessagesRepositoryImpl implements MessagesRepository {
 
-    private final String SAVE_MESSAGE = "INSERT INTO Messages (client_name, client_phone, pet_name, vaccine, sent) VALUES (?,?,?,?,?)";
+    private final String SAVE_MESSAGE = "INSERT INTO Messages (client_name, client_phone, pet_name, vaccine, sent, failure_reason) VALUES (?,?,?,?,?,?)";
     private final String GET_MESSAGES = "SELECT * FROM Messages WHERE date = ?";
     JdbcTemplate jdbcTemplate;
 
@@ -29,7 +29,8 @@ public class MessagesRepositoryImpl implements MessagesRepository {
                 message.getClientPhone(),
                 message.getPetName(),
                 message.getVaccineName(),
-                message.getSent());
+                message.getSent(),
+                message.getFailureReason());
     }
 
     @Override
@@ -45,7 +46,8 @@ public class MessagesRepositoryImpl implements MessagesRepository {
                 message.getPhone(),
                 "Recordatorio manual",
                 message.getName(),
-                message.isSent());
+                message.isSent(),
+                message.getFailureReason());
     }
 
     static class MessageRowMapper implements RowMapper<VaccineNotification> {
@@ -57,6 +59,7 @@ public class MessagesRepositoryImpl implements MessagesRepository {
             message.setPetName(rs.getString("pet_name"));
             message.setVaccineName(rs.getString("vaccine"));
             message.setSent(rs.getBoolean("sent"));
+            message.setFailureReason(rs.getString("failure_reason"));
             return message;
         }
     }

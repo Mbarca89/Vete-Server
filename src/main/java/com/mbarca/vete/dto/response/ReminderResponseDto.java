@@ -9,6 +9,8 @@ public class ReminderResponseDto {
     private String notes;
     private Long petId;
     private String phone;
+    private boolean sent;
+    private String failureReason;
 
     public ReminderResponseDto(Long id, String name, Date date, String notes) {
         this.id = id;
@@ -66,5 +68,21 @@ public class ReminderResponseDto {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public boolean isSent() {
+        return sent;
+    }
+
+    public void setSent(boolean sent) {
+        this.sent = sent;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 }

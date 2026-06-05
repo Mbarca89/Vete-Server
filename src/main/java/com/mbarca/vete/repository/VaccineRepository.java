@@ -15,4 +15,5 @@ public interface VaccineRepository {
     List<Vaccine> getVaccinesByDate(Date date);
     Integer editVaccine (Vaccine vaccine);
     Integer deletePetVaccines(Long petId);
+    Integer updateNotificationStatus(VaccineNotification vaccineNotification);
 }

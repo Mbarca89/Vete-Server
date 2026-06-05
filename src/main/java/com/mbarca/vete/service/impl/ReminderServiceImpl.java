@@ -85,6 +85,8 @@ public class ReminderServiceImpl implements ReminderService {
         reminderResponseDto.setDate(reminder.getDate());
         reminderResponseDto.setNotes(reminder.getNotes());
         reminderResponseDto.setPhone(reminder.getPhone());
+        reminderResponseDto.setSent(reminder.isSent());
+        reminderResponseDto.setFailureReason(reminder.getFailureReason());
         return reminderResponseDto;
     }
 }

@@ -150,6 +150,8 @@ CREATE TABLE IF NOT EXISTS Vaccines (
     date DATE NOT NULL,
     name VARCHAR(50) NOT NULL,
     notes TEXT,
+    sent BOOLEAN DEFAULT FALSE,
+    failure_reason TEXT,
     pet_id BIGINT,
     FOREIGN KEY (pet_id) REFERENCES Pets(id)
 );
@@ -159,7 +161,9 @@ CREATE TABLE IF NOT EXISTS Reminders (
     date DATE NOT NULL,
     name VARCHAR(50) NOT NULL,
     notes TEXT,
-    phone VARCHAR(50)
+    phone VARCHAR(50),
+    sent BOOLEAN DEFAULT FALSE,
+    failure_reason TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Messages (
@@ -169,8 +173,15 @@ CREATE TABLE IF NOT EXISTS Messages (
     client_phone VARCHAR(50) NOT NULL,
     pet_name VARCHAR(50) NOT NULL,
     vaccine VARCHAR(50) NOT NULL,
-    sent BOOLEAN DEFAULT FALSE
+    sent BOOLEAN DEFAULT FALSE,
+    failure_reason TEXT
 );
+
+ALTER TABLE Vaccines ADD COLUMN IF NOT EXISTS sent BOOLEAN DEFAULT FALSE;
+ALTER TABLE Vaccines ADD COLUMN IF NOT EXISTS failure_reason TEXT;
+ALTER TABLE Reminders ADD COLUMN IF NOT EXISTS sent BOOLEAN DEFAULT FALSE;
+ALTER TABLE Reminders ADD COLUMN IF NOT EXISTS failure_reason TEXT;
+ALTER TABLE Messages ADD COLUMN IF NOT EXISTS failure_reason TEXT;
 
 CREATE TABLE IF NOT EXISTS Payments (
     id BIGINT PRIMARY KEY AUTO_INCREMENT NOT NULL,

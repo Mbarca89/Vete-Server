@@ -16,12 +16,13 @@ import java.util.List;
 @Repository
 public class ReminderRepositoryImpl implements ReminderRepository {
 
-    private final String CREATE_REMINDER = "INSERT INTO Reminders (name, date, notes, phone) VALUES (?,?,?,?)";
+    private final String CREATE_REMINDER = "INSERT INTO Reminders (name, date, notes, phone, sent, failure_reason) VALUES (?,?,?,?,?,?)";
     private final String DELETE_REMINDER = "DELETE FROM Reminders WHERE id = ?";
     private final String GET_REMINDERS = "SELECT * FROM Reminders WHERE date = ?";
     private final String GET_REMINDER_BY_ID = "SELECT * FROM Reminders WHERE id = ?";
-    private final String GET_TODAY_REMINDER = "SELECT * FROM Reminders WHERE date = ?";
+    private final String GET_TODAY_REMINDER = "SELECT * FROM Reminders WHERE date = ? AND COALESCE(sent, FALSE) = FALSE";
     private final String EDIT_REMINDER = "UPDATE reminders SET name = ?, date = ?, notes = ?, phone = ? WHERE id = ?";
+    private final String UPDATE_NOTIFICATION_STATUS = "UPDATE Reminders SET sent = ?, failure_reason = ? WHERE id = ?";
     JdbcTemplate jdbcTemplate;
     public ReminderRepositoryImpl(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -33,7 +34,9 @@ public class ReminderRepositoryImpl implements ReminderRepository {
                 reminder.getName(),
                 reminder.getDate(),
                 reminder.getNotes(),
-                reminder.getPhone()
+                reminder.getPhone(),
+                false,
+                null
                 );
     }
 
@@ -63,6 +66,11 @@ public class ReminderRepositoryImpl implements ReminderRepository {
         return jdbcTemplate.update(EDIT_REMINDER, reminder.getName(), reminder.getDate(), reminder.getNotes(), reminder.getPhone(), reminder.getId());
     }
 
+    @Override
+    public Integer updateNotificationStatus(Reminder reminder) {
+        return jdbcTemplate.update(UPDATE_NOTIFICATION_STATUS, reminder.isSent(), reminder.getFailureReason(), reminder.getId());
+    }
+
     static class ReminderRowMapper implements RowMapper<Reminder> {
         @Override
         public Reminder mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -72,6 +80,8 @@ public class ReminderRepositoryImpl implements ReminderRepository {
             reminder.setDate(rs.getDate("date"));
             reminder.setNotes(rs.getString("notes"));
             reminder.setPhone(rs.getString("phone"));
+            reminder.setSent(rs.getBoolean("sent"));
+            reminder.setFailureReason(rs.getString("failure_reason"));
             return reminder;
         }
     }

@@ -9,6 +9,7 @@ public class Reminder {
     private String notes;
     private String phone;
     private boolean sent;
+    private String failureReason;
 
     public Reminder() {
     }
@@ -66,5 +67,13 @@ public class Reminder {
 
     public void setSent(boolean sent) {
         this.sent = sent;
+    }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
     }
 }

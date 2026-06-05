@@ -1,21 +1,33 @@
 package com.mbarca.vete.domain;
 
 public class VaccineNotification {
+    private Long vaccineId;
     private String clientName;
     private String clientPhone;
     private String petName;
     private String vaccineName;
     private Boolean sent;
+    private String failureReason;
 
     public VaccineNotification() {
     }
 
-    public VaccineNotification(String clientName, String clientPhone, String petName, String vaccineName, Boolean sent) {
+    public VaccineNotification(Long vaccineId, String clientName, String clientPhone, String petName, String vaccineName, Boolean sent, String failureReason) {
+        this.vaccineId = vaccineId;
         this.clientName = clientName;
         this.clientPhone = clientPhone;
         this.petName = petName;
         this.vaccineName = vaccineName;
         this.sent = sent;
+        this.failureReason = failureReason;
+    }
+
+    public Long getVaccineId() {
+        return vaccineId;
+    }
+
+    public void setVaccineId(Long vaccineId) {
+        this.vaccineId = vaccineId;
     }
 
     public String getClientName() {
@@ -57,13 +69,25 @@ public class VaccineNotification {
     public void setSent(Boolean sent) {
         this.sent = sent;
     }
+
+    public String getFailureReason() {
+        return failureReason;
+    }
+
+    public void setFailureReason(String failureReason) {
+        this.failureReason = failureReason;
+    }
+
     @Override
     public String toString() {
         return "VaccineNotification{" +
-                "clientName='" + clientName + '\'' +
+                "vaccineId=" + vaccineId +
+                ", clientName='" + clientName + '\'' +
                 ", clientPhone='" + clientPhone + '\'' +
                 ", petName='" + petName + '\'' +
                 ", vaccineName='" + vaccineName + '\'' +
+                ", sent=" + sent +
+                ", failureReason='" + failureReason + '\'' +
                 '}';
     }
 

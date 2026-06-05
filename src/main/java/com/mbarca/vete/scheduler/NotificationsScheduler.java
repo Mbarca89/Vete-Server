@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -29,6 +27,7 @@ public class NotificationsScheduler {
     VaccineRepository vaccineRepository;
     ReminderRepository reminderRepository;
     MessagesRepository messagesRepository;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public NotificationsScheduler(VaccineRepository vaccineRepository, ReminderRepository reminderRepository, MessagesRepository messagesRepository) {
         this.vaccineRepository = vaccineRepository;
@@ -41,51 +40,45 @@ public class NotificationsScheduler {
 
 
     @Scheduled(cron = "0 00 10 * * *")
-    public void checkVaccineRecords() throws Exception {
+    public void checkVaccineRecords() {
         List<VaccineNotification> vaccineNotifications = vaccineRepository.getTodayVaccines();
         for (VaccineNotification vaccineNotification : vaccineNotifications) {
-            try {
-                HttpRequest request = HttpRequest.newBuilder()
-                        .uri(new URI("http://localhost:3001/ws/send"))
-                        .header("Content-Type", "application/json")
-                        .POST(HttpRequest.BodyPublishers.ofString("{\"number\": \"" + vaccineNotification.getClientPhone() + "\",\"message\": \"" + "Hola " + vaccineNotification.getClientName() + "! Te recordamos que hoy tenés un turno para " + vaccineNotification.getPetName() + ". Motivo: " + vaccineNotification.getVaccineName() + "\" }"))
-                        .version(HttpClient.Version.HTTP_1_1)
-                        .build();
-                HttpResponse<String> response;
-                try (HttpClient http = HttpClient.newHttpClient()) {
-                    response = http.send(request, HttpResponse.BodyHandlers.ofString());
-                }
-                if(response.statusCode() == 200) vaccineNotification.setSent(true);
-                messagesRepository.saveMessage(vaccineNotification);
-            } catch (URISyntaxException | IOException | InterruptedException e) {
-                throw new Exception(e.getMessage());
-            }
+            String message = buildVaccineMessage(vaccineNotification);
+            SendResult result = sendWhatsappDetailed(vaccineNotification.getClientPhone(), message);
+
+            vaccineNotification.setSent(result.sent());
+            vaccineNotification.setFailureReason(result.failureReason());
+            vaccineRepository.updateNotificationStatus(vaccineNotification);
+            messagesRepository.saveMessage(vaccineNotification);
         }
     }
 
     @Scheduled(cron = "0 01 10 * * *")
-    public void checkReminders() throws Exception {
+    public void checkReminders() {
         List<Reminder> reminders = reminderRepository.getTodayReminder();
         for (Reminder reminder : reminders) {
-            if (reminder.getPhone() != null) {
-                try {
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(new URI("http://localhost:3001/ws/send"))
-                            .header("Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.ofString("{\"number\": \"" + reminder.getPhone() + "\",\"message\": \"" + "Hola! Veterinaria del Parque te recuerda que hoy tenés un turno para " + reminder.getName() + "\" }"))
-                            .version(HttpClient.Version.HTTP_1_1)
-                            .build();
-                    HttpResponse<String> response;
-                    try (HttpClient http = HttpClient.newHttpClient()) {
-                        response = http.send(request, HttpResponse.BodyHandlers.ofString());
-                    }
-                    if (response.statusCode() == 200) reminder.setSent(true);
-                    messagesRepository.saveReminder(reminder);
-                } catch (URISyntaxException | IOException | InterruptedException e) {
-                    throw new Exception(e.getMessage());
-                }
-            }
+            String message = buildReminderMessage(reminder);
+            SendResult result = sendWhatsappDetailed(reminder.getPhone(), message);
+
+            reminder.setSent(result.sent());
+            reminder.setFailureReason(result.failureReason());
+            reminderRepository.updateNotificationStatus(reminder);
+            messagesRepository.saveReminder(reminder);
         }
+    }
+
+    private String buildVaccineMessage(VaccineNotification vaccineNotification) {
+        return "Hola " + vaccineNotification.getClientName() + " 👋\n\n"
+                + "Te recordamos que hoy " + vaccineNotification.getPetName() + " tiene un turno en *Veterinaria del Parque*.\n\n"
+                + "Motivo: *" + vaccineNotification.getVaccineName() + "*\n\n"
+                + "Si necesitás reprogramarlo, respondé este mensaje y te ayudamos.";
+    }
+
+    private String buildReminderMessage(Reminder reminder) {
+        return "Hola 👋\n\n"
+                + "Desde *Veterinaria del Parque* te recordamos que hoy tenés un turno pendiente.\n\n"
+                + "Motivo: *" + reminder.getName() + "*\n\n"
+                + "Si necesitás reprogramarlo, respondé este mensaje y coordinamos un nuevo horario.";
     }
 
     public void sendOrderConfirmation(WebOrder order, List<WebOrderItem> items) {
@@ -128,7 +121,7 @@ public class NotificationsScheduler {
                 .append("🐾 *Ficha médica de ").append(petName).append("*\n\n")
                 .append("Ya podés acceder a la información de tu mascota desde el siguiente enlace:\n\n")
                 .append("🔗 ").append(publicProfileUrl).append("\n\n")
-                .append("📋 Ahi vas a encontrar datos importantes como:\n")
+                .append("📋 Ahí vas a encontrar datos importantes como:\n")
                 .append("• Información general\n")
                 .append("• Historial médico\n")
                 .append("• Vacunas y controles\n\n")
@@ -139,6 +132,7 @@ public class NotificationsScheduler {
 
 
     record WsSendReq(String number, String message) {}
+    record SendResult(boolean sent, String failureReason) {}
 
     private String normalizePhone(String phone) {
         if (phone == null) return "";
@@ -146,11 +140,17 @@ public class NotificationsScheduler {
     }
 
     private boolean sendWhatsapp(String phone, String message) {
+        return sendWhatsappDetailed(phone, message).sent();
+    }
+
+    private SendResult sendWhatsappDetailed(String phone, String message) {
         try {
             String number = normalizePhone(phone);
+            if (number.isBlank()) {
+                return new SendResult(false, "No se pudo enviar: telefono vacio o invalido");
+            }
 
-            ObjectMapper om = new ObjectMapper();
-            String json = om.writeValueAsString(new WsSendReq(number, message));
+            String json = objectMapper.writeValueAsString(new WsSendReq(number, message));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create("http://127.0.0.1:3001/ws/send"))
@@ -166,13 +166,26 @@ public class NotificationsScheduler {
             log.info("WS payload -> number='{}' len(message)={} url={}",
                     phone, message != null ? message.length() : 0, "http://127.0.0.1:3001/ws/send");
 
-            return response.statusCode() == 200;
+            if (response.statusCode() == 200) {
+                return new SendResult(true, null);
+            }
+
+            return new SendResult(false, "WS respondio HTTP " + response.statusCode() + ": " + truncate(response.body()));
 
         } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
             log.error("Error enviando WhatsApp", e);
-            return false;
+            return new SendResult(false, "Error enviando WhatsApp: " + truncate(e.getMessage()));
         }
     }
 
-}
+    private String truncate(String value) {
+        if (value == null || value.isBlank()) {
+            return "sin detalle";
+        }
+        return value.length() <= 250 ? value : value.substring(0, 250);
+    }
 
+}

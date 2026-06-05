@@ -94,6 +94,8 @@ public class VaccineServiceImpl implements VaccineService {
         vaccineResponseDto.setDate(vaccine.getDate());
         vaccineResponseDto.setNotes(vaccine.getNotes());
         vaccineResponseDto.setPetId(vaccine.getPetId());
+        vaccineResponseDto.setSent(vaccine.isSent());
+        vaccineResponseDto.setFailureReason(vaccine.getFailureReason());
         return vaccineResponseDto;
     }
 
@@ -103,6 +105,8 @@ public class VaccineServiceImpl implements VaccineService {
         response.setDate(vaccine.getDate());
         response.setId(vaccine.getId());
         response.setPetId(vaccine.getPetId());
+        response.setSent(vaccine.isSent());
+        response.setFailureReason(vaccine.getFailureReason());
         return response;
     }
 

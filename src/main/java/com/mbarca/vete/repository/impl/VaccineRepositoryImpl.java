@@ -22,12 +22,14 @@ public class VaccineRepositoryImpl implements VaccineRepository {
 
     @Override
     public Integer createVaccine(Vaccine vaccine) {
-        String CREATE_VACCINE = "INSERT INTO Vaccines (name, date, notes, pet_id) VALUES (?,?,?,?)";
+        String CREATE_VACCINE = "INSERT INTO Vaccines (name, date, notes, pet_id, sent, failure_reason) VALUES (?,?,?,?,?,?)";
         return jdbcTemplate.update(CREATE_VACCINE,
                 vaccine.getName(),
                 vaccine.getDate(),
                 vaccine.getNotes(),
-                vaccine.getPetId());
+                vaccine.getPetId(),
+                false,
+                null);
     }
 
     @Override
@@ -42,20 +44,22 @@ public class VaccineRepositoryImpl implements VaccineRepository {
     public List<VaccineNotification> getTodayVaccines() {
         LocalDate currentDate = LocalDate.now();
 
-        String GET_TODAY_VACCINES = "SELECT c.name AS client_name, c.phone AS client_phone, " +
-                "p.name AS pet_name, v.name AS vaccine_name " +
+        String GET_TODAY_VACCINES = "SELECT v.id AS vaccine_id, c.name AS client_name, c.phone AS client_phone, " +
+                "p.name AS pet_name, v.name AS vaccine_name, v.sent AS sent, v.failure_reason AS failure_reason " +
                 "FROM Vaccines v " +
                 "JOIN ClientPets cp ON v.pet_id = cp.pet_id " +
                 "JOIN Clients c ON cp.client_id = c.id " +
                 "JOIN Pets p ON cp.pet_id = p.id " +
-                "WHERE v.date = ?";
+                "WHERE v.date = ? AND COALESCE(v.sent, FALSE) = FALSE";
         return jdbcTemplate.query(GET_TODAY_VACCINES, new Object[]{currentDate}, (rs, rowNum) ->
                 new VaccineNotification(
+                        rs.getLong("vaccine_id"),
                         rs.getString("client_name"),
                         rs.getString("client_phone"),
                         rs.getString("pet_name"),
                         rs.getString("vaccine_name"),
-                        false));
+                        rs.getBoolean("sent"),
+                        rs.getString("failure_reason")));
     }
 
     @Override
@@ -89,6 +93,15 @@ public class VaccineRepositoryImpl implements VaccineRepository {
         return jdbcTemplate.update(EDIT_VACCINE, vaccine.getName(), vaccine.getDate(), vaccine.getNotes(), vaccine.getId());
     }
 
+    @Override
+    public Integer updateNotificationStatus(VaccineNotification vaccineNotification) {
+        String UPDATE_NOTIFICATION_STATUS = "UPDATE Vaccines SET sent = ?, failure_reason = ? WHERE id = ?";
+        return jdbcTemplate.update(UPDATE_NOTIFICATION_STATUS,
+                vaccineNotification.getSent(),
+                vaccineNotification.getFailureReason(),
+                vaccineNotification.getVaccineId());
+    }
+
 
     static class VaccineReminderRowMapper implements RowMapper<Vaccine> {
         Date date;
@@ -117,6 +130,8 @@ public class VaccineRepositoryImpl implements VaccineRepository {
             vaccine.setDate(rs.getDate("date"));
             vaccine.setNotes(rs.getString("notes"));
             vaccine.setPetId(rs.getLong("pet_id"));
+            vaccine.setSent(rs.getBoolean("sent"));
+            vaccine.setFailureReason(rs.getString("failure_reason"));
             return vaccine;
         }
     }
